@@ -14,6 +14,7 @@ import logs.ViLogger;
 import model.ILPModel;
 import model.MEBModel;
 import model.SMTModel;
+import model.SMTModelLP;
 	
 	public class Main {
 	    public static final String INST_ID = "# instance_ID: ";
@@ -30,7 +31,7 @@ import model.SMTModel;
 			Random rnd = new Random();
 			int iter = 1;
 			ArrayList<Integer> crossList = new ArrayList<Integer>();
-			boolean generate = true;
+			boolean generate = false;
 			boolean draw = true;
 			for (int i = 0; i < iter; i++) {
 				ILPModel model;
@@ -61,7 +62,7 @@ import model.SMTModel;
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					model = new SMTModel(amplFile);					
+					model = new SMTModelLP(amplFile);					
 					model.populate();				
 					model.createModel();
 					model.solve();					

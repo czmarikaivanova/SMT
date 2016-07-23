@@ -23,12 +23,12 @@ public class SMTModel extends ILPModel {
 	static int[] nondests;	
 	static int[] vertices;
 	static double [][]	 requir;	
-	int n; 
-	int d;
+	protected int n; 
+	protected int d;
 	
-	private IloNumVar[][][] x;
-	private IloNumVar[][][] y;	
-	private IloNumVar[][] z;
+	protected IloNumVar[][][] x;
+	protected IloNumVar[][][] y;	
+	protected IloNumVar[][] z;
 
 
 	public void createModel() {
