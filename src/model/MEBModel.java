@@ -106,7 +106,6 @@ public class MEBModel extends ILPModel {
 				cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b)));
 			}				
 			
-			
 			// capacity
 			for (int k = 1; k < d; k++) {
 				for (int i = 1; i < d; n++) {
