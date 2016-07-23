@@ -31,10 +31,10 @@ public class SMTModel extends ILPModel {
 	private IloNumVar[][] z;
 
 
-//	public void createModel() {
-//		initVars();
-//		createConstraints();
-//	}
+	public void createModel() {
+		initVars();
+		createConstraints();
+	}
 	
 	protected void initVars() {
 		try {
@@ -44,27 +44,22 @@ public class SMTModel extends ILPModel {
 			x = new IloNumVar[n][n][];
 			y = new IloNumVar[n][n][];				
 			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-	//				x[i][j] = cplex.numVarArray(d,0,1);
-	//				y[i][j] = cplex.numVarArray(d,0,1);						
+				for (int j = 0; j < n; j++) {				
 					x[i][j] = cplex.boolVarArray(d);
 					y[i][j] = cplex.boolVarArray(d);				
 				}					
 			}
 			z = new IloNumVar[n][];				
-			for (int j = 0; j < n; j++) {
-				//z[j] = cplex.numVarArray(n,0,1);		
+			for (int j = 0; j < n; j++) {		
 				z[j] = cplex.boolVarArray(n);	
 			}									
 		} catch (IloException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	public void createModel() {
+	public void createConstraints() {
 		try {
-			initVars();
 			// create model and solve it				
 			IloLinearNumExpr obj = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {
