@@ -30,7 +30,7 @@ import model.SMTModel;
 			Random rnd = new Random();
 			int iter = 1;
 			ArrayList<Integer> crossList = new ArrayList<Integer>();
-			boolean generate = true;
+			boolean generate = false;
 			boolean draw = true;
 			for (int i = 0; i < iter; i++) {
 				ILPModel model;
@@ -61,7 +61,7 @@ import model.SMTModel;
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					model = new MEBModel(amplFile);					
+					model = new SMTModel(amplFile);					
 					model.populate();				
 					model.createModel();
 					model.solve();					
