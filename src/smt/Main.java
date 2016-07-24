@@ -34,27 +34,8 @@ import model.SMTModelLP;
 			boolean generate = true;
 			boolean draw = true;
 			for (int i = 0; i < iter; i++) {
-				ILPModel model;
-				if (generate) {						
-					
+				runModel(new SMTModel(input), generate, draw)
 
-				}
-				else {
-
-
-					model = new SMTModelLP(amplFile);					
-					model.populate();				
-					model.createModel();
-					model.solve();					
-					boolean[][] z = model.getZVar();	
-				//	double[] p = model.getPVar();
-					if (hasCrossing(z)) {
-						crossList.add(-1);
-					}
-					if (draw) {
-						draw(z, -1);						
-					}					
-				}
 			}
 
 			
