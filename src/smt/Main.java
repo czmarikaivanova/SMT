@@ -74,8 +74,9 @@ import model.SMTModelLP;
 			else {
 				createPoints();
 				instId = -1;
+				amplFile = generateAMPLData(-1);
 				try {
-					amplFile = new File
+
 					amplFile.createNewFile();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
