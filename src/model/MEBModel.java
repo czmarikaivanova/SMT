@@ -24,13 +24,12 @@ public class MEBModel extends ILPModel {
 	int d;
 	
 	private IloNumVar[][][] x;
-	private IloNumVar[] p;	
-	private IloNumVar[][] z;
+	private IloNumVar[] p;		
 	
 	@Override
 	public void createModel() {
 		try {
-			int n = vertices.length;
+			n = vertices.length;
 			cplex = new IloCplex();
 			x = new IloNumVar[n][n][];
 			for (int i = 0; i < n; i++) {
@@ -126,7 +125,7 @@ public class MEBModel extends ILPModel {
 	@Override
 	
 	/**
-	 *  Create AMPL file
+	 *  Feed data structure from the AMPL file
 	 */
 	public void populate() {
 		try {
