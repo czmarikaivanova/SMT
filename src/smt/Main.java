@@ -31,7 +31,7 @@ import model.SMTModelLP;
 			Random rnd = new Random();
 			int iter = 1;
 			ArrayList<Integer> crossList = new ArrayList<Integer>();
-			boolean generate = false;
+			boolean generate = true;
 			boolean draw = true;
 			for (int i = 0; i < iter; i++) {
 				ILPModel model;
@@ -40,7 +40,6 @@ import model.SMTModelLP;
 					int instId = rnd.nextInt(100000);
 					saveInstance(instId);
 					File amplFile = generateAMPLData(instId);
-					//model = new SMTModel(amplFile);
 					model = new SMTModel(amplFile);
 					model.populate();	
 					model.createModel();

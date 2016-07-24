@@ -1,6 +1,7 @@
 package model;
 
 import ilog.concert.IloException;
+import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 import java.io.File;
 
@@ -9,14 +10,14 @@ public abstract class ILPModel {
 	protected File input;
 	protected IloCplex cplex;
 
+	protected IloNumVar[][] z;
+	
 	public ILPModel(File input) {
 		this.input = input;
 	}
 	
 	public abstract void createModel();
 	public abstract void populate();	
-	public abstract boolean[][] getZVar();
-	
 
 	public boolean solve() {
 		try {
@@ -31,6 +32,27 @@ public abstract class ILPModel {
 	public IloCplex getModel() {
 		return cplex;
 	}
+	
+	public boolean[][] getZVar() {
+		try {
+			boolean[][] zval = new boolean[z.length][z.length];
+			for (int i = 0 ; i < z.length; i++) {
+				for (int j = 0; j < z.length; j++) {
+					if (i < j) {
+						System.out.print(cplex.getValue(z[i][j]) + " ");						
+						zval[i][j] = cplex.getValue(z[i][j]) < 0.5 ? false : true;						
+					}
+				}
+				System.out.println();
+			}
+			System.out.println("Objective: " + cplex.getObjValue());
+			cplex.end();
+			return zval;		
+		} catch (IloException e) {			
+			e.printStackTrace();
+			return null;
+		}		
+	}		
 	
 	public static boolean isNumeric(String str)  {  
 		  try  {  
