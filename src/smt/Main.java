@@ -30,56 +30,45 @@ import model.SMTModelLP;
 		public static void main(String[] args) throws IloException {		
 
 			int iter = 1;
-
+			ArrayList<Integer> crossList = new ArrayList<Integer>();
 			boolean generate = true;
 			boolean draw = true;
+			Random rnd = new Random();
+			int instId = rnd.nextInt(100000);	
 			for (int i = 0; i < iter; i++) {
-				runModel(new SMTModel(input), generate, draw)
-
-			}
-
-			
+				File amplFile = prepareAMPL(generate, instId);
+				ILPModel model = new SMTModel(amplFile);
+				model.populate();	
+				model.createModel();
+				model.solve();
+				boolean[][] z = model.getZVar();
+				if (hasCrossing(z)) {
+					crossList.add(instId);
+				}
+				if (draw) {
+					draw(z, instId);						
+				}			
+				System.err.println("Instances with crossing: ");
+				for (Integer c: crossList) {
+					System.err.println(c + "");	
+				}	
+			}				
 		}
 			
 		
-		private static void runModel(ILPModel model, boolean generate, boolean draw) {
-			Random rnd = new Random();
-			int instId;
-			ArrayList<Integer> crossList = new ArrayList<Integer>();
+		private static File prepareAMPL(boolean generate, int instId) {
 			File amplFile;
 			if (generate) {
-				generatePoints(nodeCount);	
-				instId = rnd.nextInt(100000);		
+				generatePoints(nodeCount);		
 				amplFile = generateAMPLData(instId);
 			}
 			else {
 				createPoints();
 				instId = -1;
-				amplFile = generateAMPLData(-1);
-				try {
-
-					amplFile.createNewFile();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}				
+				amplFile = generateAMPLData(-1);			
 			}
 			saveInstance(instId);
-			model = new SMTModel(amplFile);
-			model.populate();	
-			model.createModel();
-			model.solve();
-			boolean[][] z = model.getZVar();
-			if (hasCrossing(z)) {
-				crossList.add(instId);
-			}
-			if (draw) {
-				draw(z, instId);						
-			}			
-			System.err.println("Instances with crossing: ");
-			for (Integer c: crossList) {
-				System.err.println(c + "");	
-			}			
+			return amplFile;	
 		}
 		
 	    private static boolean hasCrossing(boolean[][] z) {
@@ -171,6 +160,7 @@ import model.SMTModelLP;
 	        frame.setVisible(true);
 	    }		
 	    
+		// also creates the file !
 	    private static File generateAMPLData( int instanceID) {
 	        try
 	        {
