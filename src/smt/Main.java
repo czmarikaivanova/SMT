@@ -28,39 +28,20 @@ import model.SMTModelLP;
 		 * @throws IloException 
 		 */
 		public static void main(String[] args) throws IloException {		
-			Random rnd = new Random();
+
 			int iter = 1;
-			ArrayList<Integer> crossList = new ArrayList<Integer>();
+
 			boolean generate = true;
 			boolean draw = true;
 			for (int i = 0; i < iter; i++) {
 				ILPModel model;
-				if (generate) {		
-					generatePoints(nodeCount);						
-					int instId = rnd.nextInt(100000);
-					saveInstance(instId);
-					File amplFile = generateAMPLData(instId);
-					model = new SMTModel(amplFile);
-					model.populate();	
-					model.createModel();
-					model.solve();
-					boolean[][] z = model.getZVar();
-					if (hasCrossing(z)) {
-						crossList.add(instId);
-					}
-					if (draw) {
-						draw(z, instId);						
-					}
+				if (generate) {						
+					
+
 				}
 				else {
-					createPoints();
-					File amplFile = generateAMPLData(1);
-					try {
-						amplFile.createNewFile();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+
+
 					model = new SMTModelLP(amplFile);					
 					model.populate();				
 					model.createModel();
@@ -75,13 +56,50 @@ import model.SMTModelLP;
 					}					
 				}
 			}
-			System.err.println("Instances with crossing: ");
-			for (Integer c: crossList) {
-				System.err.println(c + "");	
-			}
+
 			
 		}
 			
+		
+		private static void runModel(ILPModel model, boolean generate, boolean draw) {
+			Random rnd = new Random();
+			int instId;
+			ArrayList<Integer> crossList = new ArrayList<Integer>();
+			File amplFile;
+			if (generate) {
+				generatePoints(nodeCount);	
+				instId = rnd.nextInt(100000);		
+				amplFile = generateAMPLData(instId);
+			}
+			else {
+				createPoints();
+				instId = -1;
+				try {
+					amplFile = new File
+					amplFile.createNewFile();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}				
+			}
+			saveInstance(instId);
+			model = new SMTModel(amplFile);
+			model.populate();	
+			model.createModel();
+			model.solve();
+			boolean[][] z = model.getZVar();
+			if (hasCrossing(z)) {
+				crossList.add(instId);
+			}
+			if (draw) {
+				draw(z, instId);						
+			}			
+			System.err.println("Instances with crossing: ");
+			for (Integer c: crossList) {
+				System.err.println(c + "");	
+			}			
+		}
+		
 	    private static boolean hasCrossing(boolean[][] z) {
 			for (int i = 0; i < z.length; i++) {
 				for (int j = 0; j < z[i].length; j++) {
