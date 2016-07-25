@@ -31,7 +31,7 @@ import model.SMTModelLP;
 
 			int iter = 1;
 			ArrayList<Integer> crossList = new ArrayList<Integer>();
-			boolean generate = true;
+			boolean generate = false;
 			boolean draw = true;
 			Random rnd = new Random();
 			int instId = rnd.nextInt(100000);	

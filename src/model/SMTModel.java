@@ -249,6 +249,28 @@ public class SMTModel extends ILPModel {
 		}
 	}
 	
+	public boolean[][] getZVar() {
+		try {
+			boolean[][] zval = new boolean[z.length][z.length];
+			for (int i = 0 ; i < z.length; i++) {
+				for (int j = 0; j < z.length; j++) {
+					if (i < j) {
+						System.out.print(cplex.getValue(z[i][j]) + " ");						
+						zval[i][j] = cplex.getValue(z[i][j]) < 0.5 ? false : true;						
+					}
+				}
+				System.out.println();
+			}
+			System.out.println("Objective: " + cplex.getObjValue());
+			cplex.end();
+			return zval;		
+		} catch (IloException e) {			
+			e.printStackTrace();
+			return null;
+		}		
+	}		
+		
+	
 	private static void append() {
 		vertices = new int[dests.length + nondests.length];
 		for (int i = 0; i < dests.length; i++) {

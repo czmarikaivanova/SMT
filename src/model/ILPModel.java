@@ -18,7 +18,8 @@ public abstract class ILPModel {
 	
 	public abstract void createModel();
 	public abstract void populate();	
-
+	public abstract boolean[][] getZVar();
+	
 	public boolean solve() {
 		try {
 			return cplex.solve();
@@ -32,27 +33,6 @@ public abstract class ILPModel {
 	public IloCplex getModel() {
 		return cplex;
 	}
-	
-	public boolean[][] getZVar() {
-		try {
-			boolean[][] zval = new boolean[z.length][z.length];
-			for (int i = 0 ; i < z.length; i++) {
-				for (int j = 0; j < z.length; j++) {
-					if (i < j) {
-						System.out.print(cplex.getValue(z[i][j]) + " ");						
-						zval[i][j] = cplex.getValue(z[i][j]) < 0.5 ? false : true;						
-					}
-				}
-				System.out.println();
-			}
-			System.out.println("Objective: " + cplex.getObjValue());
-			cplex.end();
-			return zval;		
-		} catch (IloException e) {			
-			e.printStackTrace();
-			return null;
-		}		
-	}		
 	
 	public static boolean isNumeric(String str)  {  
 		  try  {  

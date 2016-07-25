@@ -49,7 +49,8 @@ public class Visualizer extends JPanel {
         g2d.fillOval((int) xu-5,(int) yu-5, 10, 10);
         g2d.drawString(Integer.toString(i), xu + 8, yu);
         g2d.setStroke(new BasicStroke(2));      
-        for (int j = i + 1; j < nodes.length; j++) {
+        for (int j = 0; j < nodes.length; j++) {
+    	//for (int j = i + 1; j < nodes.length; j++) {
         	if (z[i][j]) {
                 float xv = Math.round(nodes[j].getPoint().getX() * 10);
                 float yv = Math.round(nodes[j].getPoint().getY() * 10);

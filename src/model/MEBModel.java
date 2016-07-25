@@ -10,6 +10,7 @@ import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
+import ilog.cplex.IloCplex.UnknownObjectException;
 
 public class MEBModel extends ILPModel {
 
@@ -58,10 +59,11 @@ public class MEBModel extends ILPModel {
 			// -------------------------------------- constraints							
 			
 			// Assignment
-			IloLinearNumExpr expr = cplex.linearNumExpr();				
+						
 			for (int i = 0; i < n; i++) {					
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
+						IloLinearNumExpr expr = cplex.linearNumExpr();	
 						expr.addTerm(requir[i][j], z[i][j]);
 						cplex.addLe(expr, p[i]);	
 					}
@@ -76,16 +78,8 @@ public class MEBModel extends ILPModel {
 						IloLinearNumExpr expr1b = cplex.linearNumExpr();	
 						for (int j = 0; j < n; j++) {
 							if (i != j) {
-								try {
 								expr1a.addTerm(1.0, x[i][j][k]);									
 								expr1b.addTerm(1.0, x[j][i][k]);
-								}
-								catch (ArrayIndexOutOfBoundsException e) {
-									System.err.println("i = " + i);
-									System.err.println("j = " + j);
-									System.err.println("k = " + k);
-									System.exit(-1);
-								}
 							}								
 						}
 						cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));
@@ -183,6 +177,45 @@ public class MEBModel extends ILPModel {
 			return null;
 		}		
 	}	
+	
+	public boolean[][] getZVar() {
+		try {
+			boolean[][] zval = new boolean[z.length][z.length];
+			for (int i = 0 ; i < z.length; i++) {
+				for (int j = 0; j < z.length; j++) {
+					if (i != j) {
+						System.out.print(cplex.getValue(z[i][j]) + " ");						
+						zval[i][j] = cplex.getValue(z[i][j]) < 0.5 ? false : true;						
+					}
+				}
+				System.out.println();
+			}
+			System.out.println("Objective: " + cplex.getObjValue());
+			writeZ();
+			cplex.end();
+
+			return zval;		
+		} catch (IloException e) {			
+			e.printStackTrace();
+			return null;
+		}		
+	}		
+	
+	public void writeZ() {
+		for (int i = 0 ; i < z.length; i++) {
+			for (int j = 0; j < z.length; j++) {
+				if (i != j) {
+					try {
+						System.out.print("[" + i + ", " + j + "] = " + cplex.getValue(z[i][j]) + " ");
+					} catch (IloException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}										
+				}
+			}
+			System.out.println();
+		}
+	}
 	
 
 
