@@ -30,6 +30,7 @@ public class MEBModel extends ILPModel {
 	public void createModel() {
 		try {
 			n = vertices.length;
+			d = n - 1;
 			cplex = new IloCplex();
 			x = new IloNumVar[n][n][];
 			for (int i = 0; i < n; i++) {
@@ -68,19 +69,23 @@ public class MEBModel extends ILPModel {
 			}
 			
 			// Flow conservation - normal
-			for (int k = 1; k < d; k++) {					
-				for (int i = 1; i < d; i++) {
+			for (int k = 0; k < d; k++) {					
+				for (int i = 0; i < d; i++) {
 					if (k != i) {
 						IloLinearNumExpr expr1a = cplex.linearNumExpr();
 						IloLinearNumExpr expr1b = cplex.linearNumExpr();	
-						for (int j = 0; j < n; i++) {
+						for (int j = 0; j < n; j++) {
 							if (i != j) {
+								try {
 								expr1a.addTerm(1.0, x[i][j][k]);									
-							}								
-						}
-						for (int j = 0; j < n; i++) {
-							if (i != j) {
-								expr1b.addTerm(1.0, x[j][i][k]);									
+								expr1b.addTerm(1.0, x[j][i][k]);
+								}
+								catch (ArrayIndexOutOfBoundsException e) {
+									System.err.println("i = " + i);
+									System.err.println("j = " + j);
+									System.err.println("k = " + k);
+									System.exit(-1);
+								}
 							}								
 						}
 						cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));
@@ -89,16 +94,12 @@ public class MEBModel extends ILPModel {
 			}		
 			
 			// Flow conservation - dest
-			for (int k = 1; k < d; k++) {					
+			for (int k = 0; k < d; k++) {					
 				IloLinearNumExpr expr2a = cplex.linearNumExpr();
 				IloLinearNumExpr expr2b = cplex.linearNumExpr();	
 				for (int i = 0; i < n; i++) {
 					if (i != k) {
 						expr2a.addTerm(1.0, x[k][i][k]);									
-					}								
-				}
-				for (int i = 0; i < n; i++) {
-					if (i != k) {
 						expr2b.addTerm(1.0, x[i][k][k]);									
 					}								
 				}
@@ -106,8 +107,8 @@ public class MEBModel extends ILPModel {
 			}				
 			
 			// capacity
-			for (int k = 1; k < d; k++) {
-				for (int i = 1; i < d; n++) {
+			for (int k = 0; k < d; k++) {
+				for (int i = 0; i < n; i++) {
 					for (int j = 0; j < n; j++) {
 						if (j != i) {
 							IloLinearNumExpr expr3 = cplex.linearNumExpr();
