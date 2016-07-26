@@ -111,8 +111,20 @@ public class MEBModel extends ILPModel {
 						}
 					}
 				}
-			}
+			}		
 			
+			// one direction
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						IloLinearNumExpr expr6 = cplex.linearNumExpr();
+						for (int s = 0; s < d; s++) {							
+							expr6.addTerm(1.0, x[i][j][s]);					
+						}
+						cplex.addLe(z[i][j], expr6);	
+					}
+				}
+			}
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}	
@@ -148,7 +160,7 @@ public class MEBModel extends ILPModel {
 							for (String s: entries) {
 								s = s.trim();
 								String[] entry = s.split(" ");
-								requir[Integer.parseInt(entry[0])][Integer.parseInt(entry[1])] = Double.parseDouble(entry[2]);								
+								requir[Integer.parseInt(entry[0])][Integer.parseInt(entry[1])] = Double.parseDouble(entry[2]);	
 							}
 						}
 					}

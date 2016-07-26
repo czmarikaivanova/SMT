@@ -64,9 +64,7 @@ public class Visualizer extends JPanel {
         	}
         }
 
-    }
-    
-    
+    }      
   }
     
     /**
