@@ -111,7 +111,8 @@ public class MEBModel extends ILPModel {
 						}
 					}
 				}
-			}		
+			}
+			
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}	
