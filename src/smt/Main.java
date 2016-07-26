@@ -37,7 +37,7 @@ import model.SMTModelLP;
 			int instId = rnd.nextInt(100000);	
 			for (int i = 0; i < iter; i++) {
 				File amplFile = prepareAMPL(generate, instId);
-				ILPModel model = new SMTModel(amplFile);
+				ILPModel model = new MEBModel(amplFile);
 				model.populate();	
 				model.createModel();
 				model.solve();
