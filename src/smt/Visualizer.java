@@ -19,14 +19,16 @@ public class Visualizer extends JPanel {
     boolean[][] z;
     
     Node[] nodes;
+    boolean useArrows;
     
     private final String delimiter = "---------";
     
     
-    public Visualizer(boolean[][] z, Node[] nodes, int dstCount) {        
+    public Visualizer(boolean[][] z, Node[] nodes, int dstCount, boolean useArrows) {        
         this.z = z;
         this.nodes = nodes;        
         this.dstCount = dstCount;
+        this.useArrows = useArrows;
     }
     
     @Override
@@ -54,8 +56,14 @@ public class Visualizer extends JPanel {
         	if (z[i][j]) {
                 float xv = Math.round(nodes[j].getPoint().getX() * 10);
                 float yv = Math.round(nodes[j].getPoint().getY() * 10);
-//                g2d.draw(new Line2D.Float(xu, yu, xv, yv ));
-                drawArrowLine(g2d, (int) xu, (int) yu, (int) xv, (int) yv, 15, 5);
+
+                if (useArrows) {
+                    drawArrowLine(g2d, (int) xu, (int) yu, (int) xv, (int) yv, 15, 5);                	
+                }
+                else {
+                	g2d.draw(new Line2D.Float(xu, yu, xv, yv ));                	
+                }
+
                 
                 g2d.setColor(Color.BLUE);      
                 int dst = Math.round(Main.dst(nodes[i].getPoint(), nodes[j].getPoint()));

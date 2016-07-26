@@ -22,7 +22,7 @@ import model.SMTModelLP;
 	    static Node[] nodes;
 	    static int vertexCount;
 	    static int dstCount;
-	    static int nodeCount = 8;
+	    static int nodeCount =8;
 		/**
 		 * @param args
 		 * @throws IloException 
@@ -31,13 +31,13 @@ import model.SMTModelLP;
 
 			int iter = 1;
 			ArrayList<Integer> crossList = new ArrayList<Integer>();
-			boolean generate = false;
+			boolean generate = true;
 			boolean draw = true;
 			Random rnd = new Random();
 			int instId = rnd.nextInt(100000);	
 			for (int i = 0; i < iter; i++) {
 				File amplFile = prepareAMPL(generate, instId);
-				ILPModel model = new MEBModel(amplFile);
+				ILPModel model = new SMTModel(amplFile);
 				model.populate();	
 				model.createModel();
 				model.solve();
@@ -46,7 +46,13 @@ import model.SMTModelLP;
 					crossList.add(instId);
 				}
 				if (draw) {
-					draw(z, instId);						
+					if (model instanceof MEBModel) {
+						draw(z, instId, true);						
+					}
+					else {
+						draw(z, instId, false);
+					}
+						
 				}			
 				System.err.println("Instances with crossing: ");
 				for (Integer c: crossList) {
@@ -149,8 +155,8 @@ import model.SMTModelLP;
 			
 		}
 
-		private static void draw(boolean[][] z, int instId) {
-			Visualizer vis = new Visualizer(z, nodes, dstCount);
+		private static void draw(boolean[][] z, int instId, boolean useArrows) {
+			Visualizer vis = new Visualizer(z, nodes, dstCount, useArrows);
 			//Visualizer vis = new Visualizer(new File("instance.txt"), z, null);			
 	        JFrame frame = new JFrame("ID: " + instId);
 	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
