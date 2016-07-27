@@ -58,8 +58,18 @@ public class MEBModel extends ILPModel {
 			cplex.addMinimize(obj);				
 			// -------------------------------------- constraints							
 			
-			// Assignment
-						
+			// Size
+			IloLinearNumExpr expr0 = cplex.linearNumExpr();				
+			for (int i = 0; i < n; i++) {					
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						expr0.addTerm(1.0, z[i][j]);
+					}
+				}	
+			}			
+			cplex.addLe(expr0, n-1);					
+			
+			// Assignment						
 			for (int i = 0; i < n; i++) {					
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
@@ -76,12 +86,16 @@ public class MEBModel extends ILPModel {
 					if (k != i) {
 						IloLinearNumExpr expr1a = cplex.linearNumExpr();
 						IloLinearNumExpr expr1b = cplex.linearNumExpr();	
-						for (int j = 0; j < n; j++) {
+						for (int j = 0; j < d; j++) {
 							if (i != j) {
 								expr1a.addTerm(1.0, x[i][j][k]);									
-								expr1b.addTerm(1.0, x[j][i][k]);
 							}								
 						}
+						for (int j = 0; j < n; j++) {
+							if (i != j) {								
+								expr1b.addTerm(1.0, x[j][i][k]);
+							}								
+						}						
 						cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));
 					}
 				}	
@@ -113,18 +127,7 @@ public class MEBModel extends ILPModel {
 				}
 			}		
 			
-			// one direction
-			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					if (i != j) {
-						IloLinearNumExpr expr6 = cplex.linearNumExpr();
-						for (int s = 0; s < d; s++) {							
-							expr6.addTerm(1.0, x[i][j][s]);					
-						}
-						cplex.addLe(z[i][j], expr6);	
-					}
-				}
-			}
+
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}	

@@ -31,7 +31,7 @@ import model.SMTModelLP;
 
 			int iter = 1;
 			ArrayList<Integer> crossList = new ArrayList<Integer>();
-			boolean generate = true;
+			boolean generate = false;
 			boolean draw = true;
 			Random rnd = new Random();
 			int instId = rnd.nextInt(100000);	
@@ -239,7 +239,7 @@ import model.SMTModelLP;
 
 		private static void createPoints() {
 	    	try {
-				BufferedReader br = new BufferedReader(new FileReader("instances/crossing.txt"));
+				BufferedReader br = new BufferedReader(new FileReader("instances/instance3.txt"));
 				String line;
 				int cnt = 0;
 				try {
