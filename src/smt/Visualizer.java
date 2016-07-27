@@ -23,6 +23,8 @@ public class Visualizer extends JPanel {
     
     private final String delimiter = "---------";
     
+    public static final int MAX_COORD = 100;
+    public static final int WINDOW_SIZE = 1000;
     
     public Visualizer(boolean[][] z, Node[] nodes, int dstCount, boolean useArrows) {        
         this.z = z;

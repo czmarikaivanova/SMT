@@ -22,7 +22,7 @@ import model.SMTModelLP;
 	    static Node[] nodes;
 	    static int vertexCount;
 	    static int dstCount;
-	    static int nodeCount =8;
+	    static int nodeCount =12;
 		/**
 		 * @param args
 		 * @throws IloException 
@@ -161,7 +161,7 @@ import model.SMTModelLP;
 	        JFrame frame = new JFrame("ID: " + instId);
 	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        frame.add(vis);
-	        frame.setSize(500, 500);
+	        frame.setSize(Visualizer.WINDOW_SIZE, Visualizer.WINDOW_SIZE);
 	        frame.setLocationRelativeTo(null);
 	        frame.setVisible(true);
 	    }		

@@ -19,12 +19,10 @@ public class Node {
 		this.id = id;
 	}
 	
-	
-	
 	public Node(int id) {
 		super();
 		Random rnd = new Random();		
-		this.p = new Point(rnd.nextInt(40), rnd.nextInt(40));
+		this.p = new Point(rnd.nextInt(Visualizer.MAX_COORD), rnd.nextInt(Visualizer.MAX_COORD));
 		this.isDest = true;
 		orderedNeighbours = new ArrayList<Node>();
 		this.id = id;
