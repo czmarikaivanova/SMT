@@ -17,12 +17,13 @@ import model.SMTModel;
 import model.SMTModelLP;
 	
 	public class Main {
-	    public static final String INST_ID = "# instance_ID: ";
-	    public static String DELIMITER = "---------";	    
+
 	    static Node[] nodes;
 	    static int vertexCount;
 	    static int dstCount;
 	    static int nodeCount =12;
+	    
+	    private static ILPModel model;
 		/**
 		 * @param args
 		 * @throws IloException 
@@ -37,7 +38,7 @@ import model.SMTModelLP;
 			int instId = rnd.nextInt(100000);	
 			for (int i = 0; i < iter; i++) {
 				File amplFile = prepareAMPL(generate, instId);
-				ILPModel model = new MEBModel(amplFile);
+				model = new MEBModel(amplFile);
 				model.populate();	
 				model.createModel();
 				model.solve();
@@ -65,13 +66,13 @@ import model.SMTModelLP;
 		private static File prepareAMPL(boolean generate, int instId) {
 			File amplFile;
 			if (generate) {
-				generatePoints(nodeCount);		
-				amplFile = generateAMPLData(instId);
+				generatePoints(vertexCount);		
+				amplFile = model.generateAMPLData(instId, vertexCount, dstCount, nodes);
 			}
 			else {
 				createPoints();
 				instId = -1;
-				amplFile = generateAMPLData(-1);			
+				amplFile = model.generateAMPLData(-1, vertexCount, dstCount, nodes);		
 			}
 			saveInstance(instId);
 			return amplFile;	
@@ -138,8 +139,8 @@ import model.SMTModelLP;
 	            System.out.println("Saving: instance");
 	            FileWriter fw = new FileWriter(instFile,true); //the true will append the new data
 	            fw.write("\n");
-	            fw.write(Main.INST_ID + instId + "\n");
-	            fw.write(Main.DELIMITER + "\n");//appends the string to the file
+	            fw.write(Constants.INST_ID + instId + "\n");
+	            fw.write(Constants.DELIMITER + "\n");//appends the string to the file
 	            fw.write(vertexCount + "\n");//appends the string to the file
 	            fw.write(dstCount + "\n");//appends the string to the file
 	            for (Node v: nodes) {
@@ -166,47 +167,7 @@ import model.SMTModelLP;
 	        frame.setVisible(true);
 	    }		
 	    
-		// also creates the file !
-	    private static File generateAMPLData( int instanceID) {
-	        try
-	        {
-	        	File datafile = new File("amplfiles/ampl " +  new File("amplfiles/").list().length + ".dat");
-	            System.out.println("Saving: AMPL input");
-	            FileWriter fw = new FileWriter(datafile,false); //the true will append the new data
-	            fw.write(INST_ID + instanceID + "\n");
-	            String dstStr = "set DESTS :=";
-	            String nonDstStr = "set NONDESTS :=";
-	            for (int i = 0; i < vertexCount; i++) {
-	                if (i < dstCount) {
-	                    dstStr += " " + i ;
-	                } else {
-	                    nonDstStr += " " + i;
-	                }
-	            }
-	            dstStr += " ;\n";
-	            nonDstStr += " ;\n";
-	            
-	            String paramStr = "param requir :=\n";
-	            String distancesStr = "";
-	            for (int i = 0; i < vertexCount; i++) {
-	                for (int j = 0; j < vertexCount; j++) {
-	                    distancesStr += " " +i + " " + j + " " + dst(nodes[i].getPoint(), nodes[j].getPoint()) + "\t"; 
-	                }
-	                distancesStr += "\n";
-	            }
-	            fw.write(dstStr);
-	            fw.write(nonDstStr);
-	            fw.write(paramStr);
-	            fw.write(distancesStr + ";");
-	            fw.close();
-	            return datafile;
-	        }
-	        catch(IOException ioe)
-	        {
-	            System.err.println("IOException: " + ioe.getMessage());
-	            return null;
-	        } 
-	    }	    
+   
 	
 	    private static void generatePoints(int vcnt) {
 	    	vertexCount = vcnt;
@@ -244,7 +205,7 @@ import model.SMTModelLP;
 				int cnt = 0;
 				try {
 					while ((line = br.readLine()) != null) {
-						if (line.equals(DELIMITER)) {
+						if (line.equals(Constants.DELIMITER)) {
 							vertexCount = Integer.parseInt(br.readLine());
 							dstCount = Integer.parseInt(br.readLine());
 							nodes = new Node[vertexCount];
@@ -266,10 +227,7 @@ import model.SMTModelLP;
 				e.printStackTrace();
 			}
 	    }	    
-	    
-	    public static float dst(Point v1, Point v2) {
-	    	return (float) (Math.pow(v1.getX()-v2.getX(),2) + Math.pow(v1.getY()-v2.getY(),2));
-	    }
+
 	      
 	    
 	}
