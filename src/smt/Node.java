@@ -37,10 +37,10 @@ public class Node {
 		orderedNeighbours = new ArrayList<>(allNodes.length - 1);
 		for (Node node: allNodes) {
 			if (!node.equals(this)) {				
-				float dst = Main.dst(this.p, node.getPoint());
+				float dst = Miscellaneous.dst(this.p, node.getPoint());
 				boolean inserted = false;
 				for (Node nb: orderedNeighbours) {
-					if (dst < Main.dst(this.p, nb.getPoint())) {
+					if (dst < Miscellaneous.dst(this.p, nb.getPoint())) {
 						orderedNeighbours.add(orderedNeighbours.indexOf(nb), node);
 						inserted = true;
 						break;

@@ -1,22 +1,20 @@
 package model;
 
-
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
-
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import smt.Graph;
+import smt.Miscellaneous;
 
-public class SMTModel extends ILPModel {
+public class SMTModel extends ILPModel {	
 	
-	
-	public SMTModel(File input) {
-		super(input);
+	public SMTModel(Graph graph) {
+		super(graph);
 	}
 
 	static int[] dests;
@@ -27,9 +25,8 @@ public class SMTModel extends ILPModel {
 	protected int d;
 	
 	protected IloNumVar[][][] x;
+	
 	protected IloNumVar[][][] y;	
-
-
 
 	public void createModel() {
 		initVars();
@@ -205,7 +202,7 @@ public class SMTModel extends ILPModel {
 	 */
 	public void populate() {
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(input));
+			BufferedReader br = new BufferedReader(new FileReader(amplDataFile));
 			String line;
 			String[] indices;
 			while ((line = br.readLine()) != null) {
@@ -213,7 +210,7 @@ public class SMTModel extends ILPModel {
 					indices = line.split(" ");						
 					dests = new int[indices.length - 4];
 					for (int i = 3; i < indices.length; i++) {
-						if (isNumeric(indices[i])) {
+						if (Miscellaneous.isNumeric(indices[i])) {
 							dests[i-3] = Integer.parseInt(indices[i]);								
 						}							
 					}
@@ -221,7 +218,7 @@ public class SMTModel extends ILPModel {
 					indices = line.split(" ");						
 					nondests = new int[indices.length - 4];
 					for (int i = 3; i < indices.length; i++) {
-						if (isNumeric(indices[i])) {
+						if (Miscellaneous.isNumeric(indices[i])) {
 							nondests[i-3] = Integer.parseInt(indices[i]);								
 						}							
 					}

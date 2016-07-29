@@ -6,10 +6,12 @@ import ilog.cplex.IloCplex;
 
 import java.io.File;
 
+import smt.Graph;
+
 public class SMTModelLP extends SMTModel {
 
-	public SMTModelLP(File input) {
-		super(input);
+	public SMTModelLP(Graph graph) {
+		super(graph);
 	}
 	
 	public void createModel() {

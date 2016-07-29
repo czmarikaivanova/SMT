@@ -6,16 +6,18 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import smt.Graph;
+import smt.Miscellaneous;
+
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
-import ilog.cplex.IloCplex.UnknownObjectException;
 
 public class MEBModel extends ILPModel {
 
-	public MEBModel(File input) {
-		super(input);
+	public MEBModel(Graph graph) {
+		super(graph);
 	}
 
 	static int[] dests;
@@ -140,7 +142,7 @@ public class MEBModel extends ILPModel {
 	 */
 	public void populate() {
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(input));
+			BufferedReader br = new BufferedReader(new FileReader(amplDataFile));
 			String line;
 			String[] indices;
 			while ((line = br.readLine()) != null) {
@@ -148,7 +150,7 @@ public class MEBModel extends ILPModel {
 					indices = line.split(" ");						
 					vertices = new int[indices.length - 4];
 					for (int i = 3; i < indices.length; i++) {
-						if (isNumeric(indices[i])) {
+						if (Miscellaneous.isNumeric(indices[i])) {
 							vertices[i-3] = Integer.parseInt(indices[i]);								
 						}							
 					}

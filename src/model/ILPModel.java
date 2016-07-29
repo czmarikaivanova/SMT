@@ -6,20 +6,21 @@ import ilog.cplex.IloCplex;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import smt.Constants;
+import smt.Graph;
 import smt.Miscellaneous;
-import smt.Node;
-
 
 public abstract class ILPModel {
-	protected File input;
+	protected File amplDataFile;
 	protected IloCplex cplex;
-
 	protected IloNumVar[][] z;
+	protected Graph graph;
 	
-	public ILPModel(File input) {
-		this.input = input;
+	public ILPModel(Graph graph) {
+		this.graph = graph;
+		amplDataFile = generateAMPLData(graph);
+		populate();
+		createModel();		
 	}
 	
 	public abstract void createModel();
@@ -40,28 +41,18 @@ public abstract class ILPModel {
 		return cplex;
 	}
 	
-	public static boolean isNumeric(String str)  {  
-		  try  {  
-		    double d = Double.parseDouble(str);  
-		  }  
-		  catch(NumberFormatException nfe)  {  
-		    return false;  
-		  }  
-		  return true;  
-		}	
-	
 	// also creates the file !
-    public static File generateAMPLData(int instanceID, int vertexCount, int dstCount, Node[] nodes) {
+    public File generateAMPLData(Graph graph) {
         try
         {
         	File datafile = new File("amplfiles/ampl " +  new File("amplfiles/").list().length + ".dat");
             System.out.println("Saving: AMPL input");
             FileWriter fw = new FileWriter(datafile,false); //the true will append the new data
-            fw.write(Constants.INST_ID + instanceID + "\n");
+            fw.write(Constants.INST_ID + graph.getInstId() + "\n");
             String dstStr = "set DESTS :=";
             String nonDstStr = "set NONDESTS :=";
-            for (int i = 0; i < vertexCount; i++) {
-                if (i < dstCount) {
+            for (int i = 0; i < graph.getVertexCount(); i++) {
+                if (i < graph.getDstCount()) {
                     dstStr += " " + i ;
                 } else {
                     nonDstStr += " " + i;
@@ -69,12 +60,11 @@ public abstract class ILPModel {
             }
             dstStr += " ;\n";
             nonDstStr += " ;\n";
-            
             String paramStr = "param requir :=\n";
             String distancesStr = "";
-            for (int i = 0; i < vertexCount; i++) {
-                for (int j = 0; j < vertexCount; j++) {
-                    distancesStr += " " +i + " " + j + " " + Miscellaneous.dst(nodes[i].getPoint(), nodes[j].getPoint()) + "\t"; 
+            for (int i = 0; i < graph.getVertexCount(); i++) {
+                for (int j = 0; j < graph.getVertexCount(); j++) {
+                    distancesStr += " " +i + " " + j + " " + Miscellaneous.dst(graph.getNode(i).getPoint(), graph.getNode(j).getPoint()) + "\t"; 
                 }
                 distancesStr += "\n";
             }
@@ -91,5 +81,5 @@ public abstract class ILPModel {
             return null;
         } 
     }	 
-	
+    
 }

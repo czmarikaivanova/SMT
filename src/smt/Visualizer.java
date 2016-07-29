@@ -5,9 +5,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.geom.Line2D;
-import java.io.BufferedReader;
 import java.io.File;
 
 import javax.swing.JPanel;
@@ -17,18 +15,15 @@ public class Visualizer extends JPanel {
     File instFile;
     int dstCount;
     boolean[][] z;
-    
-    Node[] nodes;
+    Graph graph;
     boolean useArrows;
-    
-    private final String delimiter = "---------";
     
     public static final int MAX_COORD = 100;
     public static final int WINDOW_SIZE = 1000;
     
-    public Visualizer(boolean[][] z, Node[] nodes, int dstCount, boolean useArrows) {        
+    public Visualizer(boolean[][] z, Graph graph, int dstCount, boolean useArrows) {        
         this.z = z;
-        this.nodes = nodes;        
+        this.graph = graph;        
         this.dstCount = dstCount;
         this.useArrows = useArrows;
     }
@@ -39,7 +34,7 @@ public class Visualizer extends JPanel {
 
     Graphics2D g2d = (Graphics2D) g;
 
-    for (int i = 0; i < nodes.length; i++) {
+    for (int i = 0; i < graph.getVertexCount(); i++) {
         Color color;        
         if (i < dstCount) {
             color = Color.black;
@@ -47,17 +42,17 @@ public class Visualizer extends JPanel {
             color = Color.lightGray;
         }        
         g2d.setColor(color);   
-        Node p = nodes[i];
+        Node p = graph.getNode(i);
         float xu = Math.round(p.getPoint().getX() * 10);
         float yu = Math.round(p.getPoint().getY() * 10);
         g2d.fillOval((int) xu-5,(int) yu-5, 10, 10);
         g2d.drawString(Integer.toString(i), xu + 8, yu);
         g2d.setStroke(new BasicStroke(2));      
-        for (int j = 0; j < nodes.length; j++) {
+        for (int j = 0; j < graph.getVertexCount(); j++) {
     	//for (int j = i + 1; j < nodes.length; j++) {
         	if (z[i][j]) {
-                float xv = Math.round(nodes[j].getPoint().getX() * 10);
-                float yv = Math.round(nodes[j].getPoint().getY() * 10);
+                float xv = Math.round(graph.getNode(j).getPoint().getX() * 10);
+                float yv = Math.round(graph.getNode(j).getPoint().getY() * 10);
 
                 if (useArrows) {
                     drawArrowLine(g2d, (int) xu, (int) yu, (int) xv, (int) yv, 15, 5);                	
@@ -65,15 +60,12 @@ public class Visualizer extends JPanel {
                 else {
                 	g2d.draw(new Line2D.Float(xu, yu, xv, yv ));                	
                 }
-
-                
                 g2d.setColor(Color.BLUE);      
-                int dst = Math.round(Main.dst(nodes[i].getPoint(), nodes[j].getPoint()));
+                int dst = Math.round(Miscellaneous.dst(graph.getNode(i).getPoint(), graph.getNode(j).getPoint()));
                 g2d.drawString(Integer.toString(dst), (xu + xv)/2, (yu + yv)/2-5);
                 g2d.setColor(color);        		
         	}
         }
-
     }      
   }
     
