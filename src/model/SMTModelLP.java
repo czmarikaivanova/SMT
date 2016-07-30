@@ -21,8 +21,8 @@ public class SMTModelLP extends SMTModel {
 	
 	protected void initVars() {
 		try {
-			n = vertices.length;
-			d = dests.length;
+			n = graph.getVertexCount();
+			d = graph.getDstCount();
 			cplex = new IloCplex();
 			x = new IloNumVar[n][n][];
 			y = new IloNumVar[n][n][];				

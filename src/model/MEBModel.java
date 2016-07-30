@@ -18,21 +18,18 @@ public class MEBModel extends ILPModel {
 
 	public MEBModel(Graph graph) {
 		super(graph);
+
 	}
 
-	static int[] dests;
-	static int[] vertices;
-	static double [][]	 requir;	
 	int n; 
 	int d;
-	
 	private IloNumVar[][][] x;
 	private IloNumVar[] p;		
 	
 	@Override
 	public void createModel() {
 		try {
-			n = vertices.length;
+			n = graph.getVertexCount();
 			d = n - 1;
 			cplex = new IloCplex();
 			x = new IloNumVar[n][n][];
@@ -144,20 +141,10 @@ public class MEBModel extends ILPModel {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(amplDataFile));
 			String line;
-			String[] indices;
 			while ((line = br.readLine()) != null) {
-				if (line.matches("set DESTS.*")) {
-					indices = line.split(" ");						
-					vertices = new int[indices.length - 4];
-					for (int i = 3; i < indices.length; i++) {
-						if (Miscellaneous.isNumeric(indices[i])) {
-							vertices[i-3] = Integer.parseInt(indices[i]);								
-						}							
-					}
-					
-				} else if (line.matches("param.*")) {
+				if (line.matches("param.*")) {
 				//	append(); // crate array vertices
-					requir = new double[vertices.length][vertices.length];
+					requir = new double[graph.getVertexCount()][graph.getVertexCount()];
 					String parLine;
 					while ((parLine = br.readLine()) != null) {							
 						String[] entries = parLine.split("\t");
@@ -234,6 +221,21 @@ public class MEBModel extends ILPModel {
 			System.out.println();
 		}
 	}
+	
+    protected String genAmplHead() {
+        String dstStr = "set DESTS :=";
+        String nonDstStr = "set NONDESTS :=";
+        for (int i = 0; i < graph.getVertexCount(); i++) {
+            if (i < graph.getDstCount() - 1) {
+                dstStr += " " + i ;
+            } else {
+                nonDstStr += " " + i;
+            }
+        }
+        dstStr += " ;\n";
+        nonDstStr += " ;\n";
+        return dstStr + nonDstStr;
+    }	
 	
 
 

@@ -6,10 +6,11 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import model.ILPModel;
 import model.MEBModel;
+import model.SMTModel;
 public class App {
 	
-    int vertexCount = 12;
-    int dstCount = 12;
+    int vertexCount = 8;
+    int dstCount = 5;
  //   int nodeCount =12;    
     private ILPModel model;
     Graph graph;
@@ -17,7 +18,7 @@ public class App {
 	public int run() {
 		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		boolean generate = false;
+		boolean generate = true;
 		boolean draw = true;
 		for (int i = 0; i < iter; i++) {
 			if (generate) {
@@ -27,7 +28,7 @@ public class App {
 				graph = new Graph("instances/ugly.txt"); // from file, todo
 			}	
 			graph.saveInstance();
-			model = new MEBModel(graph);
+			model = new SMTModel(graph);
 			model.solve();
 			boolean[][] z = model.getZVar();
 			if (hasCrossing(z)) {

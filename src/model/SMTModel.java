@@ -16,11 +16,7 @@ public class SMTModel extends ILPModel {
 	public SMTModel(Graph graph) {
 		super(graph);
 	}
-
-	static int[] dests;
-	static int[] nondests;	
-	static int[] vertices;
-	static double [][]	 requir;	
+	
 	protected int n; 
 	protected int d;
 	
@@ -35,8 +31,8 @@ public class SMTModel extends ILPModel {
 	
 	protected void initVars() {
 		try {
-			n = vertices.length;
-			d = dests.length;	
+			n = graph.getVertexCount();
+			d = graph.getDstCount();
 			cplex = new IloCplex();
 			x = new IloNumVar[n][n][];
 			y = new IloNumVar[n][n][];				
@@ -197,54 +193,6 @@ public class SMTModel extends ILPModel {
 	}
 
 	
-	/**
-	 *  Create AMPL file
-	 */
-	public void populate() {
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(amplDataFile));
-			String line;
-			String[] indices;
-			while ((line = br.readLine()) != null) {
-				if (line.matches("set DESTS.*")) {
-					indices = line.split(" ");						
-					dests = new int[indices.length - 4];
-					for (int i = 3; i < indices.length; i++) {
-						if (Miscellaneous.isNumeric(indices[i])) {
-							dests[i-3] = Integer.parseInt(indices[i]);								
-						}							
-					}
-				} else if (line.matches("set NONDESTS.*")) {
-					indices = line.split(" ");						
-					nondests = new int[indices.length - 4];
-					for (int i = 3; i < indices.length; i++) {
-						if (Miscellaneous.isNumeric(indices[i])) {
-							nondests[i-3] = Integer.parseInt(indices[i]);								
-						}							
-					}
-					
-				} else if (line.matches("param.*")) {
-					append(); // crate array vertices
-					requir = new double[vertices.length][vertices.length];
-					String parLine;
-					while ((parLine = br.readLine()) != null) {	
-						if (parLine.length() > 2) { // skip the last line
-							String[] entries = parLine.split("\t");
-							for (String s: entries) {
-								s = s.trim();
-								String[] entry = s.split(" ");
-								requir[Integer.parseInt(entry[0])][Integer.parseInt(entry[1])] = Double.parseDouble(entry[2]);								
-							}
-						}
-					}
-				}					
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {				
-			e.printStackTrace();
-		}
-	}
 	
 	public boolean[][] getZVar() {
 		try {
@@ -265,19 +213,7 @@ public class SMTModel extends ILPModel {
 			e.printStackTrace();
 			return null;
 		}		
-	}		
-		
-	
-	private static void append() {
-		vertices = new int[dests.length + nondests.length];
-		for (int i = 0; i < dests.length; i++) {
-			vertices[i] = dests[i];
-		}
-		for (int i = 0; i < nondests.length; i++) {
-			vertices[i + dests.length] = nondests[i];
-		}
-
-	}
+	}				
 	
 }
 	
