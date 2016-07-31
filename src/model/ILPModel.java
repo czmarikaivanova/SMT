@@ -54,6 +54,7 @@ public abstract class ILPModel {
             FileWriter fw = new FileWriter(datafile,false); //the true will append the new data
             fw.write(Constants.INST_ID + graph.getInstId() + "\n");
             String head = genAmplHead();
+            String crossStr = genCrossing();
             String paramStr = "param requir :=\n";
             String distancesStr = "";
             for (int i = 0; i < graph.getVertexCount(); i++) {
@@ -63,6 +64,7 @@ public abstract class ILPModel {
                 distancesStr += "\n";
             }
             fw.write(head);
+            fw.write(crossStr);
             fw.write(paramStr);
             fw.write(distancesStr + ";");
             fw.close();
@@ -75,7 +77,28 @@ public abstract class ILPModel {
         } 
     }	 
     
-    protected String genAmplHead() {
+    private String genCrossing() {
+    	String crossStr = "";
+    	for (int i = 0; i < graph.getVertexCount(); i++) {
+    		for (int j = i+1; j < graph.getVertexCount(); j++) {
+    	    	for (int k = i+1; k < graph.getVertexCount(); k++) {
+    	    		for (int l = k+1; l < graph.getVertexCount(); l++) {
+    	    			if (i!=k && i!=l && j!=k && j!=l) {
+							if (Miscellaneous.edgesProperlyIntersect(graph.getNode(i).getPoint(), 
+									graph.getNode(j).getPoint(), 
+									graph.getNode(k).getPoint(), 
+									graph.getNode(l).getPoint())) {
+								crossStr += "(" + i + "," + j + "," + k + "," + l + ") ";
+							}    	    				
+    	    			}
+    	    		}
+    	    	}    			
+    		}
+    	}
+    	return  "set CROSS := " + crossStr + ";\n"; 
+    }
+
+	protected String genAmplHead() {
         String dstStr = "set DESTS :=";
         String nonDstStr = "set NONDESTS :=";
         for (int i = 0; i < graph.getVertexCount(); i++) {
@@ -98,7 +121,10 @@ public abstract class ILPModel {
 			BufferedReader br = new BufferedReader(new FileReader(amplDataFile));
 			String line;
 			while ((line = br.readLine()) != null) {
-				if (line.matches("param.*")) {
+				if (line.matches("CROSS.*")) {
+					// TODO !!
+				}
+				else if (line.matches("param.*")) {
 					requir = new double[graph.getVertexCount()][graph.getVertexCount()];
 					String parLine;
 					while ((parLine = br.readLine()) != null) {	
