@@ -18,13 +18,9 @@ public class Visualizer extends JPanel {
     Graph graph;
     boolean useArrows;
     
-    public static final int MAX_COORD = 100;
-    public static final int WINDOW_SIZE = 1000;
-    
-    public Visualizer(boolean[][] z, Graph graph, int dstCount, boolean useArrows) {        
+    public Visualizer(boolean[][] z, Graph graph, boolean useArrows) {        
         this.z = z;
         this.graph = graph;        
-        this.dstCount = dstCount;
         this.useArrows = useArrows;
     }
     
@@ -36,7 +32,7 @@ public class Visualizer extends JPanel {
 
     for (int i = 0; i < graph.getVertexCount(); i++) {
         Color color;        
-        if (i < dstCount) {
+        if (i < graph.getDstCount()) {
             color = Color.black;
         } else {
             color = Color.lightGray;

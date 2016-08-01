@@ -48,5 +48,4 @@ public class Miscellaneous {
 	    if ((p.y - p1.y) == m * (p.x - p1.x)) return true;
 	    else return false;
 	}
-	
 }

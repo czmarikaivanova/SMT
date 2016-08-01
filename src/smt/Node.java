@@ -22,12 +22,11 @@ public class Node {
 	public Node(int id) {
 		super();
 		Random rnd = new Random();		
-		this.p = new Point(rnd.nextInt(Visualizer.MAX_COORD), rnd.nextInt(Visualizer.MAX_COORD));
+		this.p = new Point(rnd.nextInt(Constants.MAX_COORD), rnd.nextInt(Constants.MAX_COORD));
 		this.isDest = true;
 		orderedNeighbours = new ArrayList<Node>();
 		this.id = id;
 	}
-		
 	
 	public Point getPoint() {
 		return p;

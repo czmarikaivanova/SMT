@@ -10,9 +10,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
+
+import org.javatuples.Quartet;
+import org.javatuples.Tuple;
+
 import smt.Constants;
 import smt.Graph;
 import smt.Miscellaneous;
+import smt.Tuple4;
 
 public abstract class ILPModel {
 	protected File amplDataFile;
@@ -20,6 +26,7 @@ public abstract class ILPModel {
 	protected IloNumVar[][] z;
 	protected Graph graph;
 	protected double [][]	 requir;	
+	protected Quartet<Integer, Integer, Integer, Integer>[] crossList;
 	
 	public ILPModel(Graph graph) {
 		this.graph = graph;
@@ -114,15 +121,23 @@ public abstract class ILPModel {
     }
     
 	/**
-	 *  Create AMPL file
+	 *  Feed data structures
 	 */
 	public void populate() {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(amplDataFile));
 			String line;
 			while ((line = br.readLine()) != null) {
-				if (line.matches("CROSS.*")) {
+				if (line.matches("set CROSS.*")) {
 					// TODO !!
+					String[] crossingStrList = line.split(" ");
+					System.out.println("CROSSING::");
+					System.out.println(Arrays.toString(crossingStrList));
+					
+//					crossList = new Pair[crossingStrList.length - 3];
+					for (String crossStr: crossingStrList) {
+//						Pair<Integer, Integer> firstE = new Pair<Integer, Integer>(null, null);
+					}
 				}
 				else if (line.matches("param.*")) {
 					requir = new double[graph.getVertexCount()][graph.getVertexCount()];

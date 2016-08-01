@@ -36,10 +36,10 @@ public class App {
 			}
 			if (draw) {
 				if (model instanceof MEBModel) {
-					draw(z, graph.getInstId(), true);						
+					draw(z, graph, true);						
 				}
 				else {
-					draw(z, graph.getInstId(), false);
+					draw(z, graph, false);
 				}					
 			}			
 			System.err.println("Instances with crossing: ");
@@ -72,13 +72,13 @@ public class App {
 		return false;
 	}
 
-	private void draw(boolean[][] z, int instId, boolean useArrows) {
-		Visualizer vis = new Visualizer(z, graph, dstCount, useArrows);
+	private void draw(boolean[][] z, Graph graph, boolean useArrows) {
+		Visualizer vis = new Visualizer(z, graph, useArrows);
 		//Visualizer vis = new Visualizer(new File("instance.txt"), z, null);			
-        JFrame frame = new JFrame("ID: " + instId);
+        JFrame frame = new JFrame("ID: " + graph.getInstId());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(vis);
-        frame.setSize(Visualizer.WINDOW_SIZE, Visualizer.WINDOW_SIZE);
+        frame.setSize(Constants.WINDOW_SIZE, Constants.WINDOW_SIZE);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }		
