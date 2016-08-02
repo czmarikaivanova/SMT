@@ -1,12 +1,12 @@
 package model;
 
+import graph.Graph;
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 
 import java.io.File;
 
-import smt.Graph;
 
 public class SMTModelLP extends SMTModel {
 

@@ -1,6 +1,9 @@
 package smt;
 
 
+import graph.Graph;
+import graph.Node;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;

@@ -1,8 +1,11 @@
-package smt;
+package graph;
 
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Random;
+
+import smt.Constants;
+import smt.Miscellaneous;
 
 public class Node {
 	Point p;

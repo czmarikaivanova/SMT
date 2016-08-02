@@ -1,5 +1,6 @@
 package model;
 
+import graph.Graph;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
@@ -11,7 +12,6 @@ import java.io.IOException;
 
 import org.javatuples.Quartet;
 
-import smt.Graph;
 import smt.Miscellaneous;
 
 public class SMTModel extends ILPModel {	

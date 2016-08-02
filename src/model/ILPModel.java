@@ -1,5 +1,6 @@
 package model;
 
+import graph.Graph;
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
@@ -13,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import org.javatuples.Quartet;
 import smt.Constants;
-import smt.Graph;
 import smt.Miscellaneous;
 
 public abstract class ILPModel {

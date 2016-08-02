@@ -1,4 +1,4 @@
-package smt;
+package graph;
 
 import java.awt.Point;
 import java.io.BufferedReader;
@@ -8,6 +8,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
+
+import smt.Constants;
 
 public class Graph {
 	

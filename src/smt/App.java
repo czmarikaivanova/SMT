@@ -1,5 +1,7 @@
 package smt;
 
+import graph.Graph;
+
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import model.ILPModel;
@@ -16,17 +18,17 @@ public class App {
 	public int run() {
 		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		boolean generate = false;
+		boolean generate = true;
 		boolean draw = true;
 		for (int i = 0; i < iter; i++) {
 			if (generate) {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("instances/biggest.txt"); // from file, todo
+				graph = new Graph("instances/crossing.txt"); // from file, todo
 			}	
 			graph.saveInstance();
-			model = new MEBModel(graph, false);
+			model = new SMTModel(graph, false);
 			model.solve();
 			boolean[][] z = model.getZVar();
 			if (hasCrossing(z)) {
