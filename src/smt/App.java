@@ -15,17 +15,17 @@ public class App {
 	public int run() {
 		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		boolean generate = true;
+		boolean generate = false;
 		boolean draw = true;
 		for (int i = 0; i < iter; i++) {
 			if (generate) {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("instances/bigger.txt"); // from file, todo
+				graph = new Graph("instances/biggest.txt"); // from file, todo
 			}	
 			graph.saveInstance();
-			model = new MEBModel(graph);
+			model = new MEBModel(graph, true);
 			model.solve();
 			boolean[][] z = model.getZVar();
 			if (hasCrossing(z)) {

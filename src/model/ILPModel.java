@@ -23,12 +23,16 @@ public abstract class ILPModel {
 	protected Graph graph;
 	protected double [][]	 requir;	
 	protected ArrayList<Quartet<Integer, Integer, Integer, Integer>> crossList;
+	protected boolean allowCrossing;
 	
-	public ILPModel(Graph graph) {
+	
+	public ILPModel(Graph graph, boolean allowCrossing) {
 		this.graph = graph;
+		this.allowCrossing = allowCrossing;
 		amplDataFile = generateAMPLData();
-		populate();
+		populate();		
 		createModel();		
+		
 	}
 	
 	public abstract void createModel();

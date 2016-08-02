@@ -10,8 +10,8 @@ import smt.Graph;
 
 public class SMTModelLP extends SMTModel {
 
-	public SMTModelLP(Graph graph) {
-		super(graph);
+	public SMTModelLP(Graph graph, boolean allowCrossing) {
+		super(graph, allowCrossing);
 	}
 	
 	public void createModel() {

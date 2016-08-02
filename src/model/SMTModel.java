@@ -13,8 +13,8 @@ import smt.Miscellaneous;
 
 public class SMTModel extends ILPModel {	
 	
-	public SMTModel(Graph graph) {
-		super(graph);
+	public SMTModel(Graph graph, boolean allowCrossing) {
+		super(graph, allowCrossing);
 	}
 	
 	protected int n; 
