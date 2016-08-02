@@ -8,6 +8,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+
+import org.javatuples.Quartet;
+
 import smt.Graph;
 import smt.Miscellaneous;
 
@@ -183,7 +186,18 @@ public class SMTModel extends ILPModel {
 						}			
 					}
 				}					
-			}			
+			}
+			
+			// crossing
+			if (allowCrossing) {
+				for (Quartet<Integer, Integer, Integer, Integer> crossPair: crossList) {
+					int i = crossPair.getValue0();
+					int j = crossPair.getValue1();
+					int k = crossPair.getValue2();
+					int l = crossPair.getValue3();				
+					cplex.addLe(cplex.sum(z[i][j], z[k][l], z[l][k], z[j][i]), 1.0);
+				}	
+			}
 			
 		//	cplex.addEq(z[0][1], 0);
 			//cplex.addEq(z[0][1], 1);

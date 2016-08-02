@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import model.ILPModel;
 import model.MEBModel;
+import model.SMTModel;
 public class App {
 	
-    int vertexCount = 25;
-    int dstCount = 25;
+    int vertexCount = 8;
+    int dstCount = 8;
  //   int nodeCount =12;    
     private ILPModel model;
     Graph graph;
@@ -25,7 +26,7 @@ public class App {
 				graph = new Graph("instances/biggest.txt"); // from file, todo
 			}	
 			graph.saveInstance();
-			model = new MEBModel(graph, true);
+			model = new MEBModel(graph, false);
 			model.solve();
 			boolean[][] z = model.getZVar();
 			if (hasCrossing(z)) {
