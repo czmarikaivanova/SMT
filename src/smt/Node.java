@@ -27,6 +27,7 @@ public class Node {
 		orderedNeighbours = new ArrayList<Node>();
 		this.id = id;
 	}
+		
 	
 	public Point getPoint() {
 		return p;

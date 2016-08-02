@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.javatuples.Quartet;
+
 import smt.Graph;
 import smt.Miscellaneous;
 
@@ -126,8 +128,26 @@ public class MEBModel extends ILPModel {
 				}
 			}		
 			
-			// crossing
-			// TODO
+			// crossing 1
+//			for (Quartet<Integer, Integer, Integer, Integer> crossPair: crossList) {
+//				int i = crossPair.getValue0();
+//				int j = crossPair.getValue1();
+//				int k = crossPair.getValue2();
+//				int l = crossPair.getValue3();				
+//				cplex.addLe(cplex.sum(z[i][j], z[k][l]), 1.0);
+//				cplex.addLe(cplex.sum(z[i][j], z[l][k]), 1.0);
+//				cplex.addLe(cplex.sum(z[j][i], z[k][l]), 1.0);
+//				cplex.addLe(cplex.sum(z[j][i], z[l][k]), 1.0);
+//			}
+			
+			// crossing 2
+			for (Quartet<Integer, Integer, Integer, Integer> crossPair: crossList) {
+				int i = crossPair.getValue0();
+				int j = crossPair.getValue1();
+				int k = crossPair.getValue2();
+				int l = crossPair.getValue3();				
+				cplex.addLe(cplex.sum(z[i][j], z[k][l], z[l][k], z[j][i]), 1.0);
+			}			
 			
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);

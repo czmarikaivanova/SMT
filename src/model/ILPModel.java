@@ -3,22 +3,18 @@ package model;
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
-
 import org.javatuples.Quartet;
-import org.javatuples.Tuple;
-
 import smt.Constants;
 import smt.Graph;
 import smt.Miscellaneous;
-import smt.Tuple4;
 
 public abstract class ILPModel {
 	protected File amplDataFile;
@@ -26,7 +22,7 @@ public abstract class ILPModel {
 	protected IloNumVar[][] z;
 	protected Graph graph;
 	protected double [][]	 requir;	
-	protected Quartet<Integer, Integer, Integer, Integer>[] crossList;
+	protected ArrayList<Quartet<Integer, Integer, Integer, Integer>> crossList;
 	
 	public ILPModel(Graph graph) {
 		this.graph = graph;
@@ -130,14 +126,25 @@ public abstract class ILPModel {
 			while ((line = br.readLine()) != null) {
 				if (line.matches("set CROSS.*")) {
 					// TODO !!
-					String[] crossingStrList = line.split(" ");
+					ArrayList<String> crossStrList = new ArrayList<String>(Arrays.asList(line.split(" ")));
+					crossStrList.remove(0); // remove the mess at the beginning and end
+					crossStrList.remove(0);
+					crossStrList.remove(0);
+					crossStrList.remove(crossStrList.size() - 1);
 					System.out.println("CROSSING::");
-					System.out.println(Arrays.toString(crossingStrList));
-					
-//					crossList = new Pair[crossingStrList.length - 3];
-					for (String crossStr: crossingStrList) {
-//						Pair<Integer, Integer> firstE = new Pair<Integer, Integer>(null, null);
+					System.out.println(Arrays.toString(crossStrList.toArray()));
+					crossList = new ArrayList<Quartet<Integer, Integer, Integer, Integer>>();
+					String[] crossPair;
+					for (String crossStr: crossStrList) {
+						crossStr = crossStr.substring(1, crossStr.length() - 1);
+						crossPair = crossStr.split(",");
+						crossList.add(new Quartet<Integer, Integer, Integer, Integer>(
+								Integer.parseInt(crossPair[0]), 
+								Integer.parseInt(crossPair[1]), 
+								Integer.parseInt(crossPair[2]), 
+								Integer.parseInt(crossPair[3])));
 					}
+					
 				}
 				else if (line.matches("param.*")) {
 					requir = new double[graph.getVertexCount()][graph.getVertexCount()];

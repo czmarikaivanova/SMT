@@ -31,21 +31,37 @@ public class Miscellaneous {
 	}
 
 	private static boolean shareAnyPoint(Point p1, Point p2, Point p3, Point p4) {
-		   if (isPointOnTheLine(p1, p2, p3)) return true;
-		    else if (isPointOnTheLine(p1, p2, p4)) return true;
-		    else if (isPointOnTheLine(p3, p4, p1)) return true;
-		    else if (isPointOnTheLine(p3, p4, p2)) return true;
+		   if (isPointOnTheLine(p1, p2, p3)) {
+			   return true;
+		   }
+		    else if (isPointOnTheLine(p1, p2, p4)) {
+		    	return true;
+		    }
+		    else if (isPointOnTheLine(p3, p4, p1)) {
+		    	return true;
+		    }
+		    else if (isPointOnTheLine(p3, p4, p2)) {
+		    	return true;
+		    }
 		    else return false;
 	}
 
 	private static boolean isPointOnTheLine(Point p1, Point p2, Point p) {
 	    //handle special case where the line is vertical
 	    if (p2.x == p1.x) {
-	        if(p1.x == p.x) return true;
-	        else return false;
+	        if(p1.x == p.x) {
+	        	return true;
+	        }
+	        else {
+	        	return false;
+	        }
 	    }
-	    double m = (p2.y - p1.y) / (p2.x - p1.x);
-	    if ((p.y - p1.y) == m * (p.x - p1.x)) return true;
-	    else return false;
+	    double m = (double) (p2.y - p1.y) / (p2.x - p1.x);  // casting because division of two integers gives integer!!! wtf??
+	    if ((p.y - p1.y) == m * (p.x - p1.x)) {
+	    	return true;
+	    }
+	    else {
+	    	return false;
+	    }
 	}
 }
