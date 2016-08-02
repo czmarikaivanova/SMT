@@ -28,7 +28,7 @@ public class App {
 				graph = new Graph("instances/bigger.txt"); // from file, todo
 			}	
 			graph.saveInstance();
-			model = new MEBModel(graph, true);
+			model = new MEBModel(graph, false);
 			model.solve();
 			boolean[][] z = model.getZVar();
 			if (hasCrossing(z)) {
