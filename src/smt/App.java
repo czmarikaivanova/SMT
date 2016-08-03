@@ -18,7 +18,7 @@ public class App {
 	public int run() {
 		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		boolean generate = false;
+		boolean generate = true;
 		boolean draw = true;
 		for (int i = 0; i < iter; i++) {
 			if (generate) {
@@ -28,7 +28,7 @@ public class App {
 				graph = new Graph("instances/bigger.txt"); // from file, todo
 			}	
 			graph.saveInstance();
-			model = new MEBModel(graph, true);
+			model = new SMTModel(graph, true);
 			model.solve();
 			boolean[][] z = model.getZVar();
 			if (hasCrossing(z)) {
