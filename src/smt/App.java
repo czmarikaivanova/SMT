@@ -25,7 +25,7 @@ public class App {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("instances/bigger.txt"); // from file, todo
+				graph = new Graph("instances/instance46.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			model = new SMTModel(graph, true);

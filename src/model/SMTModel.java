@@ -24,13 +24,7 @@ public class SMTModel extends ILPModel {
 	protected int d;
 	
 	protected IloNumVar[][][] x;
-	
 	protected IloNumVar[][][] y;	
-
-	public void createModel() {
-		initVars();
-		createConstraints();
-	}
 	
 	protected void initVars() {
 		try {

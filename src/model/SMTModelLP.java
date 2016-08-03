@@ -14,11 +14,7 @@ public class SMTModelLP extends SMTModel {
 		super(graph, allowCrossing);
 	}
 	
-	public void createModel() {
-		initVars();					
-		createConstraints();		
-	}
-	
+
 	protected void initVars() {
 		try {
 			n = graph.getVertexCount();

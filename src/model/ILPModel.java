@@ -34,9 +34,15 @@ public abstract class ILPModel {
 		createModel();		
 		
 	}
-	
-	public abstract void createModel();
+		
+	protected abstract void initVars();
+	protected abstract void createConstraints();
 	public abstract boolean[][] getZVar();
+	
+	protected void createModel() {
+		initVars();
+		createConstraints();
+	}
 	
 	public boolean solve() {
 		try {

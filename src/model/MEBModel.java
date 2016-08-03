@@ -21,18 +21,16 @@ public class MEBModel extends ILPModel {
 	private IloNumVar[] p;		
 	
 	@Override
-	public void createModel() {
+	protected void initVars() {
+		n = graph.getVertexCount();
+		d = n - 1;
 		try {
-			n = graph.getVertexCount();
-			d = n - 1;
 			cplex = new IloCplex();
 			x = new IloNumVar[n][n][];
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
-//					x[i][j] = cplex.numVarArray(d,0,1);
+	//				x[i][j] = cplex.numVarArray(d,0,1);
 					x[i][j] = cplex.boolVarArray(d);
-				
-
 				}					
 			}
 			p = cplex.numVarArray(n, 0, 99999);
@@ -41,8 +39,18 @@ public class MEBModel extends ILPModel {
 			for (int j = 0; j < n; j++) {
 				//z[j] = cplex.numVarArray(n,0,1);		
 				z[j] = cplex.boolVarArray(n);	
-			}									
-			
+			}	
+		} catch (IloException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+	public void createConstraints() {
+		try {
+
 			// create model and solve it				
 			IloLinearNumExpr obj = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {
@@ -251,7 +259,9 @@ public class MEBModel extends ILPModel {
         dstStr += " ;\n";
         nonDstStr += " ;\n";
         return dstStr + nonDstStr;
-    }	
+    }
+
+
 	
 
 
