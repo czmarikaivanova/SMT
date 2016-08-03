@@ -7,9 +7,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 import smt.Constants;
+import smt.Miscellaneous;
 
 public class Graph {
 	
@@ -17,6 +21,8 @@ public class Graph {
 	private int dstCount;	
 	private int instId;
 	private Node[] nodes;
+	private float[][] requir;	
+	private int iterCount = 0;
 	
 	public Graph(int vertexCount, int dstCount) {
 		this.vertexCount = vertexCount;
@@ -24,12 +30,14 @@ public class Graph {
 		Random rnd = new Random();
 		instId = rnd.nextInt(100000);
 		generatePoints();		
+		calculateDistances();
 	}
 	
+
 	public Graph(String instanceFilePath) { // todo
 		instId = -1;
 		createPoints(instanceFilePath);
-		
+		calculateDistances();
 	}
 	
     private void generatePoints() {
@@ -70,14 +78,24 @@ public class Graph {
 		}
     }	
     
-    
-    
+	private void calculateDistances() {
+		requir = new float[vertexCount][vertexCount];
+		for (int i = 0; i < vertexCount; i++) {
+			for (int j = 0; j < vertexCount; j++) {
+				float dst = Miscellaneous.dst(nodes[i].getPoint(), nodes[j].getPoint());
+				requir[i][j] = dst;
+			}
+		}
+		
+	}    
     private void orderNeighbours() {
     	for (Node n: nodes) {
     		n.orderNeighbours(nodes);
     	}
     	writeDebug();    	
     }
+    
+    
     
     private void writeDebug() {
 		for (int i = 0; i < nodes.length; i++) {
@@ -112,6 +130,74 @@ public class Graph {
         }   					
 	}    
 	
+	// also creates the file !
+    public File generateAMPLData() {
+        try
+        {
+        	File datafile = new File("amplfiles/ampl" +  new File("amplfiles/").list().length + ".dat");
+            System.out.println("Saving: AMPL input");
+            FileWriter fw = new FileWriter(datafile,false); //the true will append the new data
+            fw.write(Constants.INST_ID + getInstId() + "\n");
+            String head = genAmplHead();
+            String crossStr = genCrossing();
+            String paramStr = "param requir :=\n";
+            String distancesStr = "";
+            for (int i = 0; i < getVertexCount(); i++) {
+                for (int j = 0; j < getVertexCount(); j++) {
+                    distancesStr += " " +i + " " + j + " " + Miscellaneous.dst(getNode(i).getPoint(), getNode(j).getPoint()) + "\t"; 
+                }
+                distancesStr += "\n";
+            }
+            fw.write(head);
+            fw.write(crossStr);
+            fw.write(paramStr);
+            fw.write(distancesStr + ";");
+            fw.close();
+            return datafile;
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("IOException: " + ioe.getMessage());
+            return null;
+        } 
+    }	 
+    
+    private String genCrossing() {
+    	String crossStr = "";
+    	for (int i = 0; i < getVertexCount(); i++) {
+    		for (int j = i+1; j < getVertexCount(); j++) {
+    	    	for (int k = i+1; k < getVertexCount(); k++) {
+    	    		for (int l = k+1; l < getVertexCount(); l++) {
+    	    			if (i!=k && i!=l && j!=k && j!=l) {
+							if (Miscellaneous.edgesProperlyIntersect(getNode(i).getPoint(), 
+									getNode(j).getPoint(), 
+									getNode(k).getPoint(), 
+									getNode(l).getPoint())) {
+								crossStr += "(" + i + "," + j + "," + k + "," + l + ") ";
+							}    	    				
+    	    			}
+    	    		}
+    	    	}    			
+    		}
+    	}
+    	return  "set CROSS := " + crossStr + ";\n"; 
+    }
+
+	protected String genAmplHead() {
+        String dstStr = "set DESTS :=";
+        String nonDstStr = "set NONDESTS :=";
+        for (int i = 0; i < getVertexCount(); i++) {
+            if (i < getDstCount()) {
+                dstStr += " " + i ;
+            } else {
+                nonDstStr += " " + i;
+            }
+        }
+        dstStr += " ;\n";
+        nonDstStr += " ;\n";
+        return dstStr + nonDstStr;
+    }	
+	
 	public int getInstId() {
 		return instId;
 	}
@@ -127,4 +213,14 @@ public class Graph {
 	public Node getNode(int i) {
 		return nodes[i];
 	}
+
+	public float getRequir(int i, int j) {
+		return requir[i][j];
+	}
+	
+	public float getRequir(Node i, Node j) {
+		return requir[i.id][j.id];
+	}	
+
+
 }

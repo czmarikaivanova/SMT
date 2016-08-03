@@ -74,7 +74,7 @@ public class MEBModel extends ILPModel {
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
 						IloLinearNumExpr expr = cplex.linearNumExpr();	
-						expr.addTerm(requir[i][j], z[i][j]);
+						expr.addTerm(graph.getRequir(i,j), z[i][j]);
 						cplex.addLe(expr, p[i]);	
 					}
 				}	

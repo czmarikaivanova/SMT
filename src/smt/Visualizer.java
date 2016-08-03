@@ -60,7 +60,7 @@ public class Visualizer extends JPanel {
                 	g2d.draw(new Line2D.Float(xu, yu, xv, yv ));                	
                 }
                 g2d.setColor(Color.BLUE);      
-                int dst = Math.round(Miscellaneous.dst(graph.getNode(i).getPoint(), graph.getNode(j).getPoint()));
+                int dst = Math.round(graph.getRequir(i, j));
                 g2d.drawString(Integer.toString(dst), (xu + xv)/2, (yu + yv)/2-5);
                 g2d.setColor(color);        		
         	}

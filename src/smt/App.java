@@ -10,8 +10,8 @@ import model.SMTModel;
 import model.SMTModelLP;
 public class App {
 	
-    int vertexCount = 15;
-    int dstCount = 15;
+    int vertexCount = 10;
+    int dstCount = 5;
  //   int nodeCount =12;    
     private ILPModel model;
     Graph graph;
@@ -19,16 +19,17 @@ public class App {
 	public int run() {
 		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		boolean generate = false;
+		boolean generate = true;
 		boolean draw = true;
 		for (int i = 0; i < iter; i++) {
 			if (generate) {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("instances/instance18.txt"); // from file, todo
+				graph = new Graph("instances/bigger.txt"); // from file, todo
 			}	
 			graph.saveInstance();
+			graph.generateAMPLData();
 			model = new SMTModel(graph, false);
 			model.solve();
 			boolean[][] z = model.getZVar();

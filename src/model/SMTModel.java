@@ -56,7 +56,7 @@ public class SMTModel extends ILPModel {
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
 						for (int s = 0; s < d; s++) {
-							obj.addTerm(requir[i][j], y[i][j][s]);
+							obj.addTerm(graph.getRequir(i,j), y[i][j][s]);
 						}
 					}
 				}
@@ -171,7 +171,7 @@ public class SMTModel extends ILPModel {
 						for (int s = 0; s < d; s++) {
 							IloLinearNumExpr expr7 = cplex.linearNumExpr();
 							for (int k = 0; k < n; k++) {
-								if ((requir[i][k] >= requir[i][j]) && (i != k)) {
+								if ((graph.getRequir(i,k) >= graph.getRequir(i,j)) && (i != k)) {
 									expr7.addTerm(1.0, y[i][k][s]);
 								}
 							}
