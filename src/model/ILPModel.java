@@ -32,7 +32,6 @@ public abstract class ILPModel {
 		amplDataFile = generateAMPLData();
 		populate();		
 		createModel();		
-		
 	}
 		
 	protected abstract void initVars();
@@ -48,7 +47,6 @@ public abstract class ILPModel {
 		try {
 			return cplex.solve();
 		} catch (IloException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}

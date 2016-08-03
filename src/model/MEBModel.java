@@ -17,8 +17,8 @@ public class MEBModel extends ILPModel {
 
 	int n; 
 	int d;
-	private IloNumVar[][][] x;
-	private IloNumVar[] p;		
+	protected IloNumVar[][][] x;
+	protected IloNumVar[] p;		
 	
 	@Override
 	protected void initVars() {
@@ -44,7 +44,6 @@ public class MEBModel extends ILPModel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 
 	@Override
@@ -214,7 +213,7 @@ public class MEBModel extends ILPModel {
 				for (int j = 0; j < z.length; j++) {
 					if (i != j) {
 						System.out.print(cplex.getValue(z[i][j]) + " ");						
-						zval[i][j] = cplex.getValue(z[i][j]) < 0.5 ? false : true;						
+						zval[i][j] = cplex.getValue(z[i][j]) < 0.00001 ? false : true;						
 					}
 				}
 				System.out.println();
