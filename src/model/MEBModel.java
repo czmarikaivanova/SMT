@@ -207,14 +207,14 @@ public class MEBModel extends ILPModel {
 		}		
 	}	
 	
-	public boolean[][] getZVar() {
+	public Double[][] getZVar() {
 		try {
-			boolean[][] zval = new boolean[z.length][z.length];
+			Double[][] zval = new Double[z.length][z.length];
 			for (int i = 0 ; i < z.length; i++) {
 				for (int j = 0; j < z.length; j++) {
 					if (i != j) {
 						System.out.print(cplex.getValue(z[i][j]) + " ");						
-						zval[i][j] = cplex.getValue(z[i][j]) < 0.00001 ? false : true;						
+						zval[i][j] = cplex.getValue(z[i][j]);						
 					}
 				}
 				System.out.println();

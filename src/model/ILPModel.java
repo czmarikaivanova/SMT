@@ -33,7 +33,7 @@ public abstract class ILPModel {
 		
 	protected abstract void initVars();
 	protected abstract void createConstraints();
-	public abstract boolean[][] getZVar();
+	public abstract Double[][] getZVar();
 	
 	protected void createModel() {
 		initVars();

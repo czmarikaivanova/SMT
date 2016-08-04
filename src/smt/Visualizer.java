@@ -17,11 +17,11 @@ public class Visualizer extends JPanel {
 
     File instFile;
     int dstCount;
-    boolean[][] z;
+    Double[][] z;
     Graph graph;
     boolean useArrows;
     
-    public Visualizer(boolean[][] z, Graph graph, boolean useArrows) {        
+    public Visualizer(Double[][] z, Graph graph, boolean useArrows) {        
         this.z = z;
         this.graph = graph;        
         this.useArrows = useArrows;
@@ -49,7 +49,7 @@ public class Visualizer extends JPanel {
         g2d.setStroke(new BasicStroke(2));      
         for (int j = 0; j < graph.getVertexCount(); j++) {
     	//for (int j = i + 1; j < nodes.length; j++) {
-        	if (z[i][j]) {
+        	if ((z[i][j] != null) && (z[i][j] > 0)) {
                 float xv = Math.round(graph.getNode(j).getPoint().getX() * 10);
                 float yv = Math.round(graph.getNode(j).getPoint().getY() * 10);
 
