@@ -25,7 +25,7 @@ public class Graph {
 	private int instId;
 	private Node[] nodes;
 	private float[][] requir;	
-	protected ArrayList<Quartet<Node, Node, Node, Node>> crossList;
+	private ArrayList<Quartet<Node, Node, Node, Node>> crossList;
 	
 	public Graph(int vertexCount, int dstCount) {
 		this.vertexCount = vertexCount;
@@ -43,7 +43,13 @@ public class Graph {
 		calculateDistances();
 	}
 	
-    private void generatePoints() {
+	// just for the sake of the inherited ExtendedGraph
+    public Graph() {
+    	
+	}
+
+
+	private void generatePoints() {
     	nodes = new Node[vertexCount];
     	for (int i = 0; i < vertexCount; i++) {
     		nodes[i] = new Node(i);
@@ -224,7 +230,6 @@ public class Graph {
 	public float getRequir(Node i, Node j) {
 		return requir[i.getId()][j.getId()];
 	}
-
 
 	public ArrayList<Quartet<Node, Node, Node, Node>> getCrossList() {
 		return crossList;
