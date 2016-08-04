@@ -11,7 +11,6 @@ public class Node {
 	private Point p;
 	private boolean isDest;
 	public ArrayList<Node> orderedNeighbours;
-	private double weight;	
 	
 	private final int id;
 	
@@ -21,7 +20,6 @@ public class Node {
 		this.isDest = isDest;
 		orderedNeighbours = new ArrayList<Node>();
 		this.id = id;
-		this.weight = 0;
 	}
 	
 	public Node(int id) {
@@ -31,17 +29,6 @@ public class Node {
 		this.isDest = true;
 		orderedNeighbours = new ArrayList<Node>();
 		this.id = id;
-		this.weight = 0;
-	}
-	
-	public Node(int id, double weight) {
-		super();
-		Random rnd = new Random();		
-		this.p = new Point(rnd.nextInt(Constants.MAX_COORD), rnd.nextInt(Constants.MAX_COORD));
-		this.isDest = true;
-		orderedNeighbours = new ArrayList<Node>();
-		this.id = id;
-		this.weight = weight;
 	}
 	
 	public int getId() {
