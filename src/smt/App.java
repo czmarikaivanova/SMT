@@ -12,7 +12,7 @@ import model.SMTModelLP;
 public class App {
 	
     int vertexCount = 10;
-    int dstCount = 5;
+    int dstCount = 10;
  //   int nodeCount =12;    
     private ILPModel model;
     Graph graph;
@@ -20,7 +20,7 @@ public class App {
 	public int run() {
 		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		boolean generate = false;
+		boolean generate = true;
 		boolean draw = true;
 		for (int i = 0; i < iter; i++) {
 			if (generate) {
@@ -48,7 +48,7 @@ public class App {
 				}					
 			}			
 			ExtendedGraph exGr = new ExtendedGraph(graph, z);
-
+			exGr.writeDebug();
 			
 			System.err.println("Instances with crossing: ");
 			for (Integer c: crossList) {

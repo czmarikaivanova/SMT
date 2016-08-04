@@ -27,7 +27,12 @@ public class ExtendedGraph extends Graph {
 		int cnt = 0;
 		for (int i = 0; i < origGraph.getVertexCount(); i++) {
 			for (int j = i + 1; j < origGraph.getVertexCount(); j++) {
-				nodes[cnt] = new ExtendedNode(origGraph.getNode(i), origGraph.getNode(j), z[i][j], cnt);
+				if (z[j][i] != null) {
+					nodes[cnt] = new ExtendedNode(origGraph.getNode(i), origGraph.getNode(j), z[i][j] + z[j][i], cnt);
+				}
+				else {
+					nodes[cnt] = new ExtendedNode(origGraph.getNode(i), origGraph.getNode(j), z[i][j], cnt);
+				}
 				cnt++;
 			}
 		}
@@ -54,7 +59,7 @@ public class ExtendedGraph extends Graph {
 		System.out.println("----------------");
 		System.out.println("Vertices created: ");
 		for (ExtendedNode node: nodes) {
-			System.out.println("ID: " + node.getId() + " weight: " + node.getWeight());
+			System.out.println("ID: " + node.getId() + " Originals: (" + node.getOrigU().getId() +", " + node.getOrigV().getId() + " ) " +" weight: " + node.getWeight());
 		}
 		System.out.println("----------------");
 		System.out.println("Edges created: ");
