@@ -20,7 +20,7 @@ public abstract class ILPModel {
 	protected IloCplex cplex;
 	protected IloNumVar[][] z;
 	protected Graph graph;
-	protected ArrayList<Quartet<Integer, Integer, Integer, Integer>> crossList;
+
 	protected boolean allowCrossing;
 	
 	

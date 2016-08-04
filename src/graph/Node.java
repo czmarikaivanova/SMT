@@ -11,7 +11,7 @@ public class Node {
 	Point p;
 	private boolean isDest;
 	public ArrayList<Node> orderedNeighbours;
-	public final int id;
+	private final int id;
 	
 	
 	public Node(int id, Point p, boolean isDest) {
@@ -29,6 +29,10 @@ public class Node {
 		this.isDest = true;
 		orderedNeighbours = new ArrayList<Node>();
 		this.id = id;
+	}
+	
+	public int getId() {
+		return id;
 	}
 		
 	

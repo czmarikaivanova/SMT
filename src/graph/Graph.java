@@ -7,10 +7,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
+
+import org.javatuples.Quartet;
 
 import smt.Constants;
 import smt.Miscellaneous;
@@ -22,7 +25,7 @@ public class Graph {
 	private int instId;
 	private Node[] nodes;
 	private float[][] requir;	
-	private int iterCount = 0;
+	protected ArrayList<Quartet<Node, Node, Node, Node>> crossList;
 	
 	public Graph(int vertexCount, int dstCount) {
 		this.vertexCount = vertexCount;
@@ -101,7 +104,7 @@ public class Graph {
 		for (int i = 0; i < nodes.length; i++) {
 			System.out.print(i + ": (");
 			for (Node nb : nodes[i].orderedNeighbours) {
-				System.out.print(" " + nb.id);
+				System.out.print(" " + nb.getId());
 			}
 			System.out.println();
 		}		
@@ -219,7 +222,12 @@ public class Graph {
 	}
 	
 	public float getRequir(Node i, Node j) {
-		return requir[i.id][j.id];
+		return requir[i.getId()][j.getId()];
+	}
+
+
+	public ArrayList<Quartet<Node, Node, Node, Node>> getCrossList() {
+		return crossList;
 	}	
 
 

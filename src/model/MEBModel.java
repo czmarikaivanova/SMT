@@ -3,6 +3,7 @@ package model;
 import org.javatuples.Quartet;
 
 import graph.Graph;
+import graph.Node;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
@@ -129,25 +130,25 @@ public class MEBModel extends ILPModel {
 			
 			if (allowCrossing) {
 				// crossing 1
-				for (Quartet<Integer, Integer, Integer, Integer> crossPair: crossList) {
-					int i = crossPair.getValue0();
-					int j = crossPair.getValue1();
-					int k = crossPair.getValue2();
-					int l = crossPair.getValue3();				
-					cplex.addLe(cplex.sum(z[i][j], z[k][l]), 1.0);
-					cplex.addLe(cplex.sum(z[i][j], z[l][k]), 1.0);
-					cplex.addLe(cplex.sum(z[j][i], z[k][l]), 1.0);
-					cplex.addLe(cplex.sum(z[j][i], z[l][k]), 1.0);
-				}
+//				for (Quartet<Node, Node, Node, Node> crossPair: graph.getCrossList()) {
+//					int i = crossPair.getValue0().getId();
+//					int j = crossPair.getValue1().getId();
+//					int k = crossPair.getValue2().getId();
+//					int l = crossPair.getValue3().getId();				
+//					cplex.addLe(cplex.sum(z[i][j], z[k][l]), 1.0);
+//					cplex.addLe(cplex.sum(z[i][j], z[l][k]), 1.0);
+//					cplex.addLe(cplex.sum(z[j][i], z[k][l]), 1.0);
+//					cplex.addLe(cplex.sum(z[j][i], z[l][k]), 1.0);
+//				}
 				
 				// crossing 2
-//				for (Quartet<Integer, Integer, Integer, Integer> crossPair: crossList) {
-//					int i = crossPair.getValue0();
-//					int j = crossPair.getValue1();
-//					int k = crossPair.getValue2();
-//					int l = crossPair.getValue3();				
-//					cplex.addLe(cplex.sum(z[i][j], z[k][l], z[l][k], z[j][i]), 1.0);
-//				}			
+				for (Quartet<Node, Node, Node, Node> crossPair: graph.getCrossList()) {
+					int i = crossPair.getValue0().getId();
+					int j = crossPair.getValue1().getId();
+					int k = crossPair.getValue2().getId();
+					int l = crossPair.getValue3().getId();				
+					cplex.addLe(cplex.sum(z[i][j], z[k][l], z[l][k], z[j][i]), 1.0);
+				}			
 			}
 			
 		} catch (IloException e) {

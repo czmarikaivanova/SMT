@@ -1,6 +1,7 @@
 package model;
 
 import graph.Graph;
+import graph.Node;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
@@ -184,11 +185,11 @@ public class SMTModel extends ILPModel {
 			
 			// crossing
 			if (allowCrossing) {
-				for (Quartet<Integer, Integer, Integer, Integer> crossPair: crossList) {
-					int i = crossPair.getValue0();
-					int j = crossPair.getValue1();
-					int k = crossPair.getValue2();
-					int l = crossPair.getValue3();				
+				for (Quartet<Node, Node, Node, Node> crossPair: graph.getCrossList()) {
+					int i = crossPair.getValue0().getId();
+					int j = crossPair.getValue1().getId();
+					int k = crossPair.getValue2().getId();
+					int l = crossPair.getValue3().getId();				
 					cplex.addLe(cplex.sum(z[i][j], z[k][l], z[l][k], z[j][i]), 1.0);
 				}	
 			}
