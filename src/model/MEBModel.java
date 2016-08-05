@@ -30,7 +30,6 @@ public class MEBModel extends ILPModel {
 			x = new IloNumVar[n][n][];
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
-	//				x[i][j] = cplex.numVarArray(d,0,1);
 					x[i][j] = cplex.boolVarArray(d);
 				}					
 			}
@@ -38,11 +37,9 @@ public class MEBModel extends ILPModel {
 			
 			z = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {
-				//z[j] = cplex.numVarArray(n,0,1);		
 				z[j] = cplex.boolVarArray(n);	
 			}	
 		} catch (IloException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

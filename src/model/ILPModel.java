@@ -20,13 +20,18 @@ public abstract class ILPModel {
 	protected IloCplex cplex;
 	protected IloNumVar[][] z;
 	protected Graph graph;
-
 	protected boolean allowCrossing;
-	
 	
 	public ILPModel(Graph graph, boolean allowCrossing) {
 		this.graph = graph;
 		this.allowCrossing = allowCrossing;		
+//		populate();		
+		createModel();		
+	}
+	
+	public ILPModel() {
+		this.graph = null;
+		this.allowCrossing = true;		
 //		populate();		
 		createModel();		
 	}

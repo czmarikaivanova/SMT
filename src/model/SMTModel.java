@@ -6,14 +6,7 @@ import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
 import org.javatuples.Quartet;
-
-import smt.Miscellaneous;
 
 public class SMTModel extends ILPModel {	
 	
