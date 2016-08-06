@@ -20,7 +20,7 @@ public class App {
     Graph graph;
     
 	public int run() {
-		int iter = 5;
+		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
 		boolean generate = true;
 		boolean draw = true;
