@@ -11,7 +11,7 @@ public class ExtendedGraph extends Graph {
 	
 	ExtendedNode[] nodes;
 	ArrayList<Pair<ExtendedNode, ExtendedNode>> edges;
-	int nodeCount;
+	
 
 	public ExtendedGraph(Graph origGraph, Double[][] z) {
 		super();
@@ -22,8 +22,8 @@ public class ExtendedGraph extends Graph {
 	}
 	
 	private void createNodes() {
-		nodeCount = (int) (0.5 * origGraph.getVertexCount() * (origGraph.getVertexCount() - 1)); // always int as n(n-1) is always even
-		nodes = new ExtendedNode[nodeCount];
+		vertexCount = (int) (0.5 * origGraph.getVertexCount() * (origGraph.getVertexCount() - 1)); // always int as n(n-1) is always even
+		nodes = new ExtendedNode[vertexCount];
 		int cnt = 0;
 		for (int i = 0; i < origGraph.getVertexCount(); i++) {
 			for (int j = i + 1; j < origGraph.getVertexCount(); j++) {
@@ -53,6 +53,19 @@ public class ExtendedGraph extends Graph {
 				}
 			}
 		}
+	}
+	
+	public ExtendedNode getNode(int i) {
+		return nodes[i];
+	}
+	
+	public boolean containsEdge(int i, int j) {
+		for (Pair<ExtendedNode, ExtendedNode> e: edges) {
+			if ((e.getValue0().getId() == i) && (e.getValue1().getId() == j)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public void writeDebug() {

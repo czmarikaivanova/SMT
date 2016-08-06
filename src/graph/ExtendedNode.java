@@ -1,17 +1,16 @@
 package graph;
 
-public class ExtendedNode {
+public class ExtendedNode extends Node {
 
 	private Node origU;
 	private Node origV;
-	private double weight;
-	private int id;
+	private double weight;	
 	
 	public ExtendedNode(Node origU, Node origV, double weight, int id) {
+		super(id);
 		this.origU = origU;
 		this.origV = origV;
 		this.weight = weight;
-		this.id = id;
 	}
 	
 	/**

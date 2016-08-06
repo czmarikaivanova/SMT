@@ -32,8 +32,6 @@ public abstract class ILPModel {
 	public ILPModel() {
 		this.graph = null;
 		this.allowCrossing = true;		
-//		populate();		
-		createModel();		
 	}
 		
 	protected abstract void initVars();

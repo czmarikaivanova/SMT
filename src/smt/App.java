@@ -5,6 +5,8 @@ import graph.Graph;
 
 import java.util.ArrayList;
 import javax.swing.JFrame;
+
+import model.CliqueModel;
 import model.ILPModel;
 import model.MEBModel;
 import model.SMTModel;
@@ -20,7 +22,7 @@ public class App {
 	public int run() {
 		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		boolean generate = true;
+		boolean generate = false;
 		boolean draw = true;
 		for (int i = 0; i < iter; i++) {
 			if (generate) {
@@ -47,9 +49,9 @@ public class App {
 					draw(z, graph, false);
 				}					
 			}			
-			ExtendedGraph exGr = new ExtendedGraph(graph, z);
-			exGr.writeDebug();
-			
+			CliqueModel cliqueModel = new CliqueModel(graph, z);
+			cliqueModel.solve();
+			Boolean[] clVar = cliqueModel.getCliqueVar();
 			System.err.println("Instances with crossing: ");
 			for (Integer c: crossList) {
 				System.err.println(c + "");	

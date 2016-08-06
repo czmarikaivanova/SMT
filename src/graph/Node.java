@@ -12,7 +12,7 @@ public class Node {
 	private boolean isDest;
 	public ArrayList<Node> orderedNeighbours;
 	
-	private final int id;
+	protected final int id;
 	
 	public Node(int id, Point p, boolean isDest) {
 		super();
@@ -30,6 +30,8 @@ public class Node {
 		orderedNeighbours = new ArrayList<Node>();
 		this.id = id;
 	}
+	
+	
 	
 	public int getId() {
 		return id;

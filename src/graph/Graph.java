@@ -20,7 +20,7 @@ import smt.Miscellaneous;
 
 public class Graph {
 	
-	private int vertexCount;
+	protected int vertexCount;
 	private int dstCount;	
 	private int instId;
 	private Node[] nodes;
