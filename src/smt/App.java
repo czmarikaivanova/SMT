@@ -13,16 +13,16 @@ import model.SMTModel;
 import model.SMTModelLP;
 public class App {
 	
-    int vertexCount = 10;
-    int dstCount = 10;
+    int vertexCount = 15;
+    int dstCount = 15;
  //   int nodeCount =12;    
     private ILPModel model;
     Graph graph;
     
 	public int run() {
-		int iter = 1;
+		int iter = 5;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		boolean generate = false;
+		boolean generate = true;
 		boolean draw = true;
 		for (int i = 0; i < iter; i++) {
 			if (generate) {
