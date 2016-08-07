@@ -152,39 +152,6 @@ public class MEBModel extends ILPModel {
 			System.err.println("Concert exception caught: " + e);
 		}	
 	}
-
-//	@Override
-//	
-//	/**
-//	 *  Feed data structure from the AMPL file
-//	 */
-//	public void populate() {
-//		try {
-//			BufferedReader br = new BufferedReader(new FileReader(amplDataFile));
-//			String line;
-//			while ((line = br.readLine()) != null) {
-//				if (line.matches("param.*")) {
-//				//	append(); // crate array vertices
-//					requir = new double[graph.getVertexCount()][graph.getVertexCount()];
-//					String parLine;
-//					while ((parLine = br.readLine()) != null) {							
-//						String[] entries = parLine.split("\t");
-//						if (entries.length > 3) { // skip the last line
-//							for (String s: entries) {
-//								s = s.trim();
-//								String[] entry = s.split(" ");
-//								requir[Integer.parseInt(entry[0])][Integer.parseInt(entry[1])] = Double.parseDouble(entry[2]);	
-//							}
-//						}
-//					}
-//				}					
-//			}
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {				
-//			e.printStackTrace();
-//		}
-//	}
 	
 	public double[] getPVar() {
 		try {
