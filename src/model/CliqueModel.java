@@ -69,7 +69,10 @@ public class CliqueModel extends ILPModel {
 		try {
 			Boolean[] zval = new Boolean[z.length];
 			for (int i = 0 ; i < z.length; i++) {
-				System.out.print("i: " + cplex.getValue(z[i]) + " ");						
+				double val = cplex.getValue(z[i]);
+				if (val > 0.5) {
+					System.out.println(i +": " + cplex.getValue(z[i]) + " ");					
+				}
 				zval[i] = cplex.getValue(z[i]) < 0.5 ? false: true;						
 			}
 			System.out.println();

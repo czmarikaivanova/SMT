@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import model.CliqueModel;
 import model.ILPModel;
 import model.MEBModel;
+import model.MEBModelLP;
 import model.SMTModel;
 import model.SMTModelLP;
 public class App {
@@ -22,20 +23,20 @@ public class App {
 	public int run() {
 		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		boolean generate = true;
+		boolean generate = false;
 		boolean draw = true;
 		for (int i = 0; i < iter; i++) {
 			if (generate) {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("instances/crossing.txt"); // from file, todo
+				graph = new Graph("instances/clique3.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
 			
 			
-			model = new MEBModel(graph, false);
+			model = new MEBModelLP(graph, false);
 			model.solve();
 			Double[][] z = (Double[][]) model.getZVar();
 			if (hasCrossing(z)) {
