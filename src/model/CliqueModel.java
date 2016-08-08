@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+
 import org.javatuples.Quartet;
 
 import ilog.concert.IloException;
@@ -7,6 +9,7 @@ import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 import graph.ExtendedGraph;
+import graph.ExtendedNode;
 import graph.Graph;
 import graph.Node;
 
@@ -76,7 +79,7 @@ public class CliqueModel extends ILPModel {
 			}
 			System.out.println();
 			System.out.println("Objective: " + cplex.getObjValue());
-			cplex.end();
+			//cplex.end();
 			return zval;		
 		} catch (IloException e) {			
 			e.printStackTrace();
@@ -86,5 +89,20 @@ public class CliqueModel extends ILPModel {
 	
 	public ExtendedGraph getExtGraph() 	{
 		return extGraph;
+	}
+
+	public void addClConstraint(ArrayList<ExtendedNode> clique) {
+		// Flow conservation - dest
+		IloLinearNumExpr expr;
+		try {
+			expr = cplex.linearNumExpr();
+			for (ExtendedNode en: clique) {
+					expr.addTerm(extGraph.getNode(en.getId()).getWeight(), z[en.getId()]);									
+			}
+			cplex.addLe(expr, 1);
+		} catch (IloException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

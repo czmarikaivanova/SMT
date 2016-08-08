@@ -15,8 +15,8 @@ import model.SMTModel;
 import model.SMTModelLP;
 public class App {
 	
-    int vertexCount = 15;
-    int dstCount = 15;
+    int vertexCount = 10;
+    int dstCount = 10;
     private ILPModel model;
     Graph graph;
     private boolean draw = true;
@@ -43,17 +43,15 @@ public class App {
 			}
 			drawSolution(z);
 			CliqueModel cliqueModel = new CliqueModel(graph, z);
-			cliqueModel.solve();
-			Boolean[] clVar = cliqueModel.getCliqueVar();
-			cliqueList.add(cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar));  // add new clique to the list of cliques
-			System.out.println("-------------------------");
-			System.out.println("Clique contains: " );
-			for (ArrayList<ExtendedNode> clique: cliqueList) {
-				for (ExtendedNode en: clique) {
-					System.out.println(en.getId() + " = [ " + en.getOrigU().getId() + ", " + en.getOrigV().getId()  + " ]");
-				}
-			}
-	
+			ArrayList<ExtendedNode> clique;
+			do {
+				cliqueModel.solve();
+				Boolean[] clVar = cliqueModel.getCliqueVar();
+				clique = cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar); 
+				cliqueList.add(clique);  // add new clique to the list of cliques
+				cliqueModel.addClConstraint(clique);
+			} while (clique.size() > 1);
+			cliqueModel.end();
 			System.err.println("Instances with crossing: ");
 			for (Integer c: crossList) {
 				System.err.println(c + "");	

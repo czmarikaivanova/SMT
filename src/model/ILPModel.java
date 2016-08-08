@@ -55,56 +55,9 @@ public abstract class ILPModel {
 	public IloCplex getModel() {
 		return cplex;
 	}
-	
-	/**
-	 *  Feed data structures
-	 */
-//	public void populate() {
-//		try {
-//			BufferedReader br = new BufferedReader(new FileReader(amplDataFile));
-//			String line;
-//			while ((line = br.readLine()) != null) {
-//				if (line.matches("set CROSS.*")) {
-//					// TODO !!
-//					ArrayList<String> crossStrList = new ArrayList<String>(Arrays.asList(line.split(" ")));
-//					crossStrList.remove(0); // remove the mess at the beginning and end
-//					crossStrList.remove(0);
-//					crossStrList.remove(0);
-//					crossStrList.remove(crossStrList.size() - 1);
-//					System.out.println("CROSSING::");
-//					System.out.println(Arrays.toString(crossStrList.toArray()));
-//					crossList = new ArrayList<Quartet<Integer, Integer, Integer, Integer>>();
-//					String[] crossPair;
-//					for (String crossStr: crossStrList) {
-//						crossStr = crossStr.substring(1, crossStr.length() - 1);
-//						crossPair = crossStr.split(",");
-//						crossList.add(new Quartet<Integer, Integer, Integer, Integer>(
-//								Integer.parseInt(crossPair[0]), 
-//								Integer.parseInt(crossPair[1]), 
-//								Integer.parseInt(crossPair[2]), 
-//								Integer.parseInt(crossPair[3])));
-//					}
-//					
-//				}
-//				else if (line.matches("param.*")) {
-//					requir = new double[graph.getVertexCount()][graph.getVertexCount()];
-//					String parLine;
-//					while ((parLine = br.readLine()) != null) {	
-//						if (parLine.length() > 2) { // skip the last line
-//							String[] entries = parLine.split("\t");
-//							for (String s: entries) {
-//								s = s.trim();
-//								String[] entry = s.split(" ");
-//								requir[Integer.parseInt(entry[0])][Integer.parseInt(entry[1])] = Double.parseDouble(entry[2]);								
-//							}
-//						}
-//					}
-//				}					
-//			}
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {				
-//			e.printStackTrace();
-//		}
-//	}    
+
+	public void end() {
+		cplex.end();
+	}
+
 }
