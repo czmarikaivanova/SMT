@@ -75,11 +75,20 @@ public class ExtendedGraph extends Graph {
 			System.out.println("ID: " + node.getId() + " Originals: (" + node.getOrigU().getId() +", " + node.getOrigV().getId() + " ) " +" weight: " + node.getWeight());
 		}
 		System.out.println("----------------");
-		System.out.println("Edges created: ");
-		for (Pair<ExtendedNode, ExtendedNode> pair : edges) {
-			System.out.println("(" + pair.getValue0().getId() + ", " + pair.getValue1().getId() + ")");
-			
+//		System.out.println("Edges created: ");
+//		for (Pair<ExtendedNode, ExtendedNode> pair : edges) {
+//			System.out.println("(" + pair.getValue0().getId() + ", " + pair.getValue1().getId() + ")");
+//		}
+	}
+	
+	public ArrayList<ExtendedNode> getSelectedExtendedNodes(Boolean[] boolArr) {
+		ArrayList<ExtendedNode> extNodeList = new ArrayList<ExtendedNode>();
+		for (int i = 0; i < boolArr.length; i++) {
+			if (boolArr[i]) {
+				extNodeList.add(this.getNode(i));
+			}
 		}
+		return extNodeList;
 	}
 
 }

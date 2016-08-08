@@ -1,6 +1,7 @@
 package smt;
 
 import graph.ExtendedGraph;
+import graph.ExtendedNode;
 import graph.Graph;
 
 import java.util.ArrayList;
@@ -16,49 +17,60 @@ public class App {
 	
     int vertexCount = 15;
     int dstCount = 15;
- //   int nodeCount =12;    
     private ILPModel model;
     Graph graph;
+    private boolean draw = true;
+    private boolean generate = true;
     
 	public int run() {
 		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		boolean generate = false;
-		boolean draw = true;
+		ArrayList<ArrayList<ExtendedNode>> cliqueList = new ArrayList<ArrayList<ExtendedNode>>();
 		for (int i = 0; i < iter; i++) {
 			if (generate) {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("instances/clique3.txt"); // from file, todo
+				graph = new Graph("instances/big-clique.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
-			
-			
 			model = new MEBModelLP(graph, false);
-			model.solve();
+			model.solve(); // obtain z value
 			Double[][] z = (Double[][]) model.getZVar();
 			if (hasCrossing(z)) {
 				crossList.add(graph.getInstId());
 			}
-			if (draw) {
-				if (model instanceof MEBModel) {
-					draw(z, graph, true);						
-				}
-				else {
-					draw(z, graph, false);
-				}					
-			}			
+			drawSolution(z);
 			CliqueModel cliqueModel = new CliqueModel(graph, z);
 			cliqueModel.solve();
 			Boolean[] clVar = cliqueModel.getCliqueVar();
+			cliqueList.add(cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar));  // add new clique to the list of cliques
+			System.out.println("-------------------------");
+			System.out.println("Clique contains: " );
+			for (ArrayList<ExtendedNode> clique: cliqueList) {
+				for (ExtendedNode en: clique) {
+					System.out.println(en.getId() + " = [ " + en.getOrigU().getId() + ", " + en.getOrigV().getId()  + " ]");
+				}
+			}
+	
 			System.err.println("Instances with crossing: ");
 			for (Integer c: crossList) {
 				System.err.println(c + "");	
 			}	
 		}			
 		return 0;
+	}
+	
+	private void drawSolution(Double[][] z) {
+		if (draw) {
+			if (model instanceof MEBModelLP) {
+				draw(z, graph, true);						
+			}
+			else {
+				draw(z, graph, false);
+			}					
+		}
 	}
 	
     private boolean hasCrossing(Double[][] z) {

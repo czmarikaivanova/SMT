@@ -61,7 +61,6 @@ public class CliqueModel extends ILPModel {
 
 	@Override
 	public Double[][] getZVar() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
@@ -71,7 +70,7 @@ public class CliqueModel extends ILPModel {
 			for (int i = 0 ; i < z.length; i++) {
 				double val = cplex.getValue(z[i]);
 				if (val > 0.5) {
-					System.out.println(i +": " + cplex.getValue(z[i]) + " ");					
+					System.out.println(i +": " + cplex.getValue(z[i]) + " "); // node i was selected
 				}
 				zval[i] = cplex.getValue(z[i]) < 0.5 ? false: true;						
 			}
@@ -84,5 +83,8 @@ public class CliqueModel extends ILPModel {
 			return null;
 		}		
 	}		
-
+	
+	public ExtendedGraph getExtGraph() 	{
+		return extGraph;
+	}
 }
