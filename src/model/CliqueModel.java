@@ -51,8 +51,8 @@ public class CliqueModel extends ILPModel {
 			
 			// Connection
 			for (int i = 0; i < n; i++) {					
-				for (int j = 0; j < n; j++) {
-					if (i != j && !extGraph.containsEdge(i, j)) {
+				for (int j = i+1; j < n; j++) {
+					if (i != j && !extGraph.containsEdge(i, j) && !extGraph.containsEdge(j, i)) {
 						cplex.addLe(cplex.sum(z[i], z[j]), 1);	
 					}
 				}	

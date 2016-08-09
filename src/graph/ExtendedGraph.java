@@ -46,18 +46,29 @@ public class ExtendedGraph extends Graph {
 	
 	private void createEdges() {
 		edges = new ArrayList<Pair<ExtendedNode, ExtendedNode>>();
-		for (ExtendedNode exU: nodes) {
-			for (ExtendedNode exV: nodes) {
-				if (!exU.equals(exV)) {
-					if (Miscellaneous.edgesProperlyIntersect(exU.getOrigU().getPoint(), 
-															 exU.getOrigV().getPoint(), 
-															 exV.getOrigU().getPoint(), 
-															 exV.getOrigV().getPoint())) {
-						edges.add(new Pair<ExtendedNode, ExtendedNode>(exU, exV));
-					}
-				}
-			}
+		for (int i = 0; i < nodes.length; i++) {
+			for (int j = i+1; j < nodes.length; j++) {
+				if (Miscellaneous.edgesProperlyIntersect(nodes[i].getOrigU().getPoint(), 
+						 nodes[i].getOrigV().getPoint(), 
+						 nodes[j].getOrigU().getPoint(), 
+						 nodes[j].getOrigV().getPoint())) {
+					edges.add(new Pair<ExtendedNode, ExtendedNode>(nodes[i], nodes[j]));
+					}	
+			}			
 		}
+		
+//		for (ExtendedNode exU: nodes) {
+//			for (ExtendedNode exV: nodes) {
+//				if (!exU.equals(exV)) {
+//					if (Miscellaneous.edgesProperlyIntersect(exU.getOrigU().getPoint(), 
+//															 exU.getOrigV().getPoint(), 
+//															 exV.getOrigU().getPoint(), 
+//															 exV.getOrigV().getPoint())) {
+//						edges.add(new Pair<ExtendedNode, ExtendedNode>(exU, exV));
+//					}
+//				}
+//			}
+//		}
 	}
 	
 	public ExtendedNode getNode(int i) {
@@ -100,7 +111,7 @@ public class ExtendedGraph extends Graph {
     public File generateAMPLData() {
         try
         {
-        	File datafile = new File("amplfiles/ampl" +  new File("amplfiles/").list().length + ".dat");
+        	File datafile = new File("amplfiles/cl_ampl" +  new File("amplfiles/").list().length + ".dat");
             System.out.println("Saving: AMPL input");
             FileWriter fw = new FileWriter(datafile,false); //the true will append the new data
             fw.write(Constants.INST_ID + getInstId() + "\n");
