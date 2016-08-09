@@ -31,7 +31,7 @@ public class App {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("instances/big-clique.txt"); // from file, todo
+				graph = new Graph("savet_inst/cyclic.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
