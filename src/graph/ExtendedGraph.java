@@ -1,7 +1,12 @@
 package graph;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import org.javatuples.Pair;
+
+import smt.Constants;
 import smt.Miscellaneous;
 
 public class ExtendedGraph extends Graph {
@@ -90,5 +95,46 @@ public class ExtendedGraph extends Graph {
 		}
 		return extNodeList;
 	}
+	
+	// also creates the file !
+    public File generateAMPLData() {
+        try
+        {
+        	File datafile = new File("amplfiles/ampl" +  new File("amplfiles/").list().length + ".dat");
+            System.out.println("Saving: AMPL input");
+            FileWriter fw = new FileWriter(datafile,false); //the true will append the new data
+            fw.write(Constants.INST_ID + getInstId() + "\n");
+            String head = genAmplHead();
+            String paramStr = "param weights :=\n";
+            String weightStr = "";
+            for (int i = 0; i < getVertexCount(); i++) {
+                    weightStr += " " +i + " " + getNode(i).getWeight() + "\n"; 
+            }
+            fw.write(head);
+            fw.write(paramStr);
+            fw.write(weightStr + ";");
+            fw.close();
+            return datafile;
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("IOException: " + ioe.getMessage());
+            return null;
+        } 
+    }		
+    
+	protected String genAmplHead() {
+        String dstStr = "set VERTICES :=";
+        String edgeStr = "set EDGES :=";
+        for (int i = 0; i < getVertexCount(); i++) {
+            dstStr += " " + i ;
+        }
+        for (Pair<ExtendedNode, ExtendedNode> edge: edges) {
+        	edgeStr += " (" + edge.getValue0().getId() + "," + edge.getValue1().getId() + ")";
+        }
+        dstStr += " ;\n";
+        edgeStr += " ;\n";
+        return dstStr + edgeStr;
+    }	
 
 }
