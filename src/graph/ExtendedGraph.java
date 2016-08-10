@@ -56,19 +56,6 @@ public class ExtendedGraph extends Graph {
 					}	
 			}			
 		}
-		
-//		for (ExtendedNode exU: nodes) {
-//			for (ExtendedNode exV: nodes) {
-//				if (!exU.equals(exV)) {
-//					if (Miscellaneous.edgesProperlyIntersect(exU.getOrigU().getPoint(), 
-//															 exU.getOrigV().getPoint(), 
-//															 exV.getOrigU().getPoint(), 
-//															 exV.getOrigV().getPoint())) {
-//						edges.add(new Pair<ExtendedNode, ExtendedNode>(exU, exV));
-//					}
-//				}
-//			}
-//		}
 	}
 	
 	public ExtendedNode getNode(int i) {
