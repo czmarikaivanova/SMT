@@ -7,14 +7,12 @@ import ilog.cplex.IloCplex;
 
 import java.io.File;
 
-
 public class SMTModelLP extends SMTModel {
 
 	public SMTModelLP(Graph graph, boolean allowCrossing) {
 		super(graph, allowCrossing);
 	}
 	
-
 	protected void initVars() {
 		try {
 			n = graph.getVertexCount();
@@ -33,7 +31,6 @@ public class SMTModelLP extends SMTModel {
 				z[j] = cplex.numVarArray(n,0,1);					
 			}	
 		} catch (IloException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}	

@@ -21,7 +21,7 @@ public class App {
     private ILPModel model;
     Graph graph;
     private boolean draw = true;
-    private boolean generate = false;
+    private boolean generate = true;
     
 	public int run() {
 		int iter = 1;
@@ -36,7 +36,7 @@ public class App {
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
-			model = new MEBModelLP(graph, false);
+			model = new SMTModelLP(graph, false);
 			model.solve(); // obtain z value
 			Double[][] z = (Double[][]) model.getZVar();
 			if (hasCrossing(z)) {

@@ -8,6 +8,7 @@ import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
+import graph.Clique;
 import graph.ExtendedGraph;
 import graph.ExtendedNode;
 import graph.Graph;
@@ -99,7 +100,7 @@ public class CliqueModel extends ILPModel {
 		return extGraph;
 	}
 
-	public void addClConstraint(ArrayList<ExtendedNode> clique) {
+	public void addClConstraint(Clique clique) {
 		// Flow conservation - dest
 		IloLinearNumExpr expr;
 		try {
