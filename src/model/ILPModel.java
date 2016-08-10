@@ -59,5 +59,14 @@ public abstract class ILPModel {
 	public void end() {
 		cplex.end();
 	}
+	
+	public double getObjectiveValue() {
+		try {
+			return cplex.getObjValue();
+		} catch (IloException e) {
+			e.printStackTrace();			
+			return 0;
+		}
+	}
 
 }

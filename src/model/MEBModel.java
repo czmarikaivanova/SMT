@@ -183,7 +183,7 @@ public class MEBModel extends ILPModel {
 				}
 				System.out.println();
 			}
-			System.out.println("Objective: " + cplex.getObjValue());
+			System.out.println("Objective: " + getObjectiveValue());
 			writeZ();
 			cplex.end();
 

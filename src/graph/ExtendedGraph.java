@@ -84,8 +84,8 @@ public class ExtendedGraph extends Graph {
 //		}
 	}
 	
-	public ArrayList<ExtendedNode> getSelectedExtendedNodes(Boolean[] boolArr) {
-		ArrayList<ExtendedNode> extNodeList = new ArrayList<ExtendedNode>();
+	public Clique getSelectedExtendedNodes(Boolean[] boolArr, double obj) {
+		Clique extNodeList = new Clique(obj);
 		if (boolArr != null) {
 			for (int i = 0; i < boolArr.length; i++) {
 				if (boolArr[i]) {

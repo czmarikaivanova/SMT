@@ -1,20 +1,19 @@
 package smt;
 
+import graph.Clique;
 import graph.ExtendedGraph;
 import graph.ExtendedNode;
 import graph.Graph;
-
 import java.util.ArrayList;
 import javax.swing.JFrame;
-
 import org.javatuples.Pair;
-
 import model.CliqueModel;
 import model.ILPModel;
 import model.MEBModel;
 import model.MEBModelLP;
 import model.SMTModel;
 import model.SMTModelLP;
+
 public class App {
 	
     int vertexCount = 10;
@@ -27,7 +26,7 @@ public class App {
 	public int run() {
 		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		ArrayList<ArrayList<ExtendedNode>> cliqueList = new ArrayList<ArrayList<ExtendedNode>>();
+		ArrayList<Clique> cliqueList = new ArrayList<Clique>();
 		for (int i = 0; i < iter; i++) {
 			if (generate) {
 				graph = new Graph(vertexCount, dstCount);			
@@ -46,11 +45,11 @@ public class App {
 			drawSolution(z);
 			CliqueModel cliqueModel = new CliqueModel(graph, z);
 			cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
-			ArrayList<ExtendedNode> clique;
+			Clique clique;
 			do {
 				cliqueModel.solve();
 				Boolean[] clVar = cliqueModel.getCliqueVar();
-				clique = cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar); 
+				clique = cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar, cliqueModel.getObjectiveValue()); 
 				cliqueList.add(clique);  // add new clique to the list of cliques
 				cliqueModel.addClConstraint(clique);
 			} while (clique.size() > 1);
@@ -64,14 +63,14 @@ public class App {
 		return 0;
 	}
 	
-	private void listCliques(ArrayList<ArrayList<ExtendedNode>> cliqueList) {
+	private void listCliques(ArrayList<Clique> cliqueList) {
 		System.out.println("--------------CLIQUES--------------");
-		for (ArrayList<ExtendedNode> clique: cliqueList) {
+		for (Clique clique: cliqueList) {
 			System.out.print("(");
 			for (ExtendedNode en: clique) {
 				System.out.print(" " + en.getId());
 			}
-			System.out.println(" )");
+			System.out.println(" ) weight: " + clique.getWeight() );
 		}
 		
 	}
@@ -119,9 +118,4 @@ public class App {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }		
-    
-
-
-
-    	
 }
