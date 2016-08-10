@@ -21,7 +21,9 @@ public class App {
     private ILPModel model;
     Graph graph;
     private boolean draw = true;
-    private boolean generate = true;
+    
+    private boolean generate = false;
+    private boolean allowCrossing = true;
     
 	public int run() {
 		int iter = 1;
@@ -32,11 +34,11 @@ public class App {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("saved_inst/cyclic.txt"); // from file, todo
+				graph = new Graph("saved_inst/crossing.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
-			model = new SMTModelLP(graph, false);
+			model = new MEBModel(graph, allowCrossing);
 			model.solve(); // obtain z value
 			Double[][] z = (Double[][]) model.getZVar();
 			if (hasCrossing(z)) {

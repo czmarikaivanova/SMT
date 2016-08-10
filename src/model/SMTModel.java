@@ -177,7 +177,7 @@ public class SMTModel extends ILPModel {
 			}
 			
 			// crossing
-			if (allowCrossing) {
+			if (!allowCrossing) {
 				for (Quartet<Node, Node, Node, Node> crossPair: graph.getCrossList()) {
 					int i = crossPair.getValue0().getId();
 					int j = crossPair.getValue1().getId();

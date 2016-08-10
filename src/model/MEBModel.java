@@ -125,19 +125,7 @@ public class MEBModel extends ILPModel {
 				}
 			}		
 			
-			if (allowCrossing) {
-				// crossing 1
-//				for (Quartet<Node, Node, Node, Node> crossPair: graph.getCrossList()) {
-//					int i = crossPair.getValue0().getId();
-//					int j = crossPair.getValue1().getId();
-//					int k = crossPair.getValue2().getId();
-//					int l = crossPair.getValue3().getId();				
-//					cplex.addLe(cplex.sum(z[i][j], z[k][l]), 1.0);
-//					cplex.addLe(cplex.sum(z[i][j], z[l][k]), 1.0);
-//					cplex.addLe(cplex.sum(z[j][i], z[k][l]), 1.0);
-//					cplex.addLe(cplex.sum(z[j][i], z[l][k]), 1.0);
-//				}
-				
+			if (!allowCrossing) {
 				// crossing 2
 				for (Quartet<Node, Node, Node, Node> crossPair: graph.getCrossList()) {
 					int i = crossPair.getValue0().getId();

@@ -10,7 +10,6 @@
 51.0 48.0
 
 
-
 Objective: 19860.0
 
 without 3->4: Objective: 19884.0
