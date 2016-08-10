@@ -51,12 +51,19 @@ public class CliqueModel extends ILPModel {
 			
 			// Connection
 			for (int i = 0; i < n; i++) {					
-				for (int j = 0; j < n; j++) {
-					if (i != j && !extGraph.containsEdge(i, j)) {
+				for (int j = i+1; j < n; j++) {
+					if (i != j && !extGraph.containsEdge(i, j) && !extGraph.containsEdge(j, i)) {
 						cplex.addLe(cplex.sum(z[i], z[j]), 1);	
 					}
 				}	
-			}			
+			}	
+			
+			// At least weight one
+			IloLinearNumExpr expr = cplex.linearNumExpr();	
+			for (int i = 0; i < n; i++) {					
+				expr.addTerm(extGraph.getNode(i).getWeight(), z[i]);
+			}					
+			cplex.addLe(1, expr);
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}	
@@ -81,8 +88,9 @@ public class CliqueModel extends ILPModel {
 			System.out.println("Objective: " + cplex.getObjValue());
 			//cplex.end();
 			return zval;		
-		} catch (IloException e) {			
-			e.printStackTrace();
+		} catch (IloException e) {		
+			System.err.println("No clique with weight > 1 exists.");
+//			e.printStackTrace();
 			return null;
 		}		
 	}		

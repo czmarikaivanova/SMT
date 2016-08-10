@@ -31,7 +31,7 @@ public class App {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("savet_inst/cyclic.txt"); // from file, todo
+				graph = new Graph("saved_inst/cyclic.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
@@ -43,6 +43,7 @@ public class App {
 			}
 			drawSolution(z);
 			CliqueModel cliqueModel = new CliqueModel(graph, z);
+			cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
 			ArrayList<ExtendedNode> clique;
 			do {
 				cliqueModel.solve();
