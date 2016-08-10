@@ -7,6 +7,8 @@ import graph.Graph;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 
+import org.javatuples.Pair;
+
 import model.CliqueModel;
 import model.ILPModel;
 import model.MEBModel;
@@ -53,6 +55,7 @@ public class App {
 				cliqueModel.addClConstraint(clique);
 			} while (clique.size() > 1);
 			cliqueModel.end();
+			listCliques(cliqueList);
 			System.err.println("Instances with crossing: ");
 			for (Integer c: crossList) {
 				System.err.println(c + "");	
@@ -61,6 +64,18 @@ public class App {
 		return 0;
 	}
 	
+	private void listCliques(ArrayList<ArrayList<ExtendedNode>> cliqueList) {
+		System.out.println("--------------CLIQUES--------------");
+		for (ArrayList<ExtendedNode> clique: cliqueList) {
+			System.out.print("(");
+			for (ExtendedNode en: clique) {
+				System.out.print(" " + en.getId());
+			}
+			System.out.println(" )");
+		}
+		
+	}
+
 	private void drawSolution(Double[][] z) {
 		if (draw) {
 			if (model instanceof MEBModelLP) {
