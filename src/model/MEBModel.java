@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import org.javatuples.Quartet;
 
 import graph.Clique;
+import graph.ExtendedNode;
 import graph.Graph;
 import graph.Node;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
+import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 
@@ -145,10 +147,21 @@ public class MEBModel extends ILPModel {
 	}
 	
 	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
-//		for (Clique clique: cliqueList) {
-//			for (ExtendedNode en: clique)
-//		}
-		
+		try {
+			for (Clique clique: cliqueList) {
+				IloNumExpr[] varArray = new IloNumExpr[clique.size() * 2];
+				for (int k = 0; k < clique.size(); k++) {
+					int i = clique.get(k).getOrigU().getId();
+					int j = clique.get(k).getOrigV().getId();
+					varArray[k] = z[i][j];
+					varArray[clique.size() + k] = z[j][i];
+				}
+				cplex.addLe(cplex.sum(varArray), 1.0);
+			}
+		} catch (IloException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}	
 	
 	
@@ -184,8 +197,6 @@ public class MEBModel extends ILPModel {
 			}
 			System.out.println("Objective: " + getObjectiveValue());
 			writeZ();
-			cplex.end();
-
 			return zval;		
 		} catch (IloException e) {			
 			e.printStackTrace();
