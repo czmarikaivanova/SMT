@@ -20,7 +20,7 @@ public class App {
     private ILPModel model;
     Graph graph;
     private boolean draw = true;
-    private boolean generate = false;
+    private boolean generate = true;
     
 	public int run() {
 		int iter = 1;

@@ -86,9 +86,11 @@ public class ExtendedGraph extends Graph {
 	
 	public ArrayList<ExtendedNode> getSelectedExtendedNodes(Boolean[] boolArr) {
 		ArrayList<ExtendedNode> extNodeList = new ArrayList<ExtendedNode>();
-		for (int i = 0; i < boolArr.length; i++) {
-			if (boolArr[i]) {
-				extNodeList.add(this.getNode(i));
+		if (boolArr != null) {
+			for (int i = 0; i < boolArr.length; i++) {
+				if (boolArr[i]) {
+					extNodeList.add(this.getNode(i));
+				}
 			}
 		}
 		return extNodeList;
