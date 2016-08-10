@@ -1,5 +1,6 @@
 package model;
 
+import graph.Clique;
 import graph.Graph;
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
@@ -36,6 +37,7 @@ public abstract class ILPModel {
 		
 	protected abstract void initVars();
 	protected abstract void createConstraints();
+	public abstract void addCrossCliqueConstraints(ArrayList<Clique> cliqueList);
 	public abstract Double[][] getZVar();
 	
 	protected void createModel() {
@@ -68,5 +70,7 @@ public abstract class ILPModel {
 			return 0;
 		}
 	}
+
+
 
 }

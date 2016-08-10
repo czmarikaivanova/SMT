@@ -114,4 +114,10 @@ public class CliqueModel extends ILPModel {
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
+		System.err.println("Unsupported operation adding cliques to the CliqueModel");
+		System.exit(1);
+	}
 }

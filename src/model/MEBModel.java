@@ -1,7 +1,10 @@
 package model;
 
+import java.util.ArrayList;
+
 import org.javatuples.Quartet;
 
+import graph.Clique;
 import graph.Graph;
 import graph.Node;
 import ilog.concert.IloException;
@@ -140,6 +143,14 @@ public class MEBModel extends ILPModel {
 			System.err.println("Concert exception caught: " + e);
 		}	
 	}
+	
+	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
+//		for (Clique clique: cliqueList) {
+//			for (ExtendedNode en: clique)
+//		}
+		
+	}	
+	
 	
 	public double[] getPVar() {
 		try {

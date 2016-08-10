@@ -57,6 +57,7 @@ public class App {
 			} while (clique.size() > 1);
 			cliqueModel.end();
 			listCliques(cliqueList);
+			model.addCrossCliqueConstraints(cliqueList);
 			System.err.println("Instances with crossing: ");
 			for (Integer c: crossList) {
 				System.err.println(c + "");	

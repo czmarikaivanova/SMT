@@ -1,5 +1,8 @@
 package model;
 
+import java.util.ArrayList;
+
+import graph.Clique;
 import graph.Graph;
 import graph.Node;
 import ilog.concert.IloException;
@@ -215,6 +218,12 @@ public class SMTModel extends ILPModel {
 			e.printStackTrace();
 			return null;
 		}		
+	}
+
+	@Override
+	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
+		// TODO Auto-generated method stub
+		
 	}				
 	
 }
