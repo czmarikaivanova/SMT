@@ -64,7 +64,7 @@ public abstract class ILPModel {
 		try {
 			return cplex.getObjValue();
 		} catch (IloException e) {
-			e.printStackTrace();			
+			System.err.println("No solution exists, return value 0");		
 			return 0;
 		}
 	}
