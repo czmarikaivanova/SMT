@@ -101,7 +101,7 @@ public class Graph {
     	for (Node n: nodes) {
     		n.orderNeighbours(nodes);
     	}
-    	writeDebug();    	
+//    	writeDebug();    	
     }
     
     

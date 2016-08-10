@@ -1,29 +1,33 @@
 package smt;
 
 import graph.ExtendedGraph;
+import graph.ExtendedNode;
 import graph.Graph;
 
 import java.util.ArrayList;
 import javax.swing.JFrame;
 
+import org.javatuples.Pair;
+
 import model.CliqueModel;
 import model.ILPModel;
 import model.MEBModel;
+import model.MEBModelLP;
 import model.SMTModel;
 import model.SMTModelLP;
 public class App {
 	
-    int vertexCount = 15;
-    int dstCount = 15;
- //   int nodeCount =12;    
+    int vertexCount = 10;
+    int dstCount = 10;
     private ILPModel model;
     Graph graph;
+    private boolean draw = true;
+    private boolean generate = true;
     
 	public int run() {
 		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		boolean generate = false;
-		boolean draw = true;
+		ArrayList<ArrayList<ExtendedNode>> cliqueList = new ArrayList<ArrayList<ExtendedNode>>();
 		for (int i = 0; i < iter; i++) {
 			if (generate) {
 				graph = new Graph(vertexCount, dstCount);			
@@ -33,31 +37,54 @@ public class App {
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
-			
-			
-			model = new MEBModel(graph, false);
-			model.solve();
+			model = new MEBModelLP(graph, false);
+			model.solve(); // obtain z value
 			Double[][] z = (Double[][]) model.getZVar();
 			if (hasCrossing(z)) {
 				crossList.add(graph.getInstId());
 			}
-			if (draw) {
-				if (model instanceof MEBModel) {
-					draw(z, graph, true);						
-				}
-				else {
-					draw(z, graph, false);
-				}					
-			}			
+			drawSolution(z);
 			CliqueModel cliqueModel = new CliqueModel(graph, z);
-			cliqueModel.solve();
-			Boolean[] clVar = cliqueModel.getCliqueVar();
+			cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
+			ArrayList<ExtendedNode> clique;
+			do {
+				cliqueModel.solve();
+				Boolean[] clVar = cliqueModel.getCliqueVar();
+				clique = cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar); 
+				cliqueList.add(clique);  // add new clique to the list of cliques
+				cliqueModel.addClConstraint(clique);
+			} while (clique.size() > 1);
+			cliqueModel.end();
+			listCliques(cliqueList);
 			System.err.println("Instances with crossing: ");
 			for (Integer c: crossList) {
 				System.err.println(c + "");	
 			}	
 		}			
 		return 0;
+	}
+	
+	private void listCliques(ArrayList<ArrayList<ExtendedNode>> cliqueList) {
+		System.out.println("--------------CLIQUES--------------");
+		for (ArrayList<ExtendedNode> clique: cliqueList) {
+			System.out.print("(");
+			for (ExtendedNode en: clique) {
+				System.out.print(" " + en.getId());
+			}
+			System.out.println(" )");
+		}
+		
+	}
+
+	private void drawSolution(Double[][] z) {
+		if (draw) {
+			if (model instanceof MEBModelLP) {
+				draw(z, graph, true);						
+			}
+			else {
+				draw(z, graph, false);
+			}					
+		}
 	}
 	
     private boolean hasCrossing(Double[][] z) {

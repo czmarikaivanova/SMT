@@ -177,7 +177,7 @@ public class MEBModel extends ILPModel {
 			for (int i = 0 ; i < z.length; i++) {
 				for (int j = 0; j < z.length; j++) {
 					if (i != j) {
-						System.out.print(cplex.getValue(z[i][j]) + " ");						
+//						System.out.print(cplex.getValue(z[i][j]) + " ");						
 						zval[i][j] = cplex.getValue(z[i][j]);						
 					}
 				}
