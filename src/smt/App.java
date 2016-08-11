@@ -19,8 +19,8 @@ import model.SMTModelLP;
 
 public class App {
 	
-    int vertexCount = 18;
-    int dstCount = 18;
+    int vertexCount = 20;
+    int dstCount = 20;
     private ILPModel model;
     Graph graph;
     private boolean draw = true;
@@ -29,10 +29,11 @@ public class App {
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 5;
+		int iter = 10;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		ArrayList<Clique> cliqueList = new ArrayList<Clique>();
+		
 		for (int i = 0; i < iter; i++) {
+			ArrayList<Clique> cliqueList = new ArrayList<Clique>();
 			if (generate) {
 				graph = new Graph(vertexCount, dstCount);			
 			}
@@ -41,7 +42,7 @@ public class App {
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
-			model = new SMTModelLP(graph, allowCrossing);
+			model = new MEBModelLP(graph, allowCrossing);
 			model.solve(); // obtain z value
 			double lpCost1 = model.getObjectiveValue();
 			Double[][] z = (Double[][]) model.getZVar();
@@ -64,7 +65,7 @@ public class App {
 			model.addCrossCliqueConstraints(cliqueList);
 			model.solve();
 			double lpCost2 = model.getObjectiveValue();
-			logObjectives(lpCost1, lpCost2);
+			logObjectives(lpCost1, lpCost2, cliqueList);
 			model.end();
 			System.err.println("Instances with crossing: ");
 			for (Integer c: crossList) {
@@ -129,15 +130,15 @@ public class App {
         frame.setVisible(true);
     }		
 	
-	private void logObjectives(double lpCost1, double lpCost2) {
+	private void logObjectives(double lpCost1, double lpCost2, ArrayList<Clique> cliqueList) {
         try	{
-        	File datafile = new File("logs/log" +  new File("logs/").list().length + ".txt");
+        	File datafile = new File("logs/log.txt");
         	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
-            if (datafile.length() == 0) {
-            	logHead(datafile, fw);
+            fw.write(Math.round(lpCost2 - lpCost1) + "\t\t||" +lpCost1 + "\t" + lpCost2 + "\t | \t" +  graph.getInstId() + "\t |  Cliques:");
+            for (Clique c: cliqueList) {
+            	fw.write(c.toString() + "\t");
             }
-        	fw.write(Constants.INST_ID + graph.getInstId() + "\n");
-            fw.write(lpCost1 + "\t" + lpCost2 + "\n");
+            fw.write("\n");
             fw.close();
         } catch(IOException ioe) {
             System.err.println("IOException: " + ioe.getMessage());

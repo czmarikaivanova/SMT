@@ -238,7 +238,7 @@ public class MEBModel extends ILPModel {
     }
 
     public String toString() {
-    	return Constants.MEB_STRING;
+    	return Constants.MEB_STRING + "(" + Integer.toString(n) + ")";
     }
 	
 

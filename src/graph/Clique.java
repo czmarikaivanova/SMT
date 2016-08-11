@@ -13,4 +13,13 @@ public class Clique extends ArrayList<ExtendedNode> {
 		return weight;
 	}
 	
+	public String toString() {
+		String s = new String("(");
+		for (ExtendedNode en: this) {
+			s += Integer.toString(en.getId()) + " ";
+		}
+		s += ")";
+		return s;
+	}
+	
 }

@@ -238,7 +238,7 @@ public class SMTModel extends ILPModel {
 	}				
 	
 	public String toString() {
-		return Constants.SMT_STRING;
+    	return Constants.SMT_STRING + "(" + Integer.toString(n) + "," + Integer.toString(d) + ")";
 	}
 	
 }
