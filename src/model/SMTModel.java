@@ -65,10 +65,8 @@ public class SMTModel extends ILPModel {
 			// Size
 			IloLinearNumExpr expr = cplex.linearNumExpr();				
 			for (int i = 0; i < n; i++) {					
-				for (int j = 0; j < n; j++) {
-					if (i < j) {
-						expr.addTerm(1.0, z[i][j]);
-					}
+				for (int j = i+1; j < n; j++) {
+					expr.addTerm(1.0, z[i][j]);
 				}	
 			}
 			cplex.addLe(expr, n-1);				
@@ -141,14 +139,12 @@ public class SMTModel extends ILPModel {
 	
 			// OneDir
 			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					if (i < j) {
-						for (int s = 0; s < d; s++) {
-							IloLinearNumExpr expr6 = cplex.linearNumExpr();								
-							expr6.addTerm(1.0, x[i][j][s]);
-							expr6.addTerm(1.0, x[j][i][s]);
-							cplex.addEq(expr6, z[i][j]);						
-						}
+				for (int j = i+1; j < n; j++) {
+					for (int s = 0; s < d; s++) {
+						IloLinearNumExpr expr6 = cplex.linearNumExpr();								
+						expr6.addTerm(1.0, x[i][j][s]);
+						expr6.addTerm(1.0, x[j][i][s]);
+						cplex.addEq(expr6, z[i][j]);						
 					}
 				}
 			}
