@@ -4,6 +4,9 @@ import graph.Clique;
 import graph.ExtendedGraph;
 import graph.ExtendedNode;
 import graph.Graph;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import org.javatuples.Pair;
@@ -22,7 +25,7 @@ public class App {
     Graph graph;
     private boolean draw = true;
     
-    private boolean generate = true;
+    private boolean generate = false;
     private boolean allowCrossing = true;
     
 	public int run() {
@@ -34,12 +37,13 @@ public class App {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("saved_inst/crossing.txt"); // from file, todo
+				graph = new Graph("saved_inst/cyclic2.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
 			model = new SMTModelLP(graph, allowCrossing);
 			model.solve(); // obtain z value
+			double lpCost1 = model.getObjectiveValue();
 			Double[][] z = (Double[][]) model.getZVar();
 			if (hasCrossing(z)) {
 				crossList.add(graph.getInstId());
@@ -59,6 +63,8 @@ public class App {
 			listCliques(cliqueList);
 			model.addCrossCliqueConstraints(cliqueList);
 			model.solve();
+			double lpCost2 = model.getObjectiveValue();
+			logObjectives(lpCost1, lpCost2);
 			model.end();
 			System.err.println("Instances with crossing: ");
 			for (Integer c: crossList) {
@@ -75,7 +81,7 @@ public class App {
 			for (ExtendedNode en: clique) {
 				System.out.print(" " + en.getId());
 			}
-			System.out.println(" ) weight: " + clique.getWeight() );
+			System.out.println(" ) weight: " + clique.getWeight());
 		}
 	}
 
@@ -122,4 +128,28 @@ public class App {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }		
+	
+	private void logObjectives(double lpCost1, double lpCost2) {
+        try	{
+        	File datafile = new File("logs/log" +  new File("logs/").list().length + ".txt");
+        	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
+            if (datafile.length() == 0) {
+            	logHead(datafile, fw);
+            }
+        	fw.write(Constants.INST_ID + graph.getInstId() + "\n");
+            fw.write(lpCost1 + "\t" + lpCost2 + "\n");
+            fw.close();
+        } catch(IOException ioe) {
+            System.err.println("IOException: " + ioe.getMessage());
+        }
+	}
+	
+	private void logHead(File datafile, FileWriter fw) {
+		try {
+			fw.write(model.toString() + ": " + graph.getVertexCount() + "\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+	}
+	
 }

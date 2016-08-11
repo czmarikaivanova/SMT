@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import org.javatuples.Quartet;
 
+import smt.Constants;
+
 import graph.Clique;
 import graph.ExtendedNode;
 import graph.Graph;
@@ -235,7 +237,9 @@ public class MEBModel extends ILPModel {
         return dstStr + nonDstStr;
     }
 
-
+    public String toString() {
+    	return Constants.MEB_STRING;
+    }
 	
 
 

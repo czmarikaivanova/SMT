@@ -13,6 +13,8 @@ import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 import org.javatuples.Quartet;
 
+import smt.Constants;
+
 public class SMTModel extends ILPModel {	
 	
 	public SMTModel(Graph graph, boolean allowCrossing) {
@@ -234,6 +236,10 @@ public class SMTModel extends ILPModel {
 			e.printStackTrace();
 		}
 	}				
+	
+	public String toString() {
+		return Constants.SMT_STRING;
+	}
 	
 }
 	

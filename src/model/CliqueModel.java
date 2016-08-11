@@ -87,7 +87,6 @@ public class CliqueModel extends ILPModel {
 			}
 			System.out.println();
 			System.out.println("Objective: " + cplex.getObjValue());
-			//cplex.end();
 			return zval;		
 		} catch (IloException e) {		
 			System.err.println("No clique with weight > 1 exists.");
@@ -105,8 +104,11 @@ public class CliqueModel extends ILPModel {
 		IloLinearNumExpr expr;
 		try {
 			expr = cplex.linearNumExpr();
+			double w = 0;
 			for (ExtendedNode en: clique) {
-					expr.addTerm(extGraph.getNode(en.getId()).getWeight(), z[en.getId()]);									
+				int id = en.getId();
+				w += extGraph.getNode(id).getWeight();
+				expr.addTerm(w, z[id]);									
 			}
 			cplex.addLe(expr, 1);
 		} catch (IloException e) {
