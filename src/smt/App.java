@@ -19,17 +19,17 @@ import model.SMTModelLP;
 
 public class App {
 	
-    int vertexCount = 15;
-    int dstCount = 15;
+    int vertexCount = 18;
+    int dstCount = 18;
     private ILPModel model;
     Graph graph;
     private boolean draw = true;
     
-    private boolean generate = false;
+    private boolean generate = true;
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 1;
+		int iter = 5;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
 		ArrayList<Clique> cliqueList = new ArrayList<Clique>();
 		for (int i = 0; i < iter; i++) {
