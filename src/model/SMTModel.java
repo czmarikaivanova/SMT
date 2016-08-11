@@ -7,6 +7,7 @@ import graph.Graph;
 import graph.Node;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
+import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 import org.javatuples.Quartet;
@@ -203,11 +204,9 @@ public class SMTModel extends ILPModel {
 		try {
 			Double[][] zval = new Double[z.length][z.length];
 			for (int i = 0 ; i < z.length; i++) {
-				for (int j = 0; j < z.length; j++) {
-					if (i < j) {
-						System.out.print(cplex.getValue(z[i][j]) + " ");						
-						zval[i][j] = cplex.getValue(z[i][j]);						
-					}
+				for (int j = i+1; j < z.length; j++) {
+					System.out.print(cplex.getValue(z[i][j]) + " ");						
+					zval[i][j] = cplex.getValue(z[i][j]);						
 				}
 				System.out.println();
 			}
@@ -222,8 +221,21 @@ public class SMTModel extends ILPModel {
 
 	@Override
 	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
-		// TODO Auto-generated method stub
-		
+		try {
+			for (Clique clique: cliqueList) {
+				IloNumExpr[] varArray = new IloNumExpr[clique.size() * 2];
+				for (int k = 0; k < clique.size(); k++) {
+					int i = clique.get(k).getOrigU().getId();
+					int j = clique.get(k).getOrigV().getId();
+					varArray[k] = z[i][j];
+					varArray[clique.size() + k] = z[j][i];
+				}
+				cplex.addLe(cplex.sum(varArray), 1.0);
+			}
+		} catch (IloException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}				
 	
 }

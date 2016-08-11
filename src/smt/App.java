@@ -16,8 +16,8 @@ import model.SMTModelLP;
 
 public class App {
 	
-    int vertexCount = 10;
-    int dstCount = 10;
+    int vertexCount = 23;
+    int dstCount = 23;
     private ILPModel model;
     Graph graph;
     private boolean draw = true;
