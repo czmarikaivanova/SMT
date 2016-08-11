@@ -22,7 +22,7 @@ public class App {
     Graph graph;
     private boolean draw = true;
     
-    private boolean generate = true;
+    private boolean generate = false;
     private boolean allowCrossing = true;
     
 	public int run() {
@@ -34,11 +34,11 @@ public class App {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("saved_inst/big-clique.txt"); // from file, todo
+				graph = new Graph("saved_inst/crossing.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
-			model = new MEBModelLP(graph, allowCrossing);
+			model = new SMTModelLP(graph, allowCrossing);
 			model.solve(); // obtain z value
 			Double[][] z = (Double[][]) model.getZVar();
 			if (hasCrossing(z)) {

@@ -3,6 +3,7 @@ package model;
 import java.util.ArrayList;
 
 import graph.Clique;
+import graph.ExtendedNode;
 import graph.Graph;
 import graph.Node;
 import ilog.concert.IloException;
@@ -207,7 +208,6 @@ public class SMTModel extends ILPModel {
 				System.out.println();
 			}
 			System.out.println("Objective: " + cplex.getObjValue());
-			cplex.end();
 			return zval;		
 		} catch (IloException e) {			
 			e.printStackTrace();
@@ -219,12 +219,13 @@ public class SMTModel extends ILPModel {
 	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
 		try {
 			for (Clique clique: cliqueList) {
-				IloNumExpr[] varArray = new IloNumExpr[clique.size() * 2];
+				IloNumExpr[] varArray = new IloNumExpr[clique.size()];
 				for (int k = 0; k < clique.size(); k++) {
-					int i = clique.get(k).getOrigU().getId();
-					int j = clique.get(k).getOrigV().getId();
-					varArray[k] = z[i][j];
-					varArray[clique.size() + k] = z[j][i];
+					for (ExtendedNode en: clique) {
+						int i = en.getOrigU().getId();
+						int j = en.getOrigV().getId();
+						varArray[k] = z[i][j];
+					}
 				}
 				cplex.addLe(cplex.sum(varArray), 1.0);
 			}
