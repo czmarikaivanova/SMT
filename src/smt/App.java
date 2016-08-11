@@ -16,13 +16,13 @@ import model.SMTModelLP;
 
 public class App {
 	
-    int vertexCount = 23;
-    int dstCount = 23;
+    int vertexCount = 15;
+    int dstCount = 15;
     private ILPModel model;
     Graph graph;
     private boolean draw = true;
     
-    private boolean generate = false;
+    private boolean generate = true;
     private boolean allowCrossing = true;
     
 	public int run() {
@@ -77,7 +77,6 @@ public class App {
 			}
 			System.out.println(" ) weight: " + clique.getWeight() );
 		}
-		
 	}
 
 	private void drawSolution(Double[][] z) {
@@ -112,7 +111,7 @@ public class App {
 		}
 		return false;
 	}
-
+    
 	private void draw(Double[][] z, Graph graph, boolean useArrows) {
 		Visualizer vis = new Visualizer(z, graph, useArrows);
 		//Visualizer vis = new Visualizer(new File("instance.txt"), z, null);			
