@@ -1,6 +1,8 @@
 package graph;
 import java.util.ArrayList;
 
+import smt.Miscellaneous;
+
 public class Clique extends ArrayList<ExtendedNode> {
 	private double weight;
 	
@@ -18,7 +20,7 @@ public class Clique extends ArrayList<ExtendedNode> {
 		for (ExtendedNode en: this) {
 			s += Integer.toString(en.getId()) + " ";
 		}
-		s += ")";
+		s += ")=" + Miscellaneous.round(weight, 2);
 		return s;
 	}
 	

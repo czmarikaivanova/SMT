@@ -19,8 +19,8 @@ import model.SMTModelLP;
 
 public class App {
 	
-    int vertexCount = 15;
-    int dstCount = 15;
+    int vertexCount = 20;
+    int dstCount = 20;
     private ILPModel model;
     Graph graph;
     private boolean draw = false;
@@ -29,7 +29,7 @@ public class App {
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 10;
+		int iter = 20;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
 		
 		for (int i = 0; i < iter; i++) {
@@ -42,7 +42,7 @@ public class App {
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
-			model = new SMTModelLP(graph, allowCrossing);
+			model = new MEBModelLP(graph, allowCrossing);
 			model.solve(); // obtain z value
 			double lpCost1 = model.getObjectiveValue();
 			Double[][] z = (Double[][]) model.getZVar();
@@ -80,9 +80,7 @@ public class App {
 		System.out.println("--------------CLIQUES--------------");
 		for (Clique clique: cliqueList) {
 			System.out.print("(");
-			for (ExtendedNode en: clique) {
-				System.out.print(" " + en.getId());
-			}
+			System.out.print(clique.toString());
 			System.out.println(" ) weight: " + clique.getWeight());
 		}
 	}
