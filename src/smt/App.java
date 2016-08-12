@@ -134,7 +134,7 @@ public class App {
         try	{
         	File datafile = new File("logs/log.txt");
         	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
-            fw.write(Math.round(lpCost2 - lpCost1) + "\t" +lpCost1 + "\t" + lpCost2 + "\t |"+ model.toString() + "|  Cliques: ");
+            fw.write(Miscellaneous.round(lpCost2 - lpCost1,2) + "\t" + Miscellaneous.round(lpCost1,2) + "\t" + Miscellaneous.round(lpCost2,2) + "\t |"+ model.toString() + "|  Cliques: ");
             for (Clique c: cliqueList) {
             	fw.write(c.toString() + " ");
             }
