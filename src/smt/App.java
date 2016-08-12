@@ -19,11 +19,11 @@ import model.SMTModelLP;
 
 public class App {
 	
-    int vertexCount = 20;
-    int dstCount = 20;
+    int vertexCount = 15;
+    int dstCount = 15;
     private ILPModel model;
     Graph graph;
-    private boolean draw = true;
+    private boolean draw = false;
     
     private boolean generate = true;
     private boolean allowCrossing = true;
@@ -42,7 +42,7 @@ public class App {
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
-			model = new MEBModelLP(graph, allowCrossing);
+			model = new SMTModelLP(graph, allowCrossing);
 			model.solve(); // obtain z value
 			double lpCost1 = model.getObjectiveValue();
 			Double[][] z = (Double[][]) model.getZVar();
@@ -134,9 +134,9 @@ public class App {
         try	{
         	File datafile = new File("logs/log.txt");
         	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
-            fw.write(Math.round(lpCost2 - lpCost1) + "\t\t||" +lpCost1 + "\t" + lpCost2 + "\t | \t" +  graph.getInstId() + "\t |  Cliques:");
+            fw.write(Math.round(lpCost2 - lpCost1) + "\t" +lpCost1 + "\t" + lpCost2 + "\t |"+ model.toString() + "|  Cliques: ");
             for (Clique c: cliqueList) {
-            	fw.write(c.toString() + "\t");
+            	fw.write(c.toString() + " ");
             }
             fw.write("\n");
             fw.close();
