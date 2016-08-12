@@ -67,11 +67,12 @@ public class App {
 			double lpCost2 = model.getObjectiveValue();
 			logObjectives(lpCost1, lpCost2, cliqueList);
 			model.end();
-			System.err.println("Instances with crossing: ");
-			for (Integer c: crossList) {
-				System.err.println(c + "");	
-			}	
+
 		}			
+		System.err.println("Instances with crossing: ");
+		for (Integer c: crossList) {
+			System.err.println(c + "");	
+		}	
 		return 0;
 	}
 	
