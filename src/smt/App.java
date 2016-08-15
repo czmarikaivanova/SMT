@@ -23,13 +23,13 @@ public class App {
     int dstCount = 20;
     private ILPModel model;
     Graph graph;
-    private boolean draw = false;
+    private boolean draw = true;
     
-    private boolean generate = true;
+    private boolean generate = false;
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 20;
+		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
 		
 		for (int i = 0; i < iter; i++) {
@@ -38,11 +38,11 @@ public class App {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("saved_inst/cyclic2.txt"); // from file, todo
+				graph = new Graph("saved_inst/crossing.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
-			model = new MEBModelLP(graph, allowCrossing);
+			model = new MEBModel(graph, allowCrossing);
 			model.solve(); // obtain z value
 			double lpCost1 = model.getObjectiveValue();
 			Double[][] z = (Double[][]) model.getZVar();
@@ -50,22 +50,22 @@ public class App {
 				crossList.add(graph.getInstId());
 			}
 			drawSolution(z);
-			CliqueModel cliqueModel = new CliqueModel(graph, z);
-			cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
-			Clique clique;
-			do {
-				cliqueModel.solve();
-				Boolean[] clVar = cliqueModel.getCliqueVar();
-				clique = cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar, cliqueModel.getObjectiveValue()); 
-				cliqueList.add(clique);  // add new clique to the list of cliques
-				cliqueModel.addClConstraint(clique);
-			} while (clique.size() > 1);
-			cliqueModel.end();
-			listCliques(cliqueList);
-			model.addCrossCliqueConstraints(cliqueList);
-			model.solve();
-			double lpCost2 = model.getObjectiveValue();
-			logObjectives(lpCost1, lpCost2, cliqueList);
+//			CliqueModel cliqueModel = new CliqueModel(graph, z);
+//			cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
+//			Clique clique;
+//			do {
+//				cliqueModel.solve();
+//				Boolean[] clVar = cliqueModel.getCliqueVar();
+//				clique = cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar, cliqueModel.getObjectiveValue()); 
+//				cliqueList.add(clique);  // add new clique to the list of cliques
+//				cliqueModel.addClConstraint(clique);
+//			} while (clique.size() > 1);
+//			cliqueModel.end();
+//			listCliques(cliqueList);
+//			model.addCrossCliqueConstraints(cliqueList);
+//			model.solve();
+//			double lpCost2 = model.getObjectiveValue();
+//			logObjectives(lpCost1, lpCost2, cliqueList);
 			model.end();
 
 		}			
@@ -87,7 +87,7 @@ public class App {
 
 	private void drawSolution(Double[][] z) {
 		if (draw) {
-			if (model instanceof MEBModelLP) {
+			if (model instanceof MEBModel) {
 				draw(z, graph, true);						
 			}
 			else {

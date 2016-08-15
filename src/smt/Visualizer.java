@@ -53,12 +53,12 @@ public class Visualizer extends JPanel {
                 float xv = Math.round(graph.getNode(j).getPoint().getX() * 10);
                 float yv = Math.round(graph.getNode(j).getPoint().getY() * 10);
 
-//                if (useArrows) {
-//                    drawArrowLine(g2d, (int) xu, (int) yu, (int) xv, (int) yv, 15, 5);                	
-//                }
-//                else {
+                if (useArrows) {
+                    drawArrowLine(g2d, (int) xu, (int) yu, (int) xv, (int) yv, 15, 5);                	
+                }
+                else {
                 	g2d.draw(new Line2D.Float(xu, yu, xv, yv ));                	
-//                }
+                }
                 g2d.setColor(Color.BLUE);      
                 int dst = Math.round(graph.getRequir(i, j));
                 g2d.drawString(Integer.toString(dst), (xu + xv)/2, (yu + yv)/2-5);
