@@ -107,7 +107,7 @@ public class CliqueModel extends ILPModel {
 			double w = 0;
 			for (ExtendedNode en: clique) {
 				int id = en.getId();
-				w += extGraph.getNode(id).getWeight();
+				w = extGraph.getNode(id).getWeight();
 				expr.addTerm(w, z[id]);									
 			}
 			cplex.addLe(expr, 1);
