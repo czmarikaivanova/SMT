@@ -43,7 +43,7 @@ public class App {
 			graph.saveInstance();
 			graph.generateAMPLData();
 			model = new MEBModelLP(graph, allowCrossing);
-			model.solve(); // obtain z value
+			model.solveAndLogTime(); // obtain z value
 			double lpCost1 = model.getObjectiveValue();
 			Double[][] z = (Double[][]) model.getZVar();
 			if (hasCrossing(z)) {
@@ -54,7 +54,7 @@ public class App {
 			cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
 			Clique clique;
 			do {
-				cliqueModel.solve();
+				cliqueModel.solveAndLogTime();
 				Boolean[] clVar = cliqueModel.getCliqueVar();
 				clique = cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar, cliqueModel.getObjectiveValue()); 
 				cliqueList.add(clique);  // add new clique to the list of cliques
@@ -64,7 +64,7 @@ public class App {
 			listCliques(cliqueList);
 			model = new MEBModelLP(graph, allowCrossing);
 			model.addCrossCliqueConstraints(cliqueList);
-			model.solve();
+			model.solveAndLogTime();
 			double lpCost2 = model.getObjectiveValue();
 			logObjectives(lpCost1, lpCost2, cliqueList);
 			model.end();
