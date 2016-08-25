@@ -38,7 +38,7 @@ public class App {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("saved_inst/crossing.txt"); // from file, todo
+				graph = new Graph("saved_inst/cl_many.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
@@ -50,22 +50,22 @@ public class App {
 				crossList.add(graph.getInstId());
 			}
 			drawSolution(z);
-//			CliqueModel cliqueModel = new CliqueModel(graph, z);
-//			cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
-//			Clique clique;
-//			do {
-//				cliqueModel.solve();
-//				Boolean[] clVar = cliqueModel.getCliqueVar();
-//				clique = cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar, cliqueModel.getObjectiveValue()); 
-//				cliqueList.add(clique);  // add new clique to the list of cliques
-//				cliqueModel.addClConstraint(clique);
-//			} while (clique.size() > 1);
-//			cliqueModel.end();
-//			listCliques(cliqueList);
-//			model.addCrossCliqueConstraints(cliqueList);
-//			model.solve();
-//			double lpCost2 = model.getObjectiveValue();
-//			logObjectives(lpCost1, lpCost2, cliqueList);
+			CliqueModel cliqueModel = new CliqueModel(graph, z);
+			cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
+			Clique clique;
+			do {
+				cliqueModel.solve();
+				Boolean[] clVar = cliqueModel.getCliqueVar();
+				clique = cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar, cliqueModel.getObjectiveValue()); 
+				cliqueList.add(clique);  // add new clique to the list of cliques
+				cliqueModel.addClConstraint(clique);
+			} while (clique.size() > 1);
+			cliqueModel.end();
+			listCliques(cliqueList);
+			model.addCrossCliqueConstraints(cliqueList);
+			model.solve();
+			double lpCost2 = model.getObjectiveValue();
+			logObjectives(lpCost1, lpCost2, cliqueList);
 			model.end();
 
 		}			
