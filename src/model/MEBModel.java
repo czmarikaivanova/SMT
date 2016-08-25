@@ -198,7 +198,7 @@ public class MEBModel extends ILPModel {
 				System.out.println();
 			}
 			System.out.println("Objective: " + getObjectiveValue());
-			writeZ();
+//			writeZ();
 			return zval;		
 		} catch (IloException e) {			
 			e.printStackTrace();

@@ -7,4 +7,5 @@ public class Constants {
     public static final int WINDOW_SIZE = 1000;
 	public static final String MEB_STRING = "MEB";
 	public static final String SMT_STRING = "SMT";
+	public static final String CLIQUE_STRING = "CLIQUE";
 }

@@ -54,6 +54,28 @@ public abstract class ILPModel {
 		}
 	}
 	
+	public boolean solveAndLogTime() {
+		try {
+			cplex.setParam(IloCplex.Param.ClockType, 1);
+			cplex.getCplexTime();
+ 			File datafile = new File("logs/runtime_log.txt");
+			FileWriter fw;
+			fw = new FileWriter(datafile,true);
+			long start = System.currentTimeMillis();
+			boolean ret = cplex.solve();
+			long end = System.currentTimeMillis();
+			fw.write(this.toString() + " Problem tackled in " + (end - start)/1000. + " seconds using currentTimeMillis \n");
+			fw.close();
+			return ret;
+		} catch (IloException e) {
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		} 
+	}	
+	
 	public IloCplex getModel() {
 		return cplex;
 	}

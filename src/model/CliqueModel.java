@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import org.javatuples.Quartet;
 
+import smt.Constants;
+
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
@@ -23,7 +25,7 @@ public class CliqueModel extends ILPModel {
 	public CliqueModel(Graph graph, Double[][] zLP) {
 		super();
 		extGraph = new ExtendedGraph(graph, zLP);
-		extGraph.writeDebug();
+//		extGraph.writeDebug();
 		createModel();
 	}
 
@@ -121,5 +123,9 @@ public class CliqueModel extends ILPModel {
 	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
 		System.err.println("Unsupported operation adding cliques to the CliqueModel");
 		System.exit(1);
+	}
+	
+	public String toString() {
+    	return Constants.CLIQUE_STRING + "(" + Integer.toString(extGraph.getVertexCount()) + ")";
 	}
 }
