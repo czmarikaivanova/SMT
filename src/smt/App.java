@@ -38,7 +38,7 @@ public class App {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("saved_inst/cl_many.txt"); // from file, todo
+				graph = new Graph("saved_inst/crossing.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
