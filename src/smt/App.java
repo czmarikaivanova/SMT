@@ -46,11 +46,6 @@ public class App {
 			double ipCost1 = 0;
 			double ipCost2 = 0;
 			
-			model = new MEBModel(graph, allowCrossing);
-			model.solveAndLogTime();
-			ipCost1 = model.getObjectiveValue();
-			drawSolution(model.getZVar()); // display the IP solution
-			
 			model = new MEBModelLP(graph, allowCrossing);
 			model.solveAndLogTime(); // obtain z value
 			double lpCost1 = model.getObjectiveValue();
@@ -76,11 +71,6 @@ public class App {
 			model.addCrossCliqueConstraints(cliqueList);
 			model.solveAndLogTime();
 			double lpCost2 = model.getObjectiveValue();
-			
-			model = new MEBModel(graph, allowCrossing);
-			model.addCrossCliqueConstraints(cliqueList);
-			model.solveAndLogTime();
-			ipCost2 = model.getObjectiveValue();
 			
 			logObjectives(lpCost1, lpCost2, ipCost1, ipCost2, cliqueList);
 			model.end();
