@@ -42,7 +42,7 @@ public class App {
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
-			model = new MEBModel(graph, allowCrossing);
+			model = new MEBModelLP(graph, allowCrossing);
 			model.solve(); // obtain z value
 			double lpCost1 = model.getObjectiveValue();
 			Double[][] z = (Double[][]) model.getZVar();
@@ -62,6 +62,7 @@ public class App {
 			} while (clique.size() > 1);
 			cliqueModel.end();
 			listCliques(cliqueList);
+			model = new MEBModelLP(graph, allowCrossing);
 			model.addCrossCliqueConstraints(cliqueList);
 			model.solve();
 			double lpCost2 = model.getObjectiveValue();
