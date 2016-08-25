@@ -64,7 +64,7 @@ public abstract class ILPModel {
 			long start = System.currentTimeMillis();
 			boolean ret = cplex.solve();
 			long end = System.currentTimeMillis();
-			fw.write(this.toString() + " Problem tackled in " + (end - start)/1000. + " seconds using currentTimeMillis \n");
+			fw.write(this.toString() + " Time: " + (end - start)/1000. + " seconds\n");
 			fw.close();
 			return ret;
 		} catch (IloException e) {

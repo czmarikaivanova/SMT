@@ -42,6 +42,15 @@ public class App {
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
+			
+			double ipCost1 = 0;
+			double ipCost2 = 0;
+			
+			model = new MEBModel(graph, allowCrossing);
+			model.solveAndLogTime();
+			ipCost1 = model.getObjectiveValue();
+			drawSolution(model.getZVar()); // display the IP solution
+			
 			model = new MEBModelLP(graph, allowCrossing);
 			model.solveAndLogTime(); // obtain z value
 			double lpCost1 = model.getObjectiveValue();
@@ -49,7 +58,7 @@ public class App {
 			if (hasCrossing(z)) {
 				crossList.add(graph.getInstId());
 			}
-			drawSolution(z);
+		
 			CliqueModel cliqueModel = new CliqueModel(graph, z);
 			cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
 			Clique clique;
@@ -62,11 +71,18 @@ public class App {
 			} while (clique.size() > 1);
 			cliqueModel.end();
 			listCliques(cliqueList);
+			
 			model = new MEBModelLP(graph, allowCrossing);
 			model.addCrossCliqueConstraints(cliqueList);
 			model.solveAndLogTime();
 			double lpCost2 = model.getObjectiveValue();
-			logObjectives(lpCost1, lpCost2, cliqueList);
+			
+			model = new MEBModel(graph, allowCrossing);
+			model.addCrossCliqueConstraints(cliqueList);
+			model.solveAndLogTime();
+			ipCost2 = model.getObjectiveValue();
+			
+			logObjectives(lpCost1, lpCost2, ipCost1, ipCost2, cliqueList);
 			model.end();
 
 		}			
@@ -130,11 +146,15 @@ public class App {
         frame.setVisible(true);
     }		
 	
-	private void logObjectives(double lpCost1, double lpCost2, ArrayList<Clique> cliqueList) {
+	private void logObjectives(double lpCost1, double lpCost2, double ipCost1, double ipCost2, ArrayList<Clique> cliqueList) {
         try	{
         	File datafile = new File("logs/log.txt");
         	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
-            fw.write(Miscellaneous.round(lpCost2 - lpCost1,2) + "\t" + Miscellaneous.round(lpCost1,2) + "\t" + Miscellaneous.round(lpCost2,2) + "\t |"+ model.toString() + "|  Cliques: ");
+            fw.write(Miscellaneous.round(lpCost2 - lpCost1,2) + "\t" + 
+            		 Miscellaneous.round(lpCost1,2) + "\t" + 
+            		 Miscellaneous.round(lpCost2,2) + "\t "+ 
+            		 Miscellaneous.round(ipCost1, 2) + "\t" + 
+            		 Miscellaneous.round(ipCost2,2) + "\t | " + model.toString() + "|  Cliques: ");
             for (Clique c: cliqueList) {
             	fw.write(c.toString() + " ");
             }
