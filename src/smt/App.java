@@ -25,7 +25,7 @@ public class App {
     Graph graph;
     private boolean draw = true;
     
-    private boolean generate = false;
+    private boolean generate = true;
     private boolean allowCrossing = true;
     
 	public int run() {
