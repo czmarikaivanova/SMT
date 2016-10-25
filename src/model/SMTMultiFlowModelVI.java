@@ -19,8 +19,8 @@ public class SMTMultiFlowModelVI extends SMTMultiFlowModel {
 			// -------------------------------------- constraints							
 			
 			// capacity
-			for (int s = 0; s < n; s++) {
-				for (int t = 0; t < n; t++) {
+			for (int s = 0; s < d; s++) {
+				for (int t = 0; t < d; t++) {
 					for (int i = 0; i < n; i++) {
 						for (int j = 0; j < n; j++) {
 							if (j > i && s != t) {
@@ -32,8 +32,8 @@ public class SMTMultiFlowModelVI extends SMTMultiFlowModel {
 			}	
 			
 			// capacity 2
-			for (int s = 0; s < n; s++) {
-				for (int t = 0; t < n; t++) {
+			for (int s = 0; s < d; s++) {
+				for (int t = 0; t < d; t++) {
 					for (int i = 0; i < n; i++) {
 						for (int j = 0; j < n; j++) {
 							if (j > i && s != t) {
@@ -44,8 +44,8 @@ public class SMTMultiFlowModelVI extends SMTMultiFlowModel {
 				}
 			}				
 			// f sym
-			for (int s = 0; s < n; s++) {
-				for (int t = 0; t < n; t++) {
+			for (int s = 0; s < d; s++) {
+				for (int t = 0; t < d; t++) {
 					for (int i = 0; i < n; i++) {
 						for (int j = 0; j < n; j++) {
 							if (j > i && s != t) {
@@ -57,8 +57,8 @@ public class SMTMultiFlowModelVI extends SMTMultiFlowModel {
 			}		
 			
 			// vi3
-			for (int s = 0; s < n; s++) {
-				for (int t = 0; t < n; t++) {
+			for (int s = 0; s < d; s++) {
+				for (int t = 0; t < d; t++) {
 					for (int i = 0; i < n; i++) {
 						for (int j = 0; j < n; j++) {
 							if (j > i && s != t) {
@@ -69,11 +69,11 @@ public class SMTMultiFlowModelVI extends SMTMultiFlowModel {
 				}
 			}					
 			// vi4
-			for (int s = 0; s < n; s++) {
+			for (int s = 0; s < d; s++) {
 				for (int i = 0; i < n; i++) {
 					for (int j = 0; j < n; j++) {
 						IloLinearNumExpr expr1 = cplex.linearNumExpr();
-						for (int t = 0; t < n; t++) {
+						for (int t = 0; t < d; t++) {
 							if (s != t)
 							expr1.addTerm(1.0, f[i][j][s][t]);
 						}
@@ -85,37 +85,37 @@ public class SMTMultiFlowModelVI extends SMTMultiFlowModel {
 			}	
 			
 			// vi5
-			for (int s = 0; s < n; s++) {
+			for (int s = 0; s < d; s++) {
 				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < n; j++) {
+					for (int j = 0; j < d; j++) {
 						IloLinearNumExpr expr1 = cplex.linearNumExpr();
 							cplex.addLe(x[i][j][s], x[j][i][j]);
 					}
 				}
 			}				
 			// vi6
-			for (int s = 0; s < n; s++) {
+			for (int s = 0; s < d; s++) {
 				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < n; j++) {
+					for (int j = 0; j < d; j++) {
 						cplex.addEq(x[i][j][s], f[j][i][j][s]);
 					}
 				}
 			}	
 						
 			// vi7
-			for (int s = 0; s < n; s++) {
+			for (int s = 0; s < d; s++) {
 				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < n; j++) {
+					for (int j = 0; j < d; j++) {
 						cplex.addEq(x[i][j][s], f[i][j][s][j]);
 					}
 				}
 			}	
 						
 //			// vi8
-			for (int s = 0; s < n; s++) {
-				for (int t1 = 0; t1 < n; t1++) {
+			for (int s = 0; s < d; s++) {
+				for (int t1 = 0; t1 < d; t1++) {
 					if (s != t1) {
-						for (int t2 = 0; t2 < n; t2++) {
+						for (int t2 = 0; t2 < d; t2++) {
 							if (s != t2 && t1 != t2) {
 								for (int i = 0; i < n; i++) {
 									for (int j = 0; j < n; j++) {
@@ -130,10 +130,10 @@ public class SMTMultiFlowModelVI extends SMTMultiFlowModel {
 				}
 			}				
 //			// vi9
-			for (int s = 0; s < n; s++) {
-				for (int t1 = 0; t1 < n; t1++) {
+			for (int s = 0; s < d; s++) {
+				for (int t1 = 0; t1 < d; t1++) {
 					if (s != t1) {
-						for (int t2 = 0; t2 < n; t2++) {
+						for (int t2 = 0; t2 < d; t2++) {
 							if (s != t2 && t1 != t2) {
 								for (int i = 0; i < n; i++) {
 									for (int j = 0; j < n; j++) {

@@ -22,24 +22,25 @@ import model.SMTModel;
 import model.SMTModelLP;
 import model.SMTMultiFlowModel;
 import model.SMTMultiFlowModelLP;
+import model.SMTMultiFlowModelVI;
 import model.SMTMultiFlowModelVILP;
 import model.SMTOnlyFlow;
 import model.SMTOnlyFlowLP;
 
 public class App {
 	
-    int vertexCount = 9;
-    int dstCount = 9;
+    int vertexCount = 10;
+    int dstCount = 5;
     private ILPModel model;
     private ILPModel model2;
     Graph graph;
     private boolean draw = true;
     
-    private boolean generate = true;
+    private boolean generate = false;
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 5;
+		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
 		
 		for (int i = 0; i < iter; i++) {
@@ -56,13 +57,13 @@ public class App {
 			double ipCost1 = 0;
 			double ipCost2 = 0;
 			
-			model = new SMTModel(graph, allowCrossing);
-			model2 = new SMTMultiFlowModelVILP(graph, allowCrossing);
+			model = new SMTMultiFlowModelVILP(graph, allowCrossing);
+//			model2 = new SMTMultiFlowModelVILP(graph, allowCrossing);
 
 			
 			model.solveAndLogTime(); // obtain z value
 //			Double[][][][] fv1 = ((SMTMultiFlowModel) model).getFVar();
-			model2.solveAndLogTime(); // obtain z value
+//			model2.solveAndLogTime(); // obtain z value
 //			Double[][][][] fv2 = ((SMTMultiFlowModel) model2).getFVar();
 //			compareVars(fv1,fv2);
 			
@@ -70,12 +71,12 @@ public class App {
 //			Double[][][] xv2 = ((SMTMultiFlowModel) model2).getXVar();
 //			compareVarsX(xv1, xv2);
 			
-			double lpCost1 = model.getObjectiveValue();
-			double lpCost2 = model2.getObjectiveValue();
-			if ((Math.abs(Miscellaneous.round(lpCost1,2) - Miscellaneous.round(lpCost2,2))) > 0.1) {
-				System.err.println("Different objectives! \n ID: " + graph.getInstId());
-//				System.exit(1);
-			}
+//			double lpCost1 = model.getObjectiveValue();
+//			double lpCost2 = model2.getObjectiveValue();
+//			if ((Math.abs(Miscellaneous.round(lpCost1,2) - Miscellaneous.round(lpCost2,2))) > 0.1) {
+//				System.err.println("Different objectives! \n ID: " + graph.getInstId());
+////				System.exit(1);
+//			}
 			Double[][] z = (Double[][]) model.getZVar();
 //			if (hasCrossing(z)) {
 //				crossList.add(graph.getInstId());
@@ -104,7 +105,7 @@ public class App {
 			
 //			logObjectives(lpCost1, lpCost2, ipCost1, ipCost2, cliqueList);
 			model.end();
-			model2.end();
+//			model2.end();
 
 		}			
 		System.err.println("Instances with crossing: ");

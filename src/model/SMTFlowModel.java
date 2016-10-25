@@ -85,7 +85,7 @@ public class SMTFlowModel extends SMTModel {
 			}
 			
 			// x to f relation
-			for (int k = 1; k < n; k++) {
+			for (int k = 1; k < d; k++) {
 				for (int i = 0; i < n; i++) {
 					for (int j = 0; j < n; j++) {
 						if (i != j) {

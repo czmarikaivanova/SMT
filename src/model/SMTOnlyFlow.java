@@ -101,8 +101,8 @@ public class SMTOnlyFlow extends ILPModel {
 			IloLinearNumExpr expr1 = cplex.linearNumExpr();
 			
 			// Flow conservation - normal
-			for (int s = 0; s < n; s++) {					
-				for (int t = 0; t < n; t++) {
+			for (int s = 0; s < d; s++) {					
+				for (int t = 0; t < d; t++) {
 					for (int i = 0; i < n; i++) {						
 						if (t != i && s != i && s != t) {
 							IloLinearNumExpr expr1a = cplex.linearNumExpr();
@@ -124,8 +124,8 @@ public class SMTOnlyFlow extends ILPModel {
 			}		
 			
 			// Flow conservation - dest
-			for (int s = 0; s < n; s++) {
-				for (int t = 0; t < n; t++) {
+			for (int s = 0; s < d; s++) {
+				for (int t = 0; t < d; t++) {
 					if (s != t) {
 						IloLinearNumExpr expr2a = cplex.linearNumExpr();
 						IloLinearNumExpr expr2b = cplex.linearNumExpr();	
@@ -141,8 +141,8 @@ public class SMTOnlyFlow extends ILPModel {
 			}				
 
 			// Flow conservation - source
-			for (int s = 0; s < n; s++) {
-				for (int t = 0; t < n; t++) {
+			for (int s = 0; s < d; s++) {
+				for (int t = 0; t < d; t++) {
 					if (s != t) {
 						IloLinearNumExpr expr2a = cplex.linearNumExpr();
 						IloLinearNumExpr expr2b = cplex.linearNumExpr();	
@@ -158,10 +158,10 @@ public class SMTOnlyFlow extends ILPModel {
 			}				
 						
 			// capacity
-			for (int s = 0; s < n; s++) {
-				for (int t = 0; t < n; t++) {
-					for (int i = 0; i < n; i++) {
-						for (int j = 0; j < n; j++) {
+			for (int s = 0; s < d; s++) {
+				for (int t = 0; t < d; t++) {
+					for (int i = 0; i < d; i++) {
+						for (int j = 0; j < d; j++) {
 							if (j > i && s != t) {
 								IloLinearNumExpr expr3 = cplex.linearNumExpr();
 								expr3.addTerm(1.0, f[i][j][s][t]);
