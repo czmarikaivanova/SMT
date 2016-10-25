@@ -198,6 +198,27 @@ public class SMTModel extends ILPModel {
 	}
 
 	
+	public Double[][][] getXVar() {
+		try {
+			Double[][][] xval = new Double[x.length][x.length][x.length];
+			for (int i = 0 ; i < x.length; i++) {
+				for (int j = 0; j < x.length; j++) {
+					if (i != j) {
+						for (int k = 0; k < x.length; k++) {
+//							System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(x[i][j][k]) + " --");						
+							xval[i][j][k] = cplex.getValue(x[i][j][k]);
+						}
+					}
+				}
+//				System.out.println();
+			}
+			System.out.println("Objective: " + cplex.getObjValue());
+			return xval;		
+		} catch (IloException e) {			
+			e.printStackTrace();
+			return null;
+		}		
+	}	
 	
 	public Double[][] getZVar() {
 		try {

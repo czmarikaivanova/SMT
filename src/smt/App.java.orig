@@ -52,37 +52,62 @@ public class App {
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
+<<<<<<< HEAD
+			model = new MEBModelLP(graph, allowCrossing);
+			model.solveAndLogTime(); // obtain z value
+=======
 			
 			double ipCost1 = 0;
 			double ipCost2 = 0;
 			
-			model = new SMTModel(graph, allowCrossing);
+			model = new SMTMultiFlowModelLP(graph, allowCrossing);
 			model2 = new SMTMultiFlowModelVILP(graph, allowCrossing);
 
 			
 			model.solveAndLogTime(); // obtain z value
-//			Double[][][][] fv1 = ((SMTMultiFlowModel) model).getFVar();
+			Double[][][][] fv1 = ((SMTMultiFlowModel) model).getFVar();
 			model2.solveAndLogTime(); // obtain z value
-//			Double[][][][] fv2 = ((SMTMultiFlowModel) model2).getFVar();
+			Double[][][][] fv2 = ((SMTMultiFlowModel) model2).getFVar();
 //			compareVars(fv1,fv2);
 			
-//			Double[][][] xv1 = ((SMTMultiFlowModel) model).getXVar();
-//			Double[][][] xv2 = ((SMTMultiFlowModel) model2).getXVar();
-//			compareVarsX(xv1, xv2);
+			Double[][][] xv1 = ((SMTMultiFlowModel) model).getXVar();
+			Double[][][] xv2 = ((SMTMultiFlowModel) model2).getXVar();
+			compareVarsX(xv1, xv2);
 			
+>>>>>>> nomeb
 			double lpCost1 = model.getObjectiveValue();
 			double lpCost2 = model2.getObjectiveValue();
 			if ((Math.abs(Miscellaneous.round(lpCost1,2) - Miscellaneous.round(lpCost2,2))) > 0.1) {
 				System.err.println("Different objectives! \n ID: " + graph.getInstId());
-//				System.exit(1);
+				System.exit(1);
 			}
+<<<<<<< HEAD
+			drawSolution(z);
+			CliqueModel cliqueModel = new CliqueModel(graph, z);
+			cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
+			Clique clique;
+			do {
+				cliqueModel.solveAndLogTime();
+				Boolean[] clVar = cliqueModel.getCliqueVar();
+				clique = cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar, cliqueModel.getObjectiveValue()); 
+				cliqueList.add(clique);  // add new clique to the list of cliques
+				cliqueModel.addClConstraint(clique);
+			} while (clique.size() > 1);
+			cliqueModel.end();
+			listCliques(cliqueList);
+			model = new MEBModelLP(graph, allowCrossing);
+			model.addCrossCliqueConstraints(cliqueList);
+			model.solveAndLogTime();
+			double lpCost2 = model.getObjectiveValue();
+			logObjectives(lpCost1, lpCost2, cliqueList);
+=======
 			Double[][] z = (Double[][]) model.getZVar();
 //			if (hasCrossing(z)) {
 //				crossList.add(graph.getInstId());
 //			}
-			if (draw) {
-				drawSolution(z);
-			}
+//			if (draw) {
+//				drawSolution(z);
+//			}
 		
 //			CliqueModel cliqueModel = new CliqueModel(graph, z);
 //			cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
@@ -103,6 +128,7 @@ public class App {
 //			double lpCost2 = model.getObjectiveValue();
 			
 //			logObjectives(lpCost1, lpCost2, ipCost1, ipCost2, cliqueList);
+>>>>>>> nomeb
 			model.end();
 			model2.end();
 

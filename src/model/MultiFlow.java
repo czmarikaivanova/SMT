@@ -16,16 +16,16 @@ import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 
-public class MEBModel extends ILPModel {
+public class MultiFlow extends ILPModel {
 
-	public MEBModel(Graph graph, boolean allowCrossing) {
+	public MultiFlow(Graph graph, boolean allowCrossing) {
 		super(graph, allowCrossing);
 
 	}
 
 	int n; 
 	int d;
-	protected IloNumVar[][][] x;
+	protected IloNumVar[][][][] x;
 	protected IloNumVar[] p;		
 	
 	@Override
@@ -34,10 +34,12 @@ public class MEBModel extends ILPModel {
 		d = n - 1;
 		try {
 			cplex = new IloCplex();
-			x = new IloNumVar[n][n][];
-			for (int i = 0; i < n; i++) {
+			x = new IloNumVar[n][n][n][];
+			for (int i = 0; i < n; i++) {				
 				for (int j = 0; j < n; j++) {
-					x[i][j] = cplex.boolVarArray(d);
+					for (int k = 0; k < n; k++) {
+						x[i][j][k] = cplex.boolVarArray(n);
+					}
 				}					
 			}
 			p = cplex.numVarArray(n, 0, 99999);
@@ -58,7 +60,12 @@ public class MEBModel extends ILPModel {
 			// create model and solve it				
 			IloLinearNumExpr obj = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {
-				obj.addTerm(1,p[i]);
+				for (int j = 0; j < n; j++) {
+					if (i < j) {
+						obj.addTerm(graph.getRequir(i,j),z[i][j]);
+						//obj.addTerm(1.0,z[i][j]);
+					}
+				}
 			}
 			cplex.addMinimize(obj);				
 			// -------------------------------------- constraints							
@@ -67,7 +74,7 @@ public class MEBModel extends ILPModel {
 			IloLinearNumExpr expr0 = cplex.linearNumExpr();				
 			for (int i = 0; i < n; i++) {					
 				for (int j = 0; j < n; j++) {
-					if (i != j) {
+					if (i < j) {
 						expr0.addTerm(1.0, z[i][j]);
 					}
 				}	
@@ -75,96 +82,94 @@ public class MEBModel extends ILPModel {
 			cplex.addLe(expr0, n-1);					
 			
 			// Assignment						
-			for (int i = 0; i < n; i++) {					
-				for (int j = 0; j < n; j++) {
-					if (i != j) {
-						IloLinearNumExpr expr = cplex.linearNumExpr();	
-						expr.addTerm(graph.getRequir(i,j), z[i][j]);
-						cplex.addLe(expr, p[i]);	
-					}
-				}	
-			}
+//			for (int i = 0; i < n; i++) {					
+//				for (int j = 0; j < n; j++) {
+//					if (i != j) {
+//						IloLinearNumExpr expr = cplex.linearNumExpr();	
+//						expr.addTerm(graph.getRequir(i,j), z[i][j]);
+//						cplex.addLe(expr, p[i]);	
+//					}
+//				}	
+//			}
 			
 			// Flow conservation - normal
-			for (int k = 0; k < d; k++) {					
-				for (int i = 0; i < d; i++) {
-					if (k != i) {
-						IloLinearNumExpr expr1a = cplex.linearNumExpr();
-						IloLinearNumExpr expr1b = cplex.linearNumExpr();	
-						for (int j = 0; j < d; j++) {
-							if (i != j) {
-								expr1a.addTerm(1.0, x[i][j][k]);									
-							}								
+			for (int s = 0; s < n; s++) {					
+				for (int t = 0; t < n; t++) {
+					for (int i = 0; i < n; i++) {						
+						if (t != i && s != i && s != t) {
+							IloLinearNumExpr expr1a = cplex.linearNumExpr();
+							IloLinearNumExpr expr1b = cplex.linearNumExpr();	
+							for (int j = 0; j < n; j++) {
+								if (i != j && j != s) {
+									expr1a.addTerm(1.0, x[i][j][s][t]);									
+								}								
+							}
+							for (int j = 0; j < n; j++) {
+								if (i != j && j != t) {								
+									expr1b.addTerm(1.0, x[j][i][s][t]);
+								}								
+							}						
+							cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));
 						}
-						for (int j = 0; j < n; j++) {
-							if (i != j) {								
-								expr1b.addTerm(1.0, x[j][i][k]);
-							}								
-						}						
-						cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));
 					}
 				}	
 			}		
 			
 			// Flow conservation - dest
-			for (int k = 0; k < d; k++) {					
-				IloLinearNumExpr expr2a = cplex.linearNumExpr();
-				IloLinearNumExpr expr2b = cplex.linearNumExpr();	
-				for (int i = 0; i < n; i++) {
-					if (i != k) {
-						expr2a.addTerm(1.0, x[k][i][k]);									
-						expr2b.addTerm(1.0, x[i][k][k]);									
-					}								
+			for (int s = 0; s < n; s++) {
+				for (int t = 0; t < n; t++) {
+					if (s != t) {
+						IloLinearNumExpr expr2a = cplex.linearNumExpr();
+						IloLinearNumExpr expr2b = cplex.linearNumExpr();	
+						for (int i = 0; i < n; i++) {
+							if (i != t) {
+								expr2a.addTerm(1.0, x[t][i][s][t]);									
+								expr2b.addTerm(1.0, x[i][t][s][t]);									
+							}								
+						}
+						cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b)));
+					}
 				}
-				cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b)));
+			}				
+
+			// Flow conservation - source
+			for (int s = 0; s < n; s++) {
+				for (int t = 0; t < n; t++) {
+					if (s != t) {
+						IloLinearNumExpr expr2a = cplex.linearNumExpr();
+						IloLinearNumExpr expr2b = cplex.linearNumExpr();	
+						for (int i = 0; i < n; i++) {
+							if (i != s) {
+								expr2a.addTerm(1.0, x[s][i][s][t]);									
+								expr2b.addTerm(1.0, x[i][s][s][t]);									
+							}								
+						}
+						cplex.addEq(1,cplex.sum(expr2a, cplex.negative(expr2b)));
+					}
+				}
 			}				
 			
+			
 			// capacity
-			for (int k = 0; k < d; k++) {
-				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < n; j++) {
-						if (j != i) {
-							IloLinearNumExpr expr3 = cplex.linearNumExpr();
-							expr3.addTerm(1.0, x[i][j][k]);
-							cplex.addLe(expr3, z[i][j]);
+			for (int s = 0; s < n; s++) {
+				for (int t = 0; t < n; t++) {
+					for (int i = 0; i < n; i++) {
+						for (int j = 0; j < n; j++) {
+							if (j > i && s != t) {
+								IloLinearNumExpr expr3 = cplex.linearNumExpr();
+								expr3.addTerm(1.0, x[i][j][s][t]);
+								expr3.addTerm(1.0, x[j][i][s][t]);
+								cplex.addLe(expr3, z[i][j]);
+							}
 						}
 					}
 				}
 			}		
-			
-			if (!allowCrossing) {
-				// crossing 2
-				for (Quartet<Node, Node, Node, Node> crossPair: graph.getCrossList()) {
-					int i = crossPair.getValue0().getId();
-					int j = crossPair.getValue1().getId();
-					int k = crossPair.getValue2().getId();
-					int l = crossPair.getValue3().getId();				
-					cplex.addLe(cplex.sum(z[i][j], z[k][l], z[l][k], z[j][i]), 1.0);
-				}			
-			}
-			
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}	
 	}
-	
-	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
-		try {
-			for (Clique clique: cliqueList) {
-				IloNumExpr[] varArray = new IloNumExpr[clique.size() * 2];
-				for (int k = 0; k < clique.size(); k++) {
-					int i = clique.get(k).getOrigU().getId();
-					int j = clique.get(k).getOrigV().getId();
-					varArray[k] = z[i][j];
-					varArray[clique.size() + k] = z[j][i];
-				}
-				cplex.addLe(cplex.sum(varArray), 1.0);
-			}
-		} catch (IloException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}	
+		
 	
 	
 	public double[] getPVar() {
@@ -190,7 +195,7 @@ public class MEBModel extends ILPModel {
 			Double[][] zval = new Double[z.length][z.length];
 			for (int i = 0 ; i < z.length; i++) {
 				for (int j = 0; j < z.length; j++) {
-					if (i != j) {
+					if (i < j) {
 //						System.out.print(cplex.getValue(z[i][j]) + " ");						
 						zval[i][j] = cplex.getValue(z[i][j]);						
 					}
@@ -209,7 +214,7 @@ public class MEBModel extends ILPModel {
 	public void writeZ() {
 		for (int i = 0 ; i < z.length; i++) {
 			for (int j = 0; j < z.length; j++) {
-				if (i != j) {
+				if (i < j) {
 					try {
 						System.out.print("[" + i + ", " + j + "] = " + cplex.getValue(z[i][j]) + " ");
 					} catch (IloException e) {
@@ -240,6 +245,12 @@ public class MEBModel extends ILPModel {
     public String toString() {
     	return Constants.MEB_STRING + "(" + Integer.toString(n) + ")";
     }
+
+	@Override
+	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
 	public Double[][][] getXVar() {
