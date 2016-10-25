@@ -67,6 +67,7 @@ public class CliqueModel extends ILPModel {
 				expr.addTerm(extGraph.getNode(i).getWeight(), z[i]);
 			}					
 			cplex.addLe(1, expr);
+			
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}	
@@ -109,10 +110,10 @@ public class CliqueModel extends ILPModel {
 			double w = 0;
 			for (ExtendedNode en: clique) {
 				int id = en.getId();
-				w = extGraph.getNode(id).getWeight();
-				expr.addTerm(w, z[id]);									
+//				w = extGraph.getNode(id).getWeight();
+				expr.addTerm(1.0, z[id]);									
 			}
-			cplex.addLe(expr, 1);
+			cplex.addLe(expr, clique.size()-1);
 		} catch (IloException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -127,5 +128,11 @@ public class CliqueModel extends ILPModel {
 	
 	public String toString() {
     	return Constants.CLIQUE_STRING + "(" + Integer.toString(extGraph.getVertexCount()) + ")";
+	}
+
+	@Override
+	public Double[][][] getXVar() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
