@@ -58,7 +58,7 @@ public class App {
 			double ipCost2 = 0;
 
 			
-			model2 = new SMTModel(graph, allowCrossing);
+			model2 = new SMTModelLP(graph, allowCrossing);
 			model = new SMTMultiFlowModelVILP(graph, allowCrossing);
 
 			
