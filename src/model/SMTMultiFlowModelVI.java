@@ -147,24 +147,24 @@ public class SMTMultiFlowModelVI extends SMTMultiFlowModel {
 					}
 				}
 			}				
-//			// vi10
-//			for (int s = 0; s < n; s++) {
-//				for (int t1 = 0; t1 < n; t1++) {
-//					if (s != t1) {
-//						for (int t2 = 0; t2 < n; t2++) {
-//							if (s != t2 && t1 != t2) {
-//								for (int i = 0; i < n; i++) {
-//									for (int j = 0; j < n; j++) {
-//										if (i != j) {
-//											cplex.addLe(f[i][j][s][t2],cplex.sum(f[i][j][s][t1], f[i][j][t1][t2]));
-//										}
-//									}
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}		
+			// vi10
+			for (int s = 0; s < d; s++) {
+				for (int t1 = 0; t1 < d; t1++) {
+					if (s != t1) {
+						for (int t2 = 0; t2 < d; t2++) {
+							if (s != t2 && t1 != t2) {
+								for (int i = 0; i < n; i++) {
+									for (int j = 0; j < n; j++) {
+										if (i != j) {
+											cplex.addLe(f[i][j][s][t2],cplex.sum(f[i][j][s][t1], f[i][j][t1][t2]));
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}		
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}	

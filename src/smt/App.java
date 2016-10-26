@@ -36,11 +36,11 @@ public class App {
     Graph graph;
     private boolean draw = true;
     
-    private boolean generate = true;
+    private boolean generate = false;
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 5;
+		int iter = 1;
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
 		
 		for (int i = 0; i < iter; i++) {
@@ -49,7 +49,7 @@ public class App {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("saved_inst/random.txt"); // from file, todo
+				graph = new Graph("saved_inst/weird.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
@@ -58,8 +58,8 @@ public class App {
 			double ipCost2 = 0;
 
 			
-			model = new SMTModelLP(graph, allowCrossing);
-			model2 = new SMTMultiFlowModelVILP(graph, allowCrossing);
+			model2 = new SMTModel(graph, allowCrossing);
+			model = new SMTMultiFlowModelVILP(graph, allowCrossing);
 
 			
 			model.solveAndLogTime(); // obtain z value
