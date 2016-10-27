@@ -55,23 +55,31 @@ public abstract class ILPModel {
 		}
 	}
 	
-	public boolean solveAndLogTime() {
+	public boolean solveAndLogTime(boolean logCost, boolean logTime, boolean newline, int instID) {
 		try {
 			cplex.setParam(IloCplex.Param.ClockType, 1);
 			cplex.getCplexTime();
- 			File datafile = new File("logs/runtime_log.txt");
- 			File datafile2 = new File("logs/cost_log.txt");
-			FileWriter fw;
-			FileWriter fw2;
-			fw = new FileWriter(datafile,true);
-			fw2 = new FileWriter(datafile2,true);			
 			long start = System.currentTimeMillis();
 			boolean ret = cplex.solve();
 			long end = System.currentTimeMillis();
-			fw.write(this.toString() + " Time: " + (end - start)/1000. + " seconds\n");
-			fw2.write(this.toString() +  " ID: " + this.graph.getInstId() + "\n Cost: " + cplex.getObjValue() + "\n ------------------\n");
-			fw.close();
-			fw2.close();
+			if (logTime) {
+				File datafile = new File("logs/runtime_log.txt");
+				FileWriter fw = new FileWriter(datafile,true);
+				fw.write(this.toString() + " Time: " + (end - start)/1000. + " seconds\n");
+				fw.close();
+			}
+			if (logCost) {
+	 			File datafile = new File("logs/cost_log.txt");
+				FileWriter fw = new FileWriter(datafile,true);		
+//				fw.write(this.toString() +  " ID: " + this.graph.getInstId() + "\n ");
+//				fw.write("Cost: " );
+				fw.write((!newline ? instID + " " : "" ) + cplex.getObjValue() + " ");
+				if (newline) {
+					fw.write("\n");
+				}
+//				fw.write("\n ------------------\n");
+				fw.close();
+			}
 			return ret;
 		} catch (IloException e) {
 			e.printStackTrace();
