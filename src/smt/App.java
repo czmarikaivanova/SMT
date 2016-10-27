@@ -30,7 +30,7 @@ import model.SMTOnlyFlowLP;
 public class App {
 	
     int vertexCount = 20;
-    int dstCount = 5;
+    int dstCount = 7;
     Graph graph;
     private boolean draw = false;
     
@@ -47,7 +47,7 @@ public class App {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("saved_inst/weird.txt"); // from file, todo
+				graph = new Graph("saved_inst/random.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
