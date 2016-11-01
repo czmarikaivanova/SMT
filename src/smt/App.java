@@ -4,12 +4,16 @@ import graph.Clique;
 import graph.ExtendedGraph;
 import graph.ExtendedNode;
 import graph.Graph;
+import graph.Tree;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import org.javatuples.Pair;
+
+import algorithm.MSTAlgorithm;
 
 import model.CliqueModel;
 import model.ILPModel;
@@ -40,7 +44,7 @@ public class App {
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 20;
+		int iter = 1;
 
 		
 		for (int i = 0; i < iter; i++) {
@@ -53,8 +57,11 @@ public class App {
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
-			double c1 = runModel(new SMTMultiFlowModelVILP(graph, allowCrossing),  false);
-			double c2= runModel(new SMTModelLP(graph, allowCrossing),  true);
+//			double c1 = runModel(new SMTMultiFlowModelVILP(graph, allowCrossing),  false);
+//			double c2= runModel(new SMTModelLP(graph, allowCrossing),  true);
+			MSTAlgorithm alg = new MSTAlgorithm(true);
+			Graph mst = alg.solve(graph);
+			System.out.println("The cost is: " + mst.evaluate(graph.getDstCount(), null));
 		}			
 
 		return 0;

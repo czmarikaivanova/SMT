@@ -8,9 +8,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.Random;
 
 import org.javatuples.Quartet;
@@ -18,12 +15,12 @@ import org.javatuples.Quartet;
 import smt.Constants;
 import smt.Miscellaneous;
 
-public class Graph {
+public class Graph implements Cloneable  {
 	
 	protected int vertexCount;
 	private int dstCount;	
 	private int instId;
-	private Node[] nodes;
+	protected Node[] nodes;
 	private float[][] requir;	
 	private ArrayList<Quartet<Node, Node, Node, Node>> crossList;
 	
@@ -104,7 +101,14 @@ public class Graph {
 //    	writeDebug();    	
     }
     
-    
+    /**
+     * Add poth arcs
+     * @param edge Edge to add
+     */
+    public void addEdge(Edge edge) {
+        edge.getU().addAdjacent(edge.getV(), this);
+        edge.getV().addAdjacent(edge.getU(), this);
+    } 
     
     private void writeDebug() {
 		for (int i = 0; i < nodes.length; i++) {
@@ -238,6 +242,90 @@ public class Graph {
 	public ArrayList<Quartet<Node, Node, Node, Node>> getCrossList() {
 		return crossList;
 	}	
-
-
+	
+    //T(r1/r2)
+    private int calcSubTrees(Edge e, int nod) {
+        if (e == null) {
+            System.out.println("e is null");
+        }
+        Node r1 = e.getU();
+        Node r2 = e.getV();        
+        int stSize = 0;
+        if (r2.isDestination()) {
+            stSize = 1;            
+        }
+        Edge opositeDir = r2.getLinkToNeighbour(r1);
+        if (r2.getIncidentEdges().size() == 1) { // r2 has only its parent!
+            opositeDir.setSubTreeSize(stSize);
+            e.setSubTreeSize(nod - stSize);
+            return stSize;
+        } 
+        for (Edge f: r2.getIncidentEdges()) {
+            if (!f.getV().equals(r1)) {
+                stSize += calcSubTrees(f, nod);
+            }
+        }
+        opositeDir.setSubTreeSize(stSize);
+        e.setSubTreeSize(nod - stSize);
+        return stSize;
+    }
+    
+    
+    public float evaluate(int nod, ArrayList<Node> alreadyConnected) {
+        float myCost = 0;
+        calcSubTrees(findSomeLeaf(), nod);
+//        if (alreadyConnected != null) { // only GSMT
+//            for (Vertex w: vertices) {
+//                if (!alreadyConnected.contains(w)) {
+//                    int i = 0;
+//                    Vertex closestToW = w.getPotentialNeighbours().get(i).getV();
+//                    while (!alreadyConnected.contains(closestToW)) {
+//                        i++;
+//                        closestToW = w.getPotentialNeighbours().get(i).getV();
+//                    }
+//
+//                }
+//            }
+//        }
+        for (Node v: nodes) {
+            if (v.getJ1() != null) {
+                myCost += v.getCost(nod);                
+            }
+        }
+//        this.cost = myCost;
+        return myCost; 
+    }
+    
+    public Edge findSomeLeaf() {
+        for (Node v: nodes) {
+            if (v.getIncidentEdges().size() == 1) {
+                return v.getIncidentEdges().get(0);
+            }
+        }
+        return null;
+    }	
+	
+    @Override
+    /**
+     * Clone only points, not links. We do not need it.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        Graph gr = (Graph) super.clone();
+        gr.requir = new float[vertexCount][vertexCount];
+        for (int i = 0; i < vertexCount; i++) {
+            System.arraycopy(requir[i], 0, gr.requir[i], 0, vertexCount);
+        }
+        gr.nodes = new Node[vertexCount];
+        for (int i = 0; i < vertexCount; i++) {
+        	gr.nodes[i] = (Node) nodes[i].clone();
+        }
+//        for (Node v: nodes) {
+//        	Node cv = gr.getNode(v.getId());
+//            for (Edge e: v.getIncidentEdges()) {
+//                Edge edgeToAdd = new Edge(gr.getNode(e.getU().getId()), gr.getNode(e.getV().getId()), e.getCost());
+//                cv.addNeighbour(edgeToAdd);
+//            }
+//        }
+        return gr;
+    }
 }
