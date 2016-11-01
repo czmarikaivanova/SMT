@@ -106,8 +106,8 @@ public class Graph implements Cloneable  {
      * @param edge Edge to add
      */
     public void addEdge(Edge edge) {
-        edge.getU().addAdjacent(edge.getV(), this);
-        edge.getV().addAdjacent(edge.getU(), this);
+        edge.getU().addAdjacent(edge.getV(), edge.getCost());
+        edge.getV().addAdjacent(edge.getU(), edge.getCost());
     } 
     
     private void writeDebug() {
@@ -271,7 +271,7 @@ public class Graph implements Cloneable  {
     }
     
     
-    public float evaluate(int nod, ArrayList<Node> alreadyConnected) {
+    public float evaluate(int nod) {
         float myCost = 0;
         calcSubTrees(findSomeLeaf(), nod);
 //        if (alreadyConnected != null) { // only GSMT
@@ -305,6 +305,33 @@ public class Graph implements Cloneable  {
         return null;
     }	
 	
+    /**
+     * Update the distance matrix after additin of an ege
+     * 
+     * @param edge added edge
+     * @param origG original graph
+     * @param sym should it be updated symmetrically (for v as well)
+     */
+    public void updateDstMatrix(Edge edge, Graph origG, boolean sym) {
+        for (int i = 0; i < vertexCount; i++) {
+            float newcost = origG.getRequir(edge.getU().getId(), i) - edge.getCost();                
+            if (newcost < requir[edge.getU().getId()][i]) {
+                requir[edge.getU().getId()][i] = Math.max(0, newcost);
+            }
+        }
+        if (sym) {
+            for (int i = 0; i < dstCount; i++) {
+                if (edge.getV().getJ1().getCost() == edge.getCost()) {
+                    float newcost = origG.getRequir(edge.getV().getId(), i) - edge.getCost();
+                    requir[edge.getV().getId()][i] = Math.max(0, newcost);
+                }
+                else {
+                    System.err.println("why am I here?");
+                }
+            }
+        }
+    }    
+    
     @Override
     /**
      * Clone only points, not links. We do not need it.
@@ -312,6 +339,8 @@ public class Graph implements Cloneable  {
     public Object clone() throws CloneNotSupportedException {
         Graph gr = (Graph) super.clone();
         gr.requir = new float[vertexCount][vertexCount];
+        gr.vertexCount = this.vertexCount;
+        gr.dstCount = this.dstCount;
         for (int i = 0; i < vertexCount; i++) {
             System.arraycopy(requir[i], 0, gr.requir[i], 0, vertexCount);
         }

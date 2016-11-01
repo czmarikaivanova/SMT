@@ -49,10 +49,10 @@ public class Visualizer extends JPanel {
 
     private void paintFromTree(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        for (int i = 0; i < graph.getVertexCount(); i++) {
+        for (int i = 0; i < tree.getVertexCount(); i++) {
             Color color;
             Node u = tree.getNode(i);
-            if (u.isDestination()) {
+            if (i < graph.getDstCount()) {
                 color = Color.black;
             } else {
                 color = Color.lightGray;

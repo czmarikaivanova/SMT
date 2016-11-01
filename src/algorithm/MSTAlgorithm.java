@@ -39,7 +39,7 @@ public class MSTAlgorithm extends Algorithm {
                 if ((!u.equals(v)) && (!alreadyConnected.contains(v)) && (!onlyDests || v.isDestination())) { // do not consider distance to myself
                     float dst = g.getRequir(u, v);
                     if (dst < minDst) {
-                        minDst = g.getRequir(u, v);
+                        minDst = dst;
                         edge.setU(u);
                         edge.setV(v);
                         edge.setCost(dst);

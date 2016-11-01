@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import org.javatuples.Pair;
 
+import algorithm.BIPAlgorithm;
 import algorithm.MSTAlgorithm;
 
 import model.CliqueModel;
@@ -52,7 +53,7 @@ public class App {
 				graph = new Graph(vertexCount, dstCount);			
 			}
 			else {
-				graph = new Graph("saved_inst/random.txt"); // from file, todo
+				graph = new Graph("saved_inst/weird.txt"); // from file, todo
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
@@ -60,9 +61,15 @@ public class App {
 			double c2= runModel(new SMTModel(graph, allowCrossing),  true);
 			MSTAlgorithm alg = new MSTAlgorithm(true);
 			Graph mst = alg.solve(graph);
-			System.out.println("The cost is: " + mst.evaluate(graph.getDstCount(), null));
+			System.out.println("The MST cost is: " + mst.evaluate(graph.getDstCount()));
 			if (draw) {
 				drawSolution(mst, model);
+			}
+			BIPAlgorithm alg2 = new BIPAlgorithm(true);
+			Graph biptree = alg2.solve(graph);
+			System.out.println("The BIP cost is: " + biptree.evaluate(graph.getDstCount()));
+			if (draw) {
+				drawSolution(biptree, model);
 			}
 		}			
 

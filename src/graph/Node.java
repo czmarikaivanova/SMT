@@ -36,8 +36,8 @@ public class Node {
 		this.id = id;
 	}
 	
-	public void addAdjacent(Node n, Graph g) {  //maybe delete (one of the two)
-		incidentEdges.add(new Edge(this, n, g.getRequir(this, n)));
+	public void addAdjacent(Node n, float cost) {  //maybe delete (one of the two)
+		incidentEdges.add(new Edge(this, n, cost));
         determineLevels();
 	}
 	
