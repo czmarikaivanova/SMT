@@ -33,12 +33,12 @@ import model.SMTOnlyFlowLP;
 
 public class App {
 	
-    int vertexCount = 20;
+    int vertexCount = 7;
     int dstCount = 7;
     private ILPModel model;
     private ILPModel model2;
     Graph graph;
-    private boolean draw = false;
+    private boolean draw = true;
     
     private boolean generate = true;
     private boolean allowCrossing = true;
@@ -58,10 +58,13 @@ public class App {
 			graph.saveInstance();
 			graph.generateAMPLData();
 //			double c1 = runModel(new SMTMultiFlowModelVILP(graph, allowCrossing),  false);
-//			double c2= runModel(new SMTModelLP(graph, allowCrossing),  true);
+//			double c2= runModel(new SMTModel(graph, allowCrossing),  true);
 			MSTAlgorithm alg = new MSTAlgorithm(true);
 			Graph mst = alg.solve(graph);
 			System.out.println("The cost is: " + mst.evaluate(graph.getDstCount(), null));
+			if (draw) {
+				drawSolution(mst, model);
+			}
 		}			
 
 		return 0;
@@ -154,14 +157,13 @@ public class App {
 			System.out.println(" ) weight: " + clique.getWeight());
 		}
 	}
-
-	private void drawSolution(Double[][] z, ILPModel model) {
+	private void drawSolution(Object solution, ILPModel model) {
 		if (draw) {
 			if (model instanceof MEBModel) {
-				draw(z, graph, true);						
+				draw(solution, graph, true);						
 			}
 			else {
-				draw(z, graph, false);
+				draw(solution, graph, false);
 			}					
 		}
 	}
@@ -188,8 +190,8 @@ public class App {
 		return false;
 	}
     
-	private void draw(Double[][] z, Graph graph, boolean useArrows) {
-		Visualizer vis = new Visualizer(z, graph, useArrows);
+	private void draw(Object solution, Graph graph, boolean useArrows) {
+		Visualizer vis = new Visualizer(solution, graph, useArrows);
 		//Visualizer vis = new Visualizer(new File("instance.txt"), z, null);			
         JFrame frame = new JFrame("ID: " + graph.getInstId());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

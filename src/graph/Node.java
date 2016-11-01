@@ -32,6 +32,7 @@ public class Node {
 		this.p = new Point(rnd.nextInt(Constants.MAX_COORD), rnd.nextInt(Constants.MAX_COORD));
 		this.isDest = true;
 		orderedNeighbours = new ArrayList<Node>();
+		incidentEdges = new ArrayList<Edge>();
 		this.id = id;
 	}
 	
