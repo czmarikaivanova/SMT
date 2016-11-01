@@ -32,7 +32,7 @@ import model.SMTOnlyFlowLP;
 
 public class App {
 	
-    int vertexCount = 7;
+    int vertexCount = 10;
     int dstCount = 7;
     private ILPModel model;
     private ILPModel model2;
@@ -57,7 +57,7 @@ public class App {
 			graph.saveInstance();
 			graph.generateAMPLData();
 //			double c1 = runModel(new SMTMultiFlowModelVILP(graph, allowCrossing),  false);
-//			double c2= runModel(new SMTModel(graph, allowCrossing),  true);
+			double c2= runModel(new SMTModel(graph, allowCrossing),  true);
 			MSTAlgorithm alg = new MSTAlgorithm(true);
 			Graph mst = alg.solve(graph);
 			System.out.println("The cost is: " + mst.evaluate(graph.getDstCount(), null));

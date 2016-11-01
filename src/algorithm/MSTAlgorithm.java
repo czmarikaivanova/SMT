@@ -33,8 +33,8 @@ public class MSTAlgorithm extends Algorithm {
     private Edge findClosest2(Graph g) {
         float minDst = Float.MAX_VALUE;
         Edge edge = new Edge(null, null, 0);
-        for (Node u: alreadyConnected) {            
-        	for (int i = 0; i < g.getVertexCount(); i++) {
+        for (Node u: alreadyConnected) {       
+        	for (int i = 0; i < g.getDstCount(); i++) {
         		Node v = g.getNode(i);
                 if ((!u.equals(v)) && (!alreadyConnected.contains(v)) && (!onlyDests || v.isDestination())) { // do not consider distance to myself
                     float dst = g.getRequir(u, v);
@@ -49,28 +49,7 @@ public class MSTAlgorithm extends Algorithm {
         }
         return edge;
     }    
-
-    
-//    private Edge findClosest2(Graph g) {
-//        float minDst = Float.MAX_VALUE;
-//        Edge edge = new Edge(null, null, 0);
-//        for (int i = 0; i < g.getVertexCount(); i++) {
-//            for (int j = 0; j < g.getVertexCount(); j++) {
-//            	Node u = g.getNode(i);
-//            	Node v = g.getNode(j);
-//                if ((!u.equals(v)) && (!alreadyConnected.contains(v)) && (!onlyDests || v.isDestination())) { // do not consider distance to myself
-//                    float dst = g.getRequir(u, v);
-//                    if (dst < minDst) {
-//                        minDst = g.getRequir(u, v);
-//                        edge.setU(u);
-//                        edge.setV(v);
-//                        edge.setCost(dst);
-//                    }                      
-//                }
-//            }
-//        }
-//        return edge;
-//    }    
+ 
 
     @Override
     public String getName() {
