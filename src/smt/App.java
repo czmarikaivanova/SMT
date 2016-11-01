@@ -4,7 +4,6 @@ import graph.Clique;
 import graph.ExtendedGraph;
 import graph.ExtendedNode;
 import graph.Graph;
-import graph.Tree;
 
 import java.io.File;
 import java.io.FileWriter;
