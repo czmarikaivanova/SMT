@@ -7,7 +7,7 @@ public class ExtendedNode extends Node {
 	private double weight;	
 	
 	public ExtendedNode(Node origU, Node origV, double weight, int id) {
-		super(id);
+		super(id, true);
 		this.origU = origU;
 		this.origV = origV;
 		this.weight = weight;

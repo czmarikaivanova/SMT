@@ -31,7 +31,7 @@ import model.SMTOnlyFlowLP;
 
 public class App {
 	
-    int vertexCount = 7;
+    int vertexCount = 12;
     int dstCount = 7;
     Graph graph;
     private boolean draw = true;
@@ -54,8 +54,8 @@ public class App {
 			ILPModel smtlp = new SMTModelLP(graph, allowCrossing);
 			ILPModel smtViLp = new SMTMultiFlowModelVILP(graph, allowCrossing);
 			
-			Algorithm bip = new BIPAlgorithm(true, false);
-			Algorithm bipmulti = new BIPAlgorithm(true, true);
+			Algorithm bip = new BIPAlgorithm(true, true);
+			Algorithm bipmulti = new BIPAlgorithm(false, true);
 			
 //			double c_smt= runModel(smt,  true);
 //			double c_smtlp= runModel(smtlp,  true);
@@ -63,9 +63,9 @@ public class App {
 //			double ca1 = runAlg(bip);
 //			double ca2 = runAlg(bipmulti);
 			
-//			System.out.println("Cost of " + smt.toString() + " is: " + runModel(smt,  true));
-//			System.out.println("Cost of " + smtlp.toString() + " is: " + runModel(smtlp,  true));
-//			System.out.println("Cost of " + smtViLp.toString() + " is: " + runModel(smtViLp,  true));
+			System.out.println("Cost of " + smt.toString() + " is: " + runModel(smt,  true));
+			System.out.println("Cost of " + smtlp.toString() + " is: " + runModel(smtlp,  true));
+			System.out.println("Cost of " + smtViLp.toString() + " is: " + runModel(smtViLp,  true));
 			System.out.println("Cost of " + bip.toString() + " is: " + runAlg(bip));
 			System.out.println("Cost of " + bipmulti.toString() + " is: " + runAlg(bipmulti));
 		}			

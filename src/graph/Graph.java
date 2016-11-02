@@ -48,7 +48,7 @@ public class Graph implements Cloneable  {
 	private void generatePoints() {
     	nodes = new Node[vertexCount];
     	for (int i = 0; i < vertexCount; i++) {
-    		nodes[i] = new Node(i);
+    		nodes[i] = new Node(i, i < dstCount);
     	}
     	orderNeighbours();
     }    
@@ -67,7 +67,7 @@ public class Graph implements Cloneable  {
 						String[] twoParts;
 						for (int i = 0; i < vertexCount; i++) {
 							twoParts = br.readLine().split(" ");	 																	
-	 						nodes[cnt] = new Node(i, new Point(Math.round(Float.parseFloat(twoParts[0])), Math.round(Float.parseFloat(twoParts[1]))), true);
+	 						nodes[cnt] = new Node(i, new Point(Math.round(Float.parseFloat(twoParts[0])), Math.round(Float.parseFloat(twoParts[1]))), i < dstCount);
 	 						cnt++; // WHY?
 						}
 					}

@@ -15,12 +15,17 @@ public class BIPAlgorithm extends Algorithm {
 	ArrayList<Node> alreadyConnected;
     boolean multiRoot;
     
+    private int demandedSize;
+    
+    
+    
     @Override
     public Graph solve(Graph graph) {
-        float minCost = Constants.MAX_COST;
+    	demandedSize = onlyDests ? graph.getDstCount() : graph.getVertexCount();
+    	float minCost = Constants.MAX_COST;
         float currCost = Constants.MAX_COST;
         Graph bestGraph = null;
-        int it = (multiRoot ? graph.getVertexCount() : 1);
+        int it = (multiRoot ? demandedSize : 1);
         for (int i = 0; i < it; i++) {
         	Node v = graph.getNode(i);
             Graph currGraph = solveFrom1Root(graph, v.getId());
@@ -38,13 +43,15 @@ public class BIPAlgorithm extends Algorithm {
             Graph resGraph = (Graph) graph.clone();
             alreadyConnected = new ArrayList<Node>();
             alreadyConnected.add(resGraph.getNode(rootID));
-            int demandedVertexCount = onlyDests ? graph.getDstCount() : graph.getVertexCount();              
-            while (alreadyConnected.size() < demandedVertexCount) {
+            while (alreadyConnected.size() < demandedSize) {
                 Edge edgeToAdd = findClosest2(resGraph, graph);      // will return new edge, must calculate from current graph
                 edgeToAdd.setCost(graph.getRequir(edgeToAdd.getU(), edgeToAdd.getV()));  // we must calculate from the original graph
                 resGraph.addEdge(edgeToAdd);         
                 resGraph.updateDstMatrix(edgeToAdd, graph, false);
                 alreadyConnected.add(edgeToAdd.getV());
+            }
+            if (!onlyDests) {
+            	basicDeletion(resGraph, alreadyConnected);
             }
             return resGraph;
         } catch (CloneNotSupportedException ex) {
@@ -56,7 +63,7 @@ public class BIPAlgorithm extends Algorithm {
         float minDst = Float.MAX_VALUE;
         Edge edge = new Edge(null, null,0);
         for (Node u: alreadyConnected) {      
-        	for (int i = 0 ; i <g.getDstCount(); i++) {
+        	for (int i = 0 ; i <demandedSize; i++) {
         		Node v = g.getNode(i);
                 if (!u.equals(v) && (!alreadyConnected.contains(v)) && (!onlyDests || v.isDestination())) { // do not consider distance to myself
                     float dst = g.getRequir(u.getId(), v.getId());
@@ -74,6 +81,6 @@ public class BIPAlgorithm extends Algorithm {
 
 	@Override
 	public String toString() {
-		return "BIP" + (multiRoot ? Constants.MULTIROOT_STRING : "");
+		return "BIP" + (multiRoot ? Constants.MULTIROOT_STRING : "") + (onlyDests ? "_ONLY_DESTS" : "_ALL");
 	}  
 }

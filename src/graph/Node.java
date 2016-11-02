@@ -2,7 +2,9 @@ package graph;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
+
 
 import smt.Constants;
 import smt.Miscellaneous;
@@ -26,11 +28,11 @@ public class Node {
 		this.id = id;  
 	}
 	
-	public Node(int id) {
+	public Node(int id, boolean isDest) {
 		super();
 		Random rnd = new Random();		
 		this.p = new Point(rnd.nextInt(Constants.MAX_COORD), rnd.nextInt(Constants.MAX_COORD));
-		this.isDest = true;
+		this.isDest = isDest;
 		orderedNeighbours = new ArrayList<Node>();
 		incidentEdges = new ArrayList<Edge>();
 		this.id = id;
@@ -70,9 +72,27 @@ public class Node {
         }
         incidentEdges.add(e);
         determineLevels();
-
+    }
+    
+    public Node getNeighbour(int i) {
+        return incidentEdges.get(i).getV();
     }
 	
+    public void removeNeighbour(Node v) {
+        for (Iterator<Edge> e_iter = incidentEdges.iterator(); e_iter.hasNext(); ) {
+            Edge e = e_iter.next();
+            if (e.getV().equals(v)) {
+                e_iter.remove();
+                determineLevels();
+                return;
+            }
+        }
+    }
+    
+    public int getDegree() {
+        return incidentEdges.size();
+    }
+    
     public Edge getJ1() {
         return j1;
     }
@@ -115,6 +135,11 @@ public class Node {
             j2 = null;
         }
     }    
+    
+    public void clearLevels() {
+        j1 = null;
+        j2 = null;
+    }
     
     public float getCost(int numOfDests) {
         int subTreeSize = getJ1().getSubtreeSize();
