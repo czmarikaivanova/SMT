@@ -36,12 +36,6 @@ public class Node {
 		this.id = id;
 	}
 	
-	public void addAdjacent(Node n, float cost) {  //maybe delete (one of the two)
-		incidentEdges.add(new Edge(this, n, cost));
-        determineLevels();
-	}
-	
-	
     public ArrayList<Edge> getIncidentEdges() {
         return incidentEdges;
     }
@@ -67,7 +61,7 @@ public class Node {
 		return p;
 	}
 	
-    public void addNeighbour(Edge e) {  //maybe delete (one of the two)
+    public void addAdjacentEdge(Edge e) {  //maybe delete (one of the two)
         if (e.getCost() == 0) {
             System.err.println("No cost defined!");
         }

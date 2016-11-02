@@ -45,7 +45,6 @@ public class Graph implements Cloneable  {
     	
 	}
 
-
 	private void generatePoints() {
     	nodes = new Node[vertexCount];
     	for (int i = 0; i < vertexCount; i++) {
@@ -106,8 +105,9 @@ public class Graph implements Cloneable  {
      * @param edge Edge to add
      */
     public void addEdge(Edge edge) {
-        edge.getU().addAdjacent(edge.getV(), edge.getCost());
-        edge.getV().addAdjacent(edge.getU(), edge.getCost());
+        edge.getU().addAdjacentEdge(edge);
+        Edge edge2 = new Edge(edge.getV(), edge.getU(), edge.getCost());
+        edge.getV().addAdjacentEdge(edge2);
     } 
     
     private void writeDebug() {
