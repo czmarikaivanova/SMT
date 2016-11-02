@@ -158,7 +158,7 @@ public class SMTMultiFlowModel extends SMTModel {
 	}	
 	
 	public String toString() {
-    	return Constants.SMT_MULTI_FLOW_STRING + "(" + Integer.toString(n) + "," + Integer.toString(d) + ")";
+    	return Constants.SMT_MULTI_FLOW_STRING + "(" + n + "," + d + ")";
 	}
 		
 

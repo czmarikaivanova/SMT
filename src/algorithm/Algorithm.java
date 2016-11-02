@@ -16,8 +16,6 @@ public abstract class Algorithm {
     
     public abstract Graph solve(Graph graph);
     
-    public String getName() {
-        return null;
-    }    
+    public abstract String getName();
     
 }

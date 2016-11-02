@@ -74,5 +74,11 @@ public class BIPAlgorithm extends Algorithm {
             }
         }
         return edge;
-    }  
+    }
+
+
+	@Override
+	public String getName() {
+		return "BIP";
+	}  
 }

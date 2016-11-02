@@ -1,5 +1,6 @@
 package model;
 
+import smt.Constants;
 import graph.Graph;
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
@@ -31,5 +32,9 @@ public class MEBModelLP extends MEBModel {
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public String toString() {
+		return super.toString() + Constants.LP_STRING;
 	}
 }

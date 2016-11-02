@@ -20,7 +20,6 @@ public class MEBModel extends ILPModel {
 
 	public MEBModel(Graph graph, boolean allowCrossing) {
 		super(graph, allowCrossing);
-
 	}
 
 	int n; 
@@ -238,7 +237,7 @@ public class MEBModel extends ILPModel {
     }
 
     public String toString() {
-    	return Constants.MEB_STRING + "(" + Integer.toString(n) + ")";
+    	return Constants.MEB_STRING + "(" + n + ", " + d + ")";
     }
 
 	@Override

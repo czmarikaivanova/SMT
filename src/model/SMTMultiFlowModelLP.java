@@ -1,5 +1,6 @@
 package model;
 
+import smt.Constants;
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
@@ -38,4 +39,8 @@ public class SMTMultiFlowModelLP extends SMTMultiFlowModel {
 			e.printStackTrace();
 		}
 	}	
+	
+	public String toString() {
+		return super.toString() + Constants.LP_STRING;
+	}
 }

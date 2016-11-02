@@ -99,6 +99,6 @@ public class SMTFlowModel extends SMTModel {
 		}				
 	}
 	public String toString() {
-    	return Constants.SMT_FLOW_STRING + "(" + Integer.toString(n) + "," + Integer.toString(d) + ")";
+    	return Constants.SMT_FLOW_STRING + "(" + n + "," + d + ")";
 	}
 }

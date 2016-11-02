@@ -203,7 +203,7 @@ public class SMTOnlyFlow extends ILPModel {
 		}	
 	}
 	public String toString() {
-    	return Constants.SMT_ONLY_FLOW_STRING + "(" + Integer.toString(n) + "," + Integer.toString(d) + ")";
+    	return Constants.SMT_ONLY_FLOW_STRING + "(" + n + "," + d + ")";
 	}
 
 	@Override

@@ -170,6 +170,6 @@ public class SMTMultiFlowModelVI extends SMTMultiFlowModel {
 		}	
 	}	
 	public String toString() {
-    	return Constants.SMT_MULTI_FLOW_VI_STRING + "(" + Integer.toString(n) + "," + Integer.toString(d) + ")";
+    	return Constants.SMT_MULTI_FLOW_VI_STRING + "(" + n + "," + d + ")";
 	}
 }

@@ -106,7 +106,7 @@ public abstract class ILPModel {
 			return 0;
 		}
 	}
-
+	public abstract String toString();
 
 
 }

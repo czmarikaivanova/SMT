@@ -7,6 +7,8 @@ import ilog.cplex.IloCplex;
 
 import java.io.File;
 
+import smt.Constants;
+
 public class SMTModelLP extends SMTModel {
 
 	public SMTModelLP(Graph graph, boolean allowCrossing) {
@@ -34,5 +36,9 @@ public class SMTModelLP extends SMTModel {
 			e.printStackTrace();
 		}
 	}	
+	
+	public String toString() {
+		return super.toString() + Constants.LP_STRING;
+	}
 
 }
