@@ -78,7 +78,7 @@ public class BIPAlgorithm extends Algorithm {
 
 
 	@Override
-	public String getName() {
+	public String toString() {
 		return "BIP";
 	}  
 }

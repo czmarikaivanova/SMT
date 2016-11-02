@@ -50,9 +50,8 @@ public class MSTAlgorithm extends Algorithm {
         return edge;
     }    
  
-
     @Override
-    public String getName() {
+    public String toString() {
         return "MST";
     }
 

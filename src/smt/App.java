@@ -4,17 +4,15 @@ import graph.Clique;
 import graph.ExtendedGraph;
 import graph.ExtendedNode;
 import graph.Graph;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import org.javatuples.Pair;
-
+import algorithm.Algorithm;
 import algorithm.BIPAlgorithm;
 import algorithm.MSTAlgorithm;
-
 import model.CliqueModel;
 import model.ILPModel;
 import model.MEBModel;
@@ -33,13 +31,10 @@ import model.SMTOnlyFlowLP;
 
 public class App {
 	
-    int vertexCount = 10;
+    int vertexCount = 7;
     int dstCount = 7;
-    private ILPModel model;
-    private ILPModel model2;
     Graph graph;
     private boolean draw = true;
-    
     private boolean generate = true;
     private boolean allowCrossing = true;
     
@@ -57,23 +52,31 @@ public class App {
 			}	
 			graph.saveInstance();
 			graph.generateAMPLData();
-//			double c1 = runModel(new SMTMultiFlowModelVILP(graph, allowCrossing),  false);
-			double c2= runModel(new SMTModel(graph, allowCrossing),  true);
-			MSTAlgorithm alg = new MSTAlgorithm(true);
-			Graph mst = alg.solve(graph);
-			System.out.println("The MST cost is: " + mst.evaluate(graph.getDstCount()));
-			if (draw) {
-				drawSolution(mst, model);
-			}
-			BIPAlgorithm alg2 = new BIPAlgorithm(true);
-			Graph biptree = alg2.solve(graph);
-			System.out.println("The BIP cost is: " + biptree.evaluate(graph.getDstCount()));
-			if (draw) {
-				drawSolution(biptree, model);
-			}
+			ILPModel smt = new SMTModel(graph, allowCrossing);
+			ILPModel smtlp = new SMTModelLP(graph, allowCrossing);
+			ILPModel smtViLp = new SMTMultiFlowModelVILP(graph, allowCrossing);
+			
+			Algorithm mst = new MSTAlgorithm(true);
+			Algorithm bip = new BIPAlgorithm(true);
+			
+			double c_smt= runModel(smt,  true);
+			double c_smtlp= runModel(smtlp,  true);
+			double c_smtvilp= runModel(smtViLp,  true);
+			double ca1 = runAlg(new MSTAlgorithm(true));
+			double ca2 = runAlg(new BIPAlgorithm(true));
+			System.out.println("Cost of " + smt.toString() + " is: " + c_smt);
+			System.out.println("Cost of " + smtlp.toString() + " is: " + c_smtlp);
+			System.out.println("Cost of " + smtViLp.toString() + " is: " + c_smtvilp);
+			System.out.println("Cost of " + mst.toString() + " is: " + ca1);
+			System.out.println("Cost of " + bip.toString() + " is: " + ca2);
 		}			
-
 		return 0;
+	}
+	
+	private double runAlg(Algorithm alg) {
+		Graph tree = alg.solve(graph);
+		draw(tree, graph.getInstId(), alg.toString(), false);
+		return tree.evaluate(dstCount);
 	}
 	
 	private double runModel(ILPModel model, boolean newline) {
@@ -84,9 +87,7 @@ public class App {
 //		if (hasCrossing(z)) {
 //			crossList.add(graph.getInstId());
 //		}
-		if (draw) {
-			drawSolution(z, model);
-		}
+		draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
 //		CliqueModel cliqueModel = new CliqueModel(graph, z);
 //		cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
 //		Clique clique;
@@ -163,16 +164,6 @@ public class App {
 			System.out.println(" ) weight: " + clique.getWeight());
 		}
 	}
-	private void drawSolution(Object solution, ILPModel model) {
-		if (draw) {
-			if (model instanceof MEBModel) {
-				draw(solution, graph, true);						
-			}
-			else {
-				draw(solution, graph, false);
-			}					
-		}
-	}
 	
     private boolean hasCrossing(Double[][] z) {
 		for (int i = 0; i < z.length; i++) {
@@ -196,15 +187,17 @@ public class App {
 		return false;
 	}
     
-	private void draw(Object solution, Graph graph, boolean useArrows) {
-		Visualizer vis = new Visualizer(solution, graph, useArrows);
-		//Visualizer vis = new Visualizer(new File("instance.txt"), z, null);			
-        JFrame frame = new JFrame("ID: " + graph.getInstId());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(vis);
-        frame.setSize(Constants.WINDOW_SIZE, Constants.WINDOW_SIZE);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+	private void draw(Object solution, int instId, String methodName, boolean useArrows) {
+		if (draw) {
+			Visualizer vis = new Visualizer(solution, graph, useArrows);
+			//Visualizer vis = new Visualizer(new File("instance.txt"), z, null);			
+	        JFrame frame = new JFrame(methodName + " ID: " + instId);
+	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	        frame.add(vis);
+	        frame.setSize(Constants.WINDOW_SIZE, Constants.WINDOW_SIZE);
+	        frame.setLocationRelativeTo(null);
+	        frame.setVisible(true);
+		}
     }		
 	
 	private void logObjectives(double lpCost1, double lpCost2, double ipCost1, double ipCost2, ArrayList<Clique> cliqueList, ILPModel model) {
