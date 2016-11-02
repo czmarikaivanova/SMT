@@ -40,8 +40,6 @@ public class App {
     
 	public int run() {
 		int iter = 1;
-
-		
 		for (int i = 0; i < iter; i++) {
 			ArrayList<Clique> cliqueList = new ArrayList<Clique>();
 			if (generate) {
@@ -56,19 +54,20 @@ public class App {
 			ILPModel smtlp = new SMTModelLP(graph, allowCrossing);
 			ILPModel smtViLp = new SMTMultiFlowModelVILP(graph, allowCrossing);
 			
-			Algorithm mst = new MSTAlgorithm(true);
-			Algorithm bip = new BIPAlgorithm(true);
+			Algorithm bip = new BIPAlgorithm(true, false);
+			Algorithm bipmulti = new BIPAlgorithm(true, true);
 			
-			double c_smt= runModel(smt,  true);
-			double c_smtlp= runModel(smtlp,  true);
-			double c_smtvilp= runModel(smtViLp,  true);
-			double ca1 = runAlg(new MSTAlgorithm(true));
-			double ca2 = runAlg(new BIPAlgorithm(true));
-			System.out.println("Cost of " + smt.toString() + " is: " + c_smt);
-			System.out.println("Cost of " + smtlp.toString() + " is: " + c_smtlp);
-			System.out.println("Cost of " + smtViLp.toString() + " is: " + c_smtvilp);
-			System.out.println("Cost of " + mst.toString() + " is: " + ca1);
-			System.out.println("Cost of " + bip.toString() + " is: " + ca2);
+//			double c_smt= runModel(smt,  true);
+//			double c_smtlp= runModel(smtlp,  true);
+//			double c_smtvilp= runModel(smtViLp,  true);
+//			double ca1 = runAlg(bip);
+//			double ca2 = runAlg(bipmulti);
+			
+//			System.out.println("Cost of " + smt.toString() + " is: " + runModel(smt,  true));
+//			System.out.println("Cost of " + smtlp.toString() + " is: " + runModel(smtlp,  true));
+//			System.out.println("Cost of " + smtViLp.toString() + " is: " + runModel(smtViLp,  true));
+			System.out.println("Cost of " + bip.toString() + " is: " + runAlg(bip));
+			System.out.println("Cost of " + bipmulti.toString() + " is: " + runAlg(bipmulti));
 		}			
 		return 0;
 	}
@@ -133,10 +132,8 @@ public class App {
 				}
 			}
 		}
-		
 	}
 
-	
 	private void compareVarsX(Double[][][] xv1, Double[][][] xv2) {
 		for (int i = 0; i < xv2.length; i++) {
 			for (int j = 0; j < xv2.length; j++) {
@@ -154,8 +151,8 @@ public class App {
 				}
 			}
 		}
-		
 	}	
+	
 	private void listCliques(ArrayList<Clique> cliqueList) {
 		System.out.println("--------------CLIQUES--------------");
 		for (Clique clique: cliqueList) {

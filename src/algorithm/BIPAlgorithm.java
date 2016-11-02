@@ -1,49 +1,46 @@
 package algorithm;
 
 import java.util.ArrayList;
-
 import smt.Constants;
 import graph.Edge;
 import graph.Graph;
 import graph.Node;
 
 public class BIPAlgorithm extends Algorithm {
-    public BIPAlgorithm(boolean onlyDests) {
+    public BIPAlgorithm(boolean onlyDests, boolean multiRoot) {
 		super(onlyDests);
+		this.multiRoot = multiRoot;
 	}
 
 	ArrayList<Node> alreadyConnected;
-    int rootID;
+    boolean multiRoot;
     
     @Override
     public Graph solve(Graph graph) {
         float minCost = Constants.MAX_COST;
         float currCost = Constants.MAX_COST;
         Graph bestGraph = null;
-//        for (Vertex v: graph.getVertices()) {
-        Node v = graph.getNode(0);
+        int it = (multiRoot ? graph.getVertexCount() : 1);
+        for (int i = 0; i < it; i++) {
+        	Node v = graph.getNode(i);
             Graph currGraph = solveFrom1Root(graph, v.getId());
             currCost = currGraph.evaluate(currGraph.getDstCount());
             if (currCost < minCost) {
                 bestGraph = currGraph;
                 minCost = currCost;
-                rootID = v.getId();
             }
-//        }
+        }
         return bestGraph;
     }
 
-   
     private Graph solveFrom1Root(Graph graph, int rootID) {
         try {
             Graph resGraph = (Graph) graph.clone();
             alreadyConnected = new ArrayList<Node>();
-            alreadyConnected.add(resGraph.getNode(rootID)
-                    );
+            alreadyConnected.add(resGraph.getNode(rootID));
             int demandedVertexCount = onlyDests ? graph.getDstCount() : graph.getVertexCount();              
             while (alreadyConnected.size() < demandedVertexCount) {
                 Edge edgeToAdd = findClosest2(resGraph, graph);      // will return new edge, must calculate from current graph
-                float cost = graph.getRequir(edgeToAdd.getU(), edgeToAdd.getV()); 
                 edgeToAdd.setCost(graph.getRequir(edgeToAdd.getU(), edgeToAdd.getV()));  // we must calculate from the original graph
                 resGraph.addEdge(edgeToAdd);         
                 resGraph.updateDstMatrix(edgeToAdd, graph, false);
@@ -67,7 +64,6 @@ public class BIPAlgorithm extends Algorithm {
                         minDst = dst;
                         edge.setU(u);
                         edge.setV(v);
-                        float cost = origG.getRequir(u, v); 
                         edge.setCost(origG.getRequir(u, v));
                     }                      
                 }
@@ -76,9 +72,8 @@ public class BIPAlgorithm extends Algorithm {
         return edge;
     }
 
-
 	@Override
 	public String toString() {
-		return "BIP";
+		return "BIP" + (multiRoot ? Constants.MULTIROOT_STRING : "");
 	}  
 }
