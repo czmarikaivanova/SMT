@@ -14,7 +14,6 @@ public class BIPAlgorithm extends Algorithm {
 
 	ArrayList<Node> alreadyConnected;
     boolean multiRoot;
-    
     private int demandedSize;
     
     
@@ -25,6 +24,7 @@ public class BIPAlgorithm extends Algorithm {
     	float minCost = Constants.MAX_COST;
         float currCost = Constants.MAX_COST;
         Graph bestGraph = null;
+        int bestRootID = 0;
         int it = (multiRoot ? demandedSize : 1);
         for (int i = 0; i < it; i++) {
         	Node v = graph.getNode(i);
@@ -33,8 +33,10 @@ public class BIPAlgorithm extends Algorithm {
             if (currCost < minCost) {
                 bestGraph = currGraph;
                 minCost = currCost;
+                bestRootID = v.getId();
             }
         }
+        System.out.println("Best root: " + bestRootID);
         return bestGraph;
     }
 
@@ -52,6 +54,7 @@ public class BIPAlgorithm extends Algorithm {
             }
             if (!onlyDests) {
             	basicDeletion(resGraph, alreadyConnected);
+        		deletion2(resGraph, graph);
             }
             return resGraph;
         } catch (CloneNotSupportedException ex) {

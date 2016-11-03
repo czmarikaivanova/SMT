@@ -31,7 +31,7 @@ import model.SMTOnlyFlowLP;
 
 public class App {
 	
-    int vertexCount = 12;
+    int vertexCount = 30;
     int dstCount = 7;
     Graph graph;
     private boolean draw = true;
@@ -63,11 +63,13 @@ public class App {
 //			double ca1 = runAlg(bip);
 //			double ca2 = runAlg(bipmulti);
 			
-			System.out.println("Cost of " + smt.toString() + " is: " + runModel(smt,  true));
-			System.out.println("Cost of " + smtlp.toString() + " is: " + runModel(smtlp,  true));
-			System.out.println("Cost of " + smtViLp.toString() + " is: " + runModel(smtViLp,  true));
-			System.out.println("Cost of " + bip.toString() + " is: " + runAlg(bip));
-			System.out.println("Cost of " + bipmulti.toString() + " is: " + runAlg(bipmulti));
+//			System.out.println("Cost of " + smt.toString() + " is: " + runModel(smt,  true));
+//			System.out.println("Cost of " + smtlp.toString() + " is: " + runModel(smtlp,  true));
+//			System.out.println("Cost of " + smtViLp.toString() + " is: " + runModel(smtViLp,  true));
+//			System.out.println("Cost of " + bip.toString() + " is: " + runAlg(bip));
+//			System.out.println("Cost of " + bipmulti.toString() + " is: " + runAlg(bipmulti));
+			logObjective(runAlg(bip), bip.toString());
+			logObjective(runAlg(bipmulti), bipmulti.toString());
 		}			
 		return 0;
 	}
@@ -196,6 +198,16 @@ public class App {
 	        frame.setVisible(true);
 		}
     }		
+	
+	private void logObjective(double obj, String methodName) {
+        try	{
+        	File datafile = new File("logs/log.txt");
+        	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
+        	fw.write(methodName + ": " + Miscellaneous.round(obj, 2) + "\n");
+        } catch(IOException ioe) {
+            System.err.println("IOException: " + ioe.getMessage());
+        }
+	}
 	
 	private void logObjectives(double lpCost1, double lpCost2, double ipCost1, double ipCost2, ArrayList<Clique> cliqueList, ILPModel model) {
         try	{

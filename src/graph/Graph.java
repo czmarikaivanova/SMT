@@ -23,6 +23,7 @@ public class Graph implements Cloneable  {
 	protected Node[] nodes;
 	private float[][] requir;	
 	private ArrayList<Quartet<Node, Node, Node, Node>> crossList;
+	private float cost;
 	
 	public Graph(int vertexCount, int dstCount) {
 		this.vertexCount = vertexCount;
@@ -292,9 +293,65 @@ public class Graph implements Cloneable  {
                 myCost += v.getCost(nod);                
             }
         }
-//        this.cost = myCost;
+        this.cost = myCost;
         return myCost; 
     }
+    
+    // so far only with deg(v) = 2
+    public float getCostWithout(Node v, Graph origGraph) {
+        Node u = v.getNeighbour(0);
+        Node w = v.getNeighbour(1);
+        float dstUW = origGraph.getRequir(u, w);
+        float w_l1 = w.getLevel1();
+        float w_l2 = w.getLevel2();
+        float u_l1 = u.getLevel1();
+        float u_l2 = u.getLevel2();
+
+        float orig_w = w.getCost(dstCount);
+        float orig_u = u.getCost(dstCount);
+        float orig_v = v.getCost(dstCount);
+        
+        float pot_w;
+        float pot_u;
+        
+        if (dstUW >= w_l1) {
+            int sts = u.getLinkToNeighbour(v).getSubtreeSize();
+            if (w.getJ1().equals(w.getLinkToNeighbour(v))) {// j1 is being replaced 
+                pot_w = sts * w_l2 + (dstCount - sts) * dstUW;                
+            }
+            else {
+                pot_w = sts * w_l1 + (dstCount - sts) * dstUW;                
+            }
+        }
+        else if ((dstUW < w_l1) && (dstUW > w_l2)) {
+            int sts = w.getJ1().getSubtreeSize();
+            pot_w = sts * w_l1 + (dstCount - sts) * dstUW;
+
+        }
+        else { // dstVW <w_12
+            pot_w = orig_w;            
+        }
+
+        if (dstUW >= u_l1) {
+            int sts = w.getLinkToNeighbour(v).getSubtreeSize();
+            if (u.getJ1().equals(u.getLinkToNeighbour(v))) {
+                pot_u = sts * u_l2 + (dstCount - sts) * dstUW;
+            }
+            else {
+                pot_u = sts * u_l1 + (dstCount - sts) * dstUW;                
+            }
+
+        }
+        else if ((dstUW < u_l1) && (dstUW > u_l2)) {
+            int sts = u.getJ1().getSubtreeSize();
+            pot_u = sts * u_l1 + (dstCount - sts) * dstUW;            
+        }
+        else { // dstVW <w_12
+            pot_u = orig_u;            
+        }
+        
+        return this.cost - orig_v - orig_u - orig_w + pot_u + pot_w;
+    }    
     
     public Edge findSomeLeaf() {
         for (Node v: nodes) {

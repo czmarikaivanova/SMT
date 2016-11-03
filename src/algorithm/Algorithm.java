@@ -61,23 +61,31 @@ public abstract class Algorithm {
      * Try to delete non-destinations with deg=2
      * @param resGraph  TODO
      */
-//    public void deletion2(Graph resGraph, Graph origGraph) {
-//        float potCost = 0;
-//        float currCost = resGraph.evaluate(resGraph.getDstCount(), null, false);
-//        for (int i = 0; i < resGraph.getVertexCount(); i++) {
-//        	Node v = resGraph.getNode(i);
-//        	if ((v.getDegree() == 2) && !v.isDestination()) {
-//                potCost = resGraph.getCostWithout(v, origGraph);
-//                if (potCost < currCost) {
-//                    connectNeighbours(v, resGraph, origGraph);
-//                    removeVertex(v);
-//                    currCost = resGraph.evaluate(resGraph.getDstCount());       
-//                    if ((currCost - potCost) > 2 ) {
-//                        System.err.println("That's a serious problem!");
-//                        resGraph.evaluate(resGraph.getDstCount());
-//                    }
-//                }
-//            }
-//        }
-//    }    
+    protected void deletion2(Graph resGraph, Graph origGraph) {
+        float potCost = 0;
+        float currCost = resGraph.evaluate(resGraph.getDstCount());
+        for (int i = 0; i < resGraph.getVertexCount(); i++) {
+        	Node v = resGraph.getNode(i);
+        	if ((v.getDegree() == 2) && !v.isDestination()) {
+                potCost = resGraph.getCostWithout(v, origGraph);
+                if (potCost < currCost) {
+                    connectNeighbours(v, resGraph, origGraph);
+                    removeVertex(v);
+                    currCost = resGraph.evaluate(resGraph.getDstCount());       
+                    if ((currCost - potCost) > 2 ) {
+                        System.err.println("That's a serious problem!");
+                        resGraph.evaluate(resGraph.getDstCount());
+                    }
+                }
+            }
+        }
+    }    
+    
+    // for deg(v) = 2 only !!
+    private void connectNeighbours(Node v, Graph g, Graph origGraph) {
+        Node u = v.getNeighbour(0);
+        Node w = v.getNeighbour(1);
+        Edge e = new Edge(u,w, origGraph.getRequir(u, w));
+        g.addEdge(e);
+    }    
 }
