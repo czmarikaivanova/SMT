@@ -31,46 +31,51 @@ import model.SMTOnlyFlowLP;
 
 public class App {
 	
-    int vertexCount = 30;
-    int dstCount = 7;
+//    int vertexCount = 5;
+    int dstCount = 6;
     Graph graph;
-    private boolean draw = true;
+    private boolean draw = false;
     private boolean generate = true;
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 1;
-		for (int i = 0; i < iter; i++) {
-			ArrayList<Clique> cliqueList = new ArrayList<Clique>();
-			if (generate) {
-				graph = new Graph(vertexCount, dstCount);			
-			}
-			else {
-				graph = new Graph("saved_inst/weird.txt"); // from file, todo
-			}	
-			graph.saveInstance();
-			graph.generateAMPLData();
-			ILPModel smt = new SMTModel(graph, allowCrossing);
-			ILPModel smtlp = new SMTModelLP(graph, allowCrossing);
-			ILPModel smtViLp = new SMTMultiFlowModelVILP(graph, allowCrossing);
-			
-			Algorithm bip = new BIPAlgorithm(true, true);
-			Algorithm bipmulti = new BIPAlgorithm(false, true);
-			
-//			double c_smt= runModel(smt,  true);
-//			double c_smtlp= runModel(smtlp,  true);
-//			double c_smtvilp= runModel(smtViLp,  true);
-//			double ca1 = runAlg(bip);
-//			double ca2 = runAlg(bipmulti);
-			
-//			System.out.println("Cost of " + smt.toString() + " is: " + runModel(smt,  true));
-//			System.out.println("Cost of " + smtlp.toString() + " is: " + runModel(smtlp,  true));
-//			System.out.println("Cost of " + smtViLp.toString() + " is: " + runModel(smtViLp,  true));
-//			System.out.println("Cost of " + bip.toString() + " is: " + runAlg(bip));
-//			System.out.println("Cost of " + bipmulti.toString() + " is: " + runAlg(bipmulti));
-			logObjective(runAlg(bip), bip.toString());
-			logObjective(runAlg(bipmulti), bipmulti.toString());
-		}			
+		int iter = 20;
+		for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
+			for (int i = 0; i < iter; i++) {
+				ArrayList<Clique> cliqueList = new ArrayList<Clique>();
+				if (generate) {
+					graph = new Graph(vertexCount, dstCount);			
+				}
+				else {
+					graph = new Graph("saved_inst/weird.txt"); // from file, todo
+				}	
+				graph.saveInstance();
+				graph.generateAMPLData();
+				ILPModel smt = new SMTModel(graph, allowCrossing);
+				ILPModel smtlp = new SMTModelLP(graph, allowCrossing);
+				ILPModel smtViLp = new SMTMultiFlowModelVILP(graph, allowCrossing);
+				
+				Algorithm bip = new BIPAlgorithm(true, true);
+				Algorithm bipmulti = new BIPAlgorithm(false, true);
+				
+	//			double c_smt= runModel(smt,  true);
+	//			double c_smtlp= runModel(smtlp,  true);
+	//			double c_smtvilp= runModel(smtViLp,  true);
+	//			double ca1 = runAlg(bip);
+	//			double ca2 = runAlg(bipmulti);
+				
+	//			System.out.println("Cost of " + smt.toString() + " is: " + runModel(smt,  true));
+	//			System.out.println("Cost of " + smtlp.toString() + " is: " + runModel(smtlp,  true));
+	//			System.out.println("Cost of " + smtViLp.toString() + " is: " + runModel(smtViLp,  true));
+	//			System.out.println("Cost of " + bip.toString() + " is: " + runAlg(bip));
+	//			System.out.println("Cost of " + bipmulti.toString() + " is: " + runAlg(bipmulti));
+				logObjective(runModel(smtlp, false), graph.getInstId(), false);
+				logObjective(runModel(smtViLp, false), -1, false);
+				logObjective(runModel(smt, false), -1, false);
+				logObjective(runAlg(bipmulti), -1, true);
+			}		
+		}
+		
 		return 0;
 	}
 	
@@ -199,11 +204,12 @@ public class App {
 		}
     }		
 	
-	private void logObjective(double obj, String methodName) {
+	private void logObjective(double obj, int id, boolean newline) {
         try	{
-        	File datafile = new File("logs/log.txt");
+        	File datafile = new File("logs/cost_log.txt");
         	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
-        	fw.write(methodName + ": " + Miscellaneous.round(obj, 2) + "\n");
+        	fw.write((id > 0 ? id + ": ": " ") +  Miscellaneous.round(obj, 2) + (newline ? "\n" : " "));
+        	fw.close();
         } catch(IOException ioe) {
             System.err.println("IOException: " + ioe.getMessage());
         }

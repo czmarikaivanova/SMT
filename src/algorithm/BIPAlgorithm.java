@@ -25,7 +25,7 @@ public class BIPAlgorithm extends Algorithm {
         float currCost = Constants.MAX_COST;
         Graph bestGraph = null;
         int bestRootID = 0;
-        int it = (multiRoot ? demandedSize : 1);
+        int it = (multiRoot ? graph.getDstCount() : 1);
         for (int i = 0; i < it; i++) {
         	Node v = graph.getNode(i);
             Graph currGraph = solveFrom1Root(graph, v.getId());
