@@ -32,48 +32,74 @@ import model.SMTOnlyFlowLP;
 public class App {
 	
 //    int vertexCount = 5;
-    int dstCount = 6;
+    int dstCount;
     Graph graph;
     private boolean draw = false;
     private boolean generate = true;
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 20;
-		for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
-			for (int i = 0; i < iter; i++) {
-				ArrayList<Clique> cliqueList = new ArrayList<Clique>();
-				if (generate) {
-					graph = new Graph(vertexCount, dstCount);			
-				}
-				else {
-					graph = new Graph("saved_inst/weird.txt"); // from file, todo
-				}	
-				graph.saveInstance();
-				graph.generateAMPLData();
-				ILPModel smt = new SMTModel(graph, allowCrossing);
-				ILPModel smtlp = new SMTModelLP(graph, allowCrossing);
-				ILPModel smtViLp = new SMTMultiFlowModelVILP(graph, allowCrossing);
-				
-				Algorithm bip = new BIPAlgorithm(true, true);
-				Algorithm bipmulti = new BIPAlgorithm(false, true);
-				
-	//			double c_smt= runModel(smt,  true);
-	//			double c_smtlp= runModel(smtlp,  true);
-	//			double c_smtvilp= runModel(smtViLp,  true);
-	//			double ca1 = runAlg(bip);
-	//			double ca2 = runAlg(bipmulti);
-				
-	//			System.out.println("Cost of " + smt.toString() + " is: " + runModel(smt,  true));
-	//			System.out.println("Cost of " + smtlp.toString() + " is: " + runModel(smtlp,  true));
-	//			System.out.println("Cost of " + smtViLp.toString() + " is: " + runModel(smtViLp,  true));
-	//			System.out.println("Cost of " + bip.toString() + " is: " + runAlg(bip));
-	//			System.out.println("Cost of " + bipmulti.toString() + " is: " + runAlg(bipmulti));
-				logObjective(runModel(smtlp, false), graph.getInstId(), false);
-				logObjective(runModel(smtViLp, false), -1, false);
-				logObjective(runModel(smt, false), -1, false);
-				logObjective(runAlg(bipmulti), -1, true);
-			}		
+		int iter = 40;
+		for (dstCount = 4; dstCount < 11; dstCount++) {
+			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
+				double avgLP1Cost;
+				double avgLP2Cost;
+				double avgCost;
+				double avgAlgCost;
+				double sumLP1Cost = 0;
+				double sumLP2Cost = 0;
+				double sumCost = 0;
+				double sumAlgCost = 0;
+				for (int i = 0; i < iter; i++) {
+					ArrayList<Clique> cliqueList = new ArrayList<Clique>();
+					if (generate) {
+						graph = new Graph(vertexCount, dstCount);			
+					}
+					else {
+						graph = new Graph("saved_inst/weird.txt"); // from file, todo
+					}	
+//					graph.saveInstance();
+//					graph.generateAMPLData();
+					ILPModel smt = new SMTModel(graph, allowCrossing);
+					ILPModel smtlp = new SMTModelLP(graph, allowCrossing);
+					ILPModel smtViLp = new SMTMultiFlowModelVILP(graph, allowCrossing);
+					
+					Algorithm bip = new BIPAlgorithm(true, true);
+					Algorithm bipmulti = new BIPAlgorithm(false, true);
+					
+		//			double c_smt= runModel(smt,  true);
+		//			double c_smtlp= runModel(smtlp,  true);
+		//			double c_smtvilp= runModel(smtViLp,  true);
+		//			double ca1 = runAlg(bip);
+		//			double ca2 = runAlg(bipmulti);
+					
+		//			System.out.println("Cost of " + smt.toString() + " is: " + runModel(smt,  true));
+		//			System.out.println("Cost of " + smtlp.toString() + " is: " + runModel(smtlp,  true));
+		//			System.out.println("Cost of " + smtViLp.toString() + " is: " + runModel(smtViLp,  true));
+		//			System.out.println("Cost of " + bip.toString() + " is: " + runAlg(bip));
+		//			System.out.println("Cost of " + bipmulti.toString() + " is: " + runAlg(bipmulti));
+					double LP1Cost = runModel(smtlp, false);
+					double LP2Cost = runModel(smtViLp, false);
+					double cost = runModel(smt, false);
+					double algCost = runAlg(bipmulti);					
+					logObjective(LP1Cost, graph.getInstId(), false);
+					logObjective(LP2Cost, -1, false);
+					logObjective(cost, -1, false);
+					logObjective(algCost, -1, true);
+					sumLP1Cost += LP1Cost;
+					sumLP2Cost += LP2Cost;
+					sumCost += cost;
+					sumAlgCost += algCost;
+				}		
+				avgLP1Cost = sumLP1Cost / iter;
+				avgLP2Cost = sumLP2Cost / iter;
+				avgCost = sumCost / iter;
+				avgAlgCost = sumAlgCost / iter;
+				logStat(avgLP1Cost, vertexCount == 20, "lp1");
+				logStat(avgLP2Cost, vertexCount == 20, "lp2");
+				logStat(avgCost, vertexCount == 20, "cost");
+				logStat(avgAlgCost, vertexCount == 20, "alg");
+			}
 		}
 		
 		return 0;
@@ -208,12 +234,24 @@ public class App {
         try	{
         	File datafile = new File("logs/cost_log.txt");
         	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
-        	fw.write((id > 0 ? id + ": ": " ") +  Miscellaneous.round(obj, 2) + (newline ? "\n" : " "));
+        	fw.write((id > 0 ? id + ": ": " ") +  Miscellaneous.round(obj, 2) + (newline ? "\n" : "\t "));
         	fw.close();
         } catch(IOException ioe) {
             System.err.println("IOException: " + ioe.getMessage());
         }
 	}
+	
+	private void logStat(double obj, boolean newline, String filename) {
+        try	{
+        	File datafile = new File("logs/stat_" + filename + ".txt");
+        	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
+        	fw.write(Miscellaneous.round(obj, 2) + (newline ? "\n" : "\t"));
+        	fw.close();
+        } catch(IOException ioe) {
+            System.err.println("IOException: " + ioe.getMessage());
+        }
+	}
+	
 	
 	private void logObjectives(double lpCost1, double lpCost2, double ipCost1, double ipCost2, ArrayList<Clique> cliqueList, ILPModel model) {
         try	{
