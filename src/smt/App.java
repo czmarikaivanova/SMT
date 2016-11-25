@@ -31,17 +31,17 @@ import model.SMTOnlyFlowLP;
 
 public class App {
 	
-//    int vertexCount = 5;
-    int dstCount;
+    int vertexCount = 18;
+    int dstCount = 8;
     Graph graph;
     private boolean draw = false;
     private boolean generate = true;
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 40;
-		for (dstCount = 4; dstCount < 11; dstCount++) {
-			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
+		int iter = 5;
+//		for (dstCount = 4; dstCount < 11; dstCount++) {
+//			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
 				double avgLP2Cost;
 				double avgCost;
@@ -56,10 +56,10 @@ public class App {
 						graph = new Graph(vertexCount, dstCount);			
 					}
 					else {
-						graph = new Graph("saved_inst/weird.txt"); // from file, todo
+						graph = new Graph("saved_inst/instance3.txt"); // from file, todo
 					}	
-//					graph.saveInstance();
-//					graph.generateAMPLData();
+					graph.saveInstance();
+					graph.generateAMPLData();
 					ILPModel smt = new SMTModel(graph, allowCrossing);
 					ILPModel smtlp = new SMTModelLP(graph, allowCrossing);
 					ILPModel smtViLp = new SMTMultiFlowModelVILP(graph, allowCrossing);
@@ -67,41 +67,41 @@ public class App {
 					Algorithm bip = new BIPAlgorithm(true, true);
 					Algorithm bipmulti = new BIPAlgorithm(false, true);
 					
-		//			double c_smt= runModel(smt,  true);
-		//			double c_smtlp= runModel(smtlp,  true);
-		//			double c_smtvilp= runModel(smtViLp,  true);
-		//			double ca1 = runAlg(bip);
-		//			double ca2 = runAlg(bipmulti);
+//					double c_smt= runModel(smt,  true);
+//					double c_smtlp= runModel(smtlp,  true);
+//					double c_smtvilp= runModel(smtViLp,  true);
+//					double ca1 = runAlg(bip);
+//					double ca2 = runAlg(bipmulti);
 					
-		//			System.out.println("Cost of " + smt.toString() + " is: " + runModel(smt,  true));
-		//			System.out.println("Cost of " + smtlp.toString() + " is: " + runModel(smtlp,  true));
-		//			System.out.println("Cost of " + smtViLp.toString() + " is: " + runModel(smtViLp,  true));
+//					System.out.println("Cost of " + smt.toString() + " is: " + runModel(smt,  true));
+//					System.out.println("Cost of " + smtlp.toString() + " is: " + runModel(smtlp,  true));
+//					System.out.println("Cost of " + smtViLp.toString() + " is: " + runModel(smtViLp,  true));
 		//			System.out.println("Cost of " + bip.toString() + " is: " + runAlg(bip));
 		//			System.out.println("Cost of " + bipmulti.toString() + " is: " + runAlg(bipmulti));
-					double LP1Cost = runModel(smtlp, false);
-					double LP2Cost = runModel(smtViLp, false);
-					double cost = runModel(smt, false);
-					double algCost = runAlg(bipmulti);					
-					logObjective(LP1Cost, graph.getInstId(), false);
-					logObjective(LP2Cost, -1, false);
-					logObjective(cost, -1, false);
-					logObjective(algCost, -1, true);
-					sumLP1Cost += LP1Cost;
-					sumLP2Cost += LP2Cost;
-					sumCost += cost;
-					sumAlgCost += algCost;
-				}		
-				avgLP1Cost = sumLP1Cost / iter;
-				avgLP2Cost = sumLP2Cost / iter;
-				avgCost = sumCost / iter;
-				avgAlgCost = sumAlgCost / iter;
-				logStat(avgLP1Cost, vertexCount == 20, "lp1");
-				logStat(avgLP2Cost, vertexCount == 20, "lp2");
-				logStat(avgCost, vertexCount == 20, "cost");
-				logStat(avgAlgCost, vertexCount == 20, "alg");
-			}
-		}
-		
+//					double LP1Cost = runModel(smtlp, false);
+//					double LP2Cost = runModel(smtViLp, false);
+//					double cost = runModel(smt, false);
+//					double algCost = runAlg(bipmulti);					
+//					logObjective(LP1Cost, graph.getInstId(), false);
+//					logObjective(LP2Cost, -1, false);
+//					logObjective(cost, -1, false);
+//					logObjective(algCost, -1, true);
+//					sumLP1Cost += LP1Cost;
+//					sumLP2Cost += LP2Cost;
+//					sumCost += cost;
+//					sumAlgCost += algCost;
+//				}		
+//				avgLP1Cost = sumLP1Cost / iter;
+//				avgLP2Cost = sumLP2Cost / iter;
+//				avgCost = sumCost / iter;
+//				avgAlgCost = sumAlgCost / iter;
+//				logStat(avgLP1Cost, vertexCount == 20, "lp1");
+//				logStat(avgLP2Cost, vertexCount == 20, "lp2");
+//				logStat(avgCost, vertexCount == 20, "cost");
+//				logStat(avgAlgCost, vertexCount == 20, "alg");
+//			}
+//		}
+				}
 		return 0;
 	}
 	
