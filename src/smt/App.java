@@ -28,18 +28,19 @@ import model.SMTMultiFlowModelVI;
 import model.SMTMultiFlowModelVILP;
 import model.SMTOnlyFlow;
 import model.SMTOnlyFlowLP;
+import model.SteinerModel;
 
 public class App {
 	
-    int vertexCount = 18;
+    int vertexCount = 15;
     int dstCount = 8;
     Graph graph;
-    private boolean draw = false;
+    private boolean draw = true;
     private boolean generate = true;
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 5;
+		int iter = 1;
 //		for (dstCount = 4; dstCount < 11; dstCount++) {
 //			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
@@ -64,8 +65,12 @@ public class App {
 					ILPModel smtlp = new SMTModelLP(graph, allowCrossing);
 					ILPModel smtViLp = new SMTMultiFlowModelVILP(graph, allowCrossing);
 					
+					ILPModel steiner = new SteinerModel(graph, allowCrossing);
+					
 					Algorithm bip = new BIPAlgorithm(true, true);
 					Algorithm bipmulti = new BIPAlgorithm(false, true);
+					
+					System.out.println("Cost of Steiner is: " + runModel(steiner,  true));
 					
 //					double c_smt= runModel(smt,  true);
 //					double c_smtlp= runModel(smtlp,  true);
