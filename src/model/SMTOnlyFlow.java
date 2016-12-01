@@ -65,6 +65,25 @@ public class SMTOnlyFlow extends ILPModel {
 			e.printStackTrace();
 		}
 	}
+	
+	protected void createObjFunction() {
+		try {
+			// create model and solve it				
+			IloLinearNumExpr obj = cplex.linearNumExpr();
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						for (int s = 0; s < d; s++) {
+							obj.addTerm(graph.getRequir(i,j), y[i][j][s]);
+						}
+					}
+				}
+			}
+			cplex.addMinimize(obj);	
+		} catch (IloException e) {
+			e.printStackTrace();
+		}			
+	}	
 
 	@Override
 	protected void createConstraints() {

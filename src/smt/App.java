@@ -22,6 +22,7 @@ import model.SMTModel;
 import model.SMTMultiFlowModel;
 import model.SMTMultiFlowModelVI;
 import model.SMTOnlyFlow;
+import model.SMT_inherited;
 import model.SteinerModel;
 import model.SteinerMultiFlowModel;
 import model.SteinerPF2Model;
@@ -60,7 +61,7 @@ public class App {
 					ILPModel smt = new SMTModel(graph, false, Constants.INTEGER);
 					ILPModel smtlp = new SMTModel(graph, false, Constants.LP);
 					ILPModel smtVi = new SMTMultiFlowModelVI(graph, false, Constants.INTEGER);
-					ILPModel smtof = new SMTMultiFlowModel(graph, false, Constants.INTEGER);
+					ILPModel smtof = new SMT_inherited(graph, false, Constants.INTEGER);
 					
 					
 					ILPModel steiner_int = new SteinerModel(graph, false, Constants.INTEGER);
@@ -83,11 +84,11 @@ public class App {
 //					double ca2 = runAlg(bipmulti);
 					
 //					
-//					double c_steiner_int = runModel(steiner_int, true);
+					double c_steiner_int = runModel(steiner_int, true);
 //					double c_steinerlp = runModel(steinerlp, true);
 //					double c_steinerpf2lp = runModel(steinerpf2lp, true);
-//					double c_steinermf = runModel(steinermf, true);
-//					double c_steinerpf2 = runModel(steinerpf2, true);
+					double c_steinermf = runModel(steinermf, true);
+					double c_steinerpf2 = runModel(steinerpf2, true);
 //					double c_steinermflp = runModel(steinermflp, true);
 
 //					double LP1Cost = runModel(smtlp, false);
@@ -95,9 +96,7 @@ public class App {
 //					double cost = runModel(smt, false);
 //					double algCost = runAlg(bipmulti);				
 					
-//					logObjective(c_steiner_int, graph.getInstId(), false);
-//					logObjective(c_steinermf, -1, false);
-//					logObjective(c_steinerpf2, -1, true);
+
 //					logObjective(c_steinerlp, -1, false);
 //					logObjective(c_steinermflp, -1, false);
 //					logObjective(c_steinerpf2lp, -1, true);				
@@ -105,6 +104,10 @@ public class App {
 					logObjective(c_smt, graph.getInstId(), false);
 					logObjective(c_smtvi, -1, false);
 					logObjective(o_smt, -1, true);
+
+					logObjective(c_steiner_int, graph.getInstId(), false);
+					logObjective(c_steinermf, -1, false);
+					logObjective(c_steinerpf2, -1, true);
 					
 //					logObjective(LP1Cost, graph.getInstId(), false);
 //					logObjective(LP2Cost, -1, false);

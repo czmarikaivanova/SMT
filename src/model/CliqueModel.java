@@ -41,16 +41,23 @@ public class CliqueModel extends ILPModel {
 	}
 
 	@Override
+	protected void createObjFunction() {
+		try {
+		IloLinearNumExpr obj = cplex.linearNumExpr();
+		for (int i = 0; i < n; i++) {
+			double weight = extGraph.getNode(i).getWeight();
+			obj.addTerm(weight ,z[i]);
+		}
+		cplex.addMaximize(obj);	
+		} catch (IloException e) {
+			System.err.println("Concert exception caught: " + e);
+		}
+	}
+	
+	@Override
 	protected void createConstraints() {
 		try {
 			// create model and solve it				
-			IloLinearNumExpr obj = cplex.linearNumExpr();
-			for (int i = 0; i < n; i++) {
-				double weight = extGraph.getNode(i).getWeight();
-				obj.addTerm(weight ,z[i]);
-			}
-			cplex.addMaximize(obj);				
-			// -------------------------------------- constraints							
 			
 			// Connection
 			for (int i = 0; i < n; i++) {					
@@ -135,6 +142,7 @@ public class CliqueModel extends ILPModel {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 
 	
 }

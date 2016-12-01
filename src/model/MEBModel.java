@@ -60,19 +60,22 @@ public class MEBModel extends ILPModel {
 			e.printStackTrace();
 		}
 	}
-
-	@Override
-	public void createConstraints() {
+	
+	protected void createObjFunction() {
 		try {
-
-			// create model and solve it				
 			IloLinearNumExpr obj = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {
 				obj.addTerm(1,p[i]);
 			}
-			cplex.addMinimize(obj);				
-			// -------------------------------------- constraints							
-			
+			cplex.addMinimize(obj);	
+		} catch (IloException e) {
+			e.printStackTrace();
+		}			
+	}
+
+	@Override
+	public void createConstraints() {
+		try {
 			// Size
 			IloLinearNumExpr expr0 = cplex.linearNumExpr();				
 			for (int i = 0; i < n; i++) {					

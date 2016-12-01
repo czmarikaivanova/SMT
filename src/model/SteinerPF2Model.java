@@ -53,11 +53,9 @@ public class SteinerPF2Model extends ILPModel {
 			e.printStackTrace();
 		}
 	}	
-
-	@Override
-	protected void createConstraints() {
+	
+	protected void createObjFunction() {
 		try {
-			// create model and solve it				
 			IloLinearNumExpr obj = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
@@ -67,8 +65,14 @@ public class SteinerPF2Model extends ILPModel {
 				}
 			}
 			cplex.addMinimize(obj);				
-			// -------------------------------------- constraints							
-		
+		} catch (IloException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	protected void createConstraints() {
+		try {
 	
 			// flow1
 			for (int t = 1; t < d; t++) { // must not be zero

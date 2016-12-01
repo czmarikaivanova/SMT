@@ -60,7 +60,7 @@ public class SMTModel extends ILPModel {
 		}
 	}
 	
-	public void createConstraints() {
+	protected void createObjFunction() {
 		try {
 			// create model and solve it				
 			IloLinearNumExpr obj = cplex.linearNumExpr();
@@ -73,9 +73,14 @@ public class SMTModel extends ILPModel {
 					}
 				}
 			}
-			cplex.addMinimize(obj);				
-			// -------------------------------------- constraints							
-			
+			cplex.addMinimize(obj);	
+		} catch (IloException e) {
+			e.printStackTrace();
+		}			
+	}	
+	
+	public void createConstraints() {
+		try {	
 			// Size
 			IloLinearNumExpr expr = cplex.linearNumExpr();				
 			for (int i = 0; i < n; i++) {					

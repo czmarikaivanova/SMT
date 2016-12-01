@@ -38,13 +38,15 @@ public abstract class ILPModel {
 	}
 		
 	protected abstract void initVars();
+	protected abstract void createObjFunction();
 	protected abstract void createConstraints();
-	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {} ;
+	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {}
 	public abstract Double[][] getZVar();
 	public abstract Double[][][] getXVar();
 	
 	protected void createModel() {
 		initVars();
+		createObjFunction();
 		createConstraints();
 	}
 	

@@ -54,9 +54,8 @@ public class SteinerMultiFlowModel extends ILPModel {
 		}
 	}	
 	
-	public void createConstraints() {
+	protected void createObjFunction() {
 		try {
-			// create model and solve it				
 			IloLinearNumExpr obj = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
@@ -66,8 +65,13 @@ public class SteinerMultiFlowModel extends ILPModel {
 				}
 			}
 			cplex.addMinimize(obj);				
-			// -------------------------------------- constraints							
-			
+		} catch (IloException e) {
+			e.printStackTrace();
+		}
+	}	
+	
+	public void createConstraints() {
+		try {
 			// Size
 			IloLinearNumExpr expr = cplex.linearNumExpr();				
 			for (int i = 0; i < n; i++) {					
