@@ -29,22 +29,27 @@ import model.SMTMultiFlowModelVILP;
 import model.SMTOnlyFlow;
 import model.SMTOnlyFlowLP;
 import model.SteinerModel;
+import model.SteinerModelLP;
+import model.SteinerMultiFlowModel;
+import model.SteinerMultiFlowModelLP;
+import model.SteinerPF2Model;
+import model.SteinerPF2ModelLP;
 
 public class App {
 	
-    int vertexCount = 15;
-    int dstCount = 8;
+    int vertexCount = 30;
+    int dstCount = 15;
     Graph graph;
-    private boolean draw = true;
+    private boolean draw = false;
     private boolean generate = true;
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 1;
+		int iter = 100;
 //		for (dstCount = 4; dstCount < 11; dstCount++) {
 //			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
-				double avgLP2Cost;
+				double avgLP2Cost;	
 				double avgCost;
 				double avgAlgCost;
 				double sumLP1Cost = 0;
@@ -61,16 +66,19 @@ public class App {
 					}	
 					graph.saveInstance();
 					graph.generateAMPLData();
-					ILPModel smt = new SMTModel(graph, allowCrossing);
-					ILPModel smtlp = new SMTModelLP(graph, allowCrossing);
-					ILPModel smtViLp = new SMTMultiFlowModelVILP(graph, allowCrossing);
+//					ILPModel smt = new SMTModel(graph, allowCrossing);
+//					ILPModel smtlp = new SMTModelLP(graph, allowCrossing);
+//					ILPModel smtViLp = new SMTMultiFlowModelVILP(graph, allowCrossing);
 					
-					ILPModel steiner = new SteinerModel(graph, allowCrossing);
+					ILPModel steiner_int = new SteinerModel(graph, allowCrossing);
+					ILPModel steinerlp = new SteinerModelLP(graph, allowCrossing);
+					ILPModel steinerpf2lp = new SteinerPF2ModelLP(graph, allowCrossing);
+					ILPModel steinermf = new SteinerMultiFlowModel(graph, allowCrossing);
+					ILPModel steinermflp = new SteinerMultiFlowModelLP(graph, allowCrossing);
 					
-					Algorithm bip = new BIPAlgorithm(true, true);
-					Algorithm bipmulti = new BIPAlgorithm(false, true);
+//					Algorithm bip = new BIPAlgorithm(true, true);
+//					Algorithm bipmulti = new BIPAlgorithm(false, true);
 					
-					System.out.println("Cost of Steiner is: " + runModel(steiner,  true));
 					
 //					double c_smt= runModel(smt,  true);
 //					double c_smtlp= runModel(smtlp,  true);
@@ -78,15 +86,24 @@ public class App {
 //					double ca1 = runAlg(bip);
 //					double ca2 = runAlg(bipmulti);
 					
-//					System.out.println("Cost of " + smt.toString() + " is: " + runModel(smt,  true));
-//					System.out.println("Cost of " + smtlp.toString() + " is: " + runModel(smtlp,  true));
-//					System.out.println("Cost of " + smtViLp.toString() + " is: " + runModel(smtViLp,  true));
-		//			System.out.println("Cost of " + bip.toString() + " is: " + runAlg(bip));
-		//			System.out.println("Cost of " + bipmulti.toString() + " is: " + runAlg(bipmulti));
+//					
+//					double c_steiner_int = runModel(steiner_int, true);
+//					double c_steinerlp = runModel(steinerlp, true);
+					double c_steinerpf2lp = runModel(steinerpf2lp, true);
+//					double c_steinermf = runModel(steinermf, true);
+//					double c_steinermflp = runModel(steinermflp, true);
+
 //					double LP1Cost = runModel(smtlp, false);
 //					double LP2Cost = runModel(smtViLp, false);
 //					double cost = runModel(smt, false);
-//					double algCost = runAlg(bipmulti);					
+//					double algCost = runAlg(bipmulti);				
+					
+//					logObjective(c_steiner_int, graph.getInstId(), false);
+//					logObjective(c_steinerlp, graph.getInstId(), false);
+					logObjective(c_steinerpf2lp, graph.getInstId(), true);
+//					logObjective(c_steinermflp, -1, true);
+					
+					
 //					logObjective(LP1Cost, graph.getInstId(), false);
 //					logObjective(LP2Cost, -1, false);
 //					logObjective(cost, -1, false);
