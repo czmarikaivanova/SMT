@@ -18,8 +18,9 @@ import ilog.cplex.IloCplex;
 
 public class MEBModel extends ILPModel {
 
-	public MEBModel(Graph graph, boolean allowCrossing) {
-		super(graph, allowCrossing);
+	public MEBModel(Graph graph, boolean willAddVIs, boolean isLP, boolean allowCrossing) {
+		super(graph, willAddVIs, isLP);
+		this.allowCrossing = allowCrossing;
 	}
 
 	int n; 
@@ -36,14 +37,24 @@ public class MEBModel extends ILPModel {
 			x = new IloNumVar[n][n][];
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
-					x[i][j] = cplex.boolVarArray(d);
+					if (isLP) {
+						x[i][j] = cplex.numVarArray(d,0,1);
+					}
+					else {
+						x[i][j] = cplex.boolVarArray(d);						
+					}
 				}					
 			}
 			p = cplex.numVarArray(n, 0, 99999);
 			
 			z = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {
-				z[j] = cplex.boolVarArray(n);	
+				if (isLP) {
+					z[j] = cplex.numVarArray(n,0,1);	
+				}
+				else {
+					z[j] = cplex.boolVarArray(n);						
+				}
 			}	
 		} catch (IloException e) {
 			e.printStackTrace();
@@ -237,7 +248,7 @@ public class MEBModel extends ILPModel {
     }
 
     public String toString() {
-    	return Constants.MEB_STRING + "(" + n + ", " + d + ")";
+    	return Constants.MEB_STRING + (isLP ? "_LP" : "") + "(" + n + ", " + d + ")";
     }
 
 	@Override

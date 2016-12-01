@@ -17,8 +17,8 @@ import smt.Constants;
 
 public class SteinerModel extends ILPModel {	
 	
-	public SteinerModel(Graph graph, boolean allowCrossing) {
-		super(graph, allowCrossing);
+	public SteinerModel(Graph graph, boolean willAddVIs, boolean isLP) {
+		super(graph, willAddVIs, isLP);
 	}
 	
 	protected int n; 
@@ -33,13 +33,24 @@ public class SteinerModel extends ILPModel {
 			cplex = new IloCplex();
 			x = new IloNumVar[n][n][];
 			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {				
-					x[i][j] = cplex.boolVarArray(d);
+				for (int j = 0; j < n; j++) {			
+					if (isLP) {
+						x[i][j] = cplex.numVarArray(d, 0, 1);
+					}
+					else {
+						x[i][j] = cplex.boolVarArray(d);						
+					}
+
 				}					
 			}
 			z = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {		
-				z[j] = cplex.boolVarArray(n);	
+				if (isLP) {
+					z[j] = cplex.numVarArray(n, 0, 1);					
+				}
+				else {
+					z[j] = cplex.boolVarArray(n);
+				}
 			}									
 		} catch (IloException e) {
 			e.printStackTrace();

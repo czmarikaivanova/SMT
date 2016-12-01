@@ -16,36 +16,27 @@ import algorithm.MSTAlgorithm;
 import model.CliqueModel;
 import model.ILPModel;
 import model.MEBModel;
-import model.MEBModelLP;
 import model.MultiFlow;
 import model.SMTFlowModel;
-import model.SMTFlowModelLP;
 import model.SMTModel;
-import model.SMTModelLP;
 import model.SMTMultiFlowModel;
-import model.SMTMultiFlowModelLP;
 import model.SMTMultiFlowModelVI;
-import model.SMTMultiFlowModelVILP;
 import model.SMTOnlyFlow;
-import model.SMTOnlyFlowLP;
 import model.SteinerModel;
-import model.SteinerModelLP;
 import model.SteinerMultiFlowModel;
-import model.SteinerMultiFlowModelLP;
 import model.SteinerPF2Model;
-import model.SteinerPF2ModelLP;
 
 public class App {
 	
-    int vertexCount = 30;
-    int dstCount = 15;
+    int vertexCount = 10;
+    int dstCount = 5;
     Graph graph;
     private boolean draw = false;
     private boolean generate = true;
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 100;
+		int iter = 10;
 //		for (dstCount = 4; dstCount < 11; dstCount++) {
 //			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
@@ -66,21 +57,26 @@ public class App {
 					}	
 					graph.saveInstance();
 					graph.generateAMPLData();
-//					ILPModel smt = new SMTModel(graph, allowCrossing);
-//					ILPModel smtlp = new SMTModelLP(graph, allowCrossing);
-//					ILPModel smtViLp = new SMTMultiFlowModelVILP(graph, allowCrossing);
+					ILPModel smt = new SMTModel(graph, false, Constants.INTEGER);
+					ILPModel smtlp = new SMTModel(graph, false, Constants.LP);
+					ILPModel smtVi = new SMTMultiFlowModelVI(graph, false, Constants.INTEGER);
+					ILPModel smtof = new SMTMultiFlowModel(graph, false, Constants.INTEGER);
 					
-					ILPModel steiner_int = new SteinerModel(graph, allowCrossing);
-					ILPModel steinerlp = new SteinerModelLP(graph, allowCrossing);
-					ILPModel steinerpf2lp = new SteinerPF2ModelLP(graph, allowCrossing);
-					ILPModel steinermf = new SteinerMultiFlowModel(graph, allowCrossing);
-					ILPModel steinermflp = new SteinerMultiFlowModelLP(graph, allowCrossing);
+					
+					ILPModel steiner_int = new SteinerModel(graph, false, Constants.INTEGER);
+					ILPModel steinerlp = new SteinerModel(graph, false, Constants.LP);
+					ILPModel steinerpf2lp = new SteinerPF2Model(graph, false, Constants.LP);
+					ILPModel steinerpf2 = new SteinerPF2Model(graph, false, Constants.INTEGER);
+					ILPModel steinermf = new SteinerMultiFlowModel(graph, false, Constants.INTEGER);
+					ILPModel steinermflp = new SteinerMultiFlowModel(graph, false, Constants.LP);
 					
 //					Algorithm bip = new BIPAlgorithm(true, true);
-//					Algorithm bipmulti = new BIPAlgorithm(false, true);
+					Algorithm bipmulti = new BIPAlgorithm(false, true);
 					
 					
-//					double c_smt= runModel(smt,  true);
+					double c_smt= runModel(smt,  true);
+					double c_smtvi= runModel(smtVi,  true);
+					double o_smt = runModel(smtof, true);
 //					double c_smtlp= runModel(smtlp,  true);
 //					double c_smtvilp= runModel(smtViLp,  true);
 //					double ca1 = runAlg(bip);
@@ -89,8 +85,9 @@ public class App {
 //					
 //					double c_steiner_int = runModel(steiner_int, true);
 //					double c_steinerlp = runModel(steinerlp, true);
-					double c_steinerpf2lp = runModel(steinerpf2lp, true);
+//					double c_steinerpf2lp = runModel(steinerpf2lp, true);
 //					double c_steinermf = runModel(steinermf, true);
+//					double c_steinerpf2 = runModel(steinerpf2, true);
 //					double c_steinermflp = runModel(steinermflp, true);
 
 //					double LP1Cost = runModel(smtlp, false);
@@ -99,10 +96,15 @@ public class App {
 //					double algCost = runAlg(bipmulti);				
 					
 //					logObjective(c_steiner_int, graph.getInstId(), false);
-//					logObjective(c_steinerlp, graph.getInstId(), false);
-					logObjective(c_steinerpf2lp, graph.getInstId(), true);
-//					logObjective(c_steinermflp, -1, true);
+//					logObjective(c_steinermf, -1, false);
+//					logObjective(c_steinerpf2, -1, true);
+//					logObjective(c_steinerlp, -1, false);
+//					logObjective(c_steinermflp, -1, false);
+//					logObjective(c_steinerpf2lp, -1, true);				
 					
+					logObjective(c_smt, graph.getInstId(), false);
+					logObjective(c_smtvi, -1, false);
+					logObjective(o_smt, -1, true);
 					
 //					logObjective(LP1Cost, graph.getInstId(), false);
 //					logObjective(LP2Cost, -1, false);
@@ -135,7 +137,7 @@ public class App {
 	
 	private double runModel(ILPModel model, boolean newline) {
 		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		model.solveAndLogTime(true, false, newline, graph.getInstId()); // obtain z value
+		model.solve();
 		double lpCost1 = model.getObjectiveValue();
 		Double[][] z = (Double[][]) model.getZVar();
 //		if (hasCrossing(z)) {

@@ -15,8 +15,8 @@ import graph.Node;
 
 public class SteinerMultiFlowModel extends ILPModel {
 
-	public SteinerMultiFlowModel(Graph graph, boolean allowCrossing) {
-		super(graph, allowCrossing);
+	public SteinerMultiFlowModel(Graph graph, boolean willAddVIs, boolean isLP) {
+		super(graph, willAddVIs, isLP);
 	}
 	
 	protected int n; 
@@ -42,7 +42,12 @@ public class SteinerMultiFlowModel extends ILPModel {
 			}
 			z = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {
-				z[j] = cplex.boolVarArray(n);					
+				if (isLP) {
+					z[j] = cplex.numVarArray(n, 0, 1);					
+				}
+				else {
+					z[j] = cplex.boolVarArray(n);					
+				}
 			}	
 		} catch (IloException e) {
 			e.printStackTrace();

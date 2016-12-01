@@ -17,8 +17,8 @@ import smt.Constants;
 
 public class SMTModel extends ILPModel {	
 	
-	public SMTModel(Graph graph, boolean allowCrossing) {
-		super(graph, allowCrossing);
+	public SMTModel(Graph graph, boolean willAddVIs, boolean isLP) {
+		super(graph, willAddVIs, isLP);
 	}
 	
 	protected int n; 
@@ -36,13 +36,24 @@ public class SMTModel extends ILPModel {
 			y = new IloNumVar[n][n][];				
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {				
-					x[i][j] = cplex.boolVarArray(d);
-					y[i][j] = cplex.boolVarArray(d);				
+					if (isLP) {
+						x[i][j] = cplex.numVarArray(d, 0, 1);
+						y[i][j] = cplex.numVarArray(d, 0, 1);				
+					}
+					else {
+						x[i][j] = cplex.boolVarArray(d);
+						y[i][j] = cplex.boolVarArray(d);				
+					}
 				}					
 			}
 			z = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {		
-				z[j] = cplex.boolVarArray(n);	
+				if (isLP) {
+					z[j] = cplex.numVarArray(n, 0, 1);
+				}
+				else {
+					z[j] = cplex.boolVarArray(n);					
+				}
 			}									
 		} catch (IloException e) {
 			e.printStackTrace();
@@ -261,7 +272,6 @@ public class SMTModel extends ILPModel {
 	public String toString() {
     	return Constants.SMT_STRING + "(" + n + "," + d + ")";
 	}
-	
 }
 	
 	

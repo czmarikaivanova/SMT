@@ -18,8 +18,8 @@ import ilog.cplex.IloCplex;
 
 public class MultiFlow extends ILPModel {
 
-	public MultiFlow(Graph graph, boolean allowCrossing) {
-		super(graph, allowCrossing);
+	public MultiFlow(Graph graph, boolean willAddVIs, boolean isLP) {
+		super(graph, willAddVIs, isLP);
 
 	}
 
@@ -38,7 +38,13 @@ public class MultiFlow extends ILPModel {
 			for (int i = 0; i < n; i++) {				
 				for (int j = 0; j < n; j++) {
 					for (int k = 0; k < n; k++) {
-						x[i][j][k] = cplex.boolVarArray(n);
+						if (isLP) {
+							x[i][j][k] = cplex.numVarArray(n, 0, 1);		
+						}
+						else {
+							x[i][j][k] = cplex.boolVarArray(n);							
+						}
+
 					}
 				}					
 			}
@@ -46,7 +52,12 @@ public class MultiFlow extends ILPModel {
 			
 			z = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {
-				z[j] = cplex.boolVarArray(n);	
+				if (isLP) {
+					z[j] = cplex.numVarArray(n, 0, 1);
+				}
+				else {
+					z[j] = cplex.boolVarArray(n);					
+				}
 			}	
 		} catch (IloException e) {
 			e.printStackTrace();
@@ -249,7 +260,6 @@ public class MultiFlow extends ILPModel {
 	@Override
 	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
