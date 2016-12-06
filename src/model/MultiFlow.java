@@ -18,8 +18,8 @@ import ilog.cplex.IloCplex;
 
 public class MultiFlow extends ILPModel {
 
-	public MultiFlow(Graph graph, boolean willAddVIs, boolean isLP) {
-		super(graph, willAddVIs, isLP);
+	public MultiFlow(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
 
 	}
 

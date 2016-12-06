@@ -12,8 +12,8 @@ import graph.Node;
 
 public class SMTFlowModel extends SMTModel {
 
-	public SMTFlowModel(Graph graph, boolean willAddVIs, boolean isLP) {
-		super(graph, willAddVIs, isLP);
+	public SMTFlowModel(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
 	}
 	
 	protected IloNumVar[][][] f;

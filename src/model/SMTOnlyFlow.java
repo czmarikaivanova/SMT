@@ -21,8 +21,8 @@ public class SMTOnlyFlow extends ILPModel {
 		
 	protected IloNumVar[][][] y;		
 	protected IloNumVar[][][][] f;
-	public SMTOnlyFlow(Graph graph, boolean willAddVIs, boolean isLP) {
-		super(graph, willAddVIs, isLP);
+	public SMTOnlyFlow(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
 	}
 	
 	@Override

@@ -15,8 +15,8 @@ import org.javatuples.Quartet;
 
 public class SteinerPF2Model extends ILPModel {
 
-	public SteinerPF2Model(Graph graph, boolean willAddVIs, boolean isLP) {
-		super(graph, willAddVIs, isLP);
+	public SteinerPF2Model(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
 	}
 	
 	protected int n; 
@@ -29,7 +29,6 @@ public class SteinerPF2Model extends ILPModel {
 		try {
 			n = graph.getVertexCount();
 			d = graph.getDstCount();
-			cplex = new IloCplex();
 			x = new IloNumVar[n][n][];
 			h = new IloNumVar[n][n][d][];		
 			for (int i = 0; i < n; i++) {
@@ -239,10 +238,10 @@ public class SteinerPF2Model extends ILPModel {
 					if (i != j) {
 						System.out.print(cplex.getValue(z[i][j]) + " ");	
 						zval[i][j] = cplex.getValue(z[i][j]);
-						if ((zval[i][j] % 1) != 0) {
-							System.err.println("not fractional: " + graph.getInstId());
-							System.exit(0);
-						}
+//						if ((zval[i][j] % 1) != 0) {
+//							System.err.println("not fractional: " + graph.getInstId());
+//							System.exit(0);
+//						}
 					}
 				}
 				System.out.println();

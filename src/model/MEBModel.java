@@ -18,8 +18,8 @@ import ilog.cplex.IloCplex;
 
 public class MEBModel extends ILPModel {
 
-	public MEBModel(Graph graph, boolean willAddVIs, boolean isLP, boolean allowCrossing) {
-		super(graph, willAddVIs, isLP);
+	public MEBModel(Graph graph, boolean willAddVIs, boolean isLP, boolean allowCrossing, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
 		this.allowCrossing = allowCrossing;
 	}
 

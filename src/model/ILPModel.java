@@ -24,11 +24,22 @@ public abstract class ILPModel {
 	protected boolean allowCrossing = true;
 	protected boolean willAddVIs;
 	protected boolean isLP;
+	protected int n;
+	protected int d;
+	protected boolean lazy;
 	
-	public ILPModel(Graph graph, boolean willAddVIs, boolean isLP) {
+	public ILPModel(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
 		this.graph = graph;
 		this.willAddVIs = willAddVIs;
 		this.isLP = isLP;
+		this.lazy = lazy;
+		try {
+			cplex = new IloCplex();
+		} catch (IloException e) {
+			e.printStackTrace();
+		}
+		n = graph.getVertexCount();
+		d = graph.getDstCount();
 		createModel();		
 	}
 	
@@ -52,6 +63,7 @@ public abstract class ILPModel {
 	
 	public boolean solve() {
 		try {
+			cplex.solve();
 			return cplex.solve();
 		} catch (IloException e) {
 			e.printStackTrace();

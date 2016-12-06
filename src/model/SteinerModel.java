@@ -17,20 +17,14 @@ import smt.Constants;
 
 public class SteinerModel extends ILPModel {	
 	
-	public SteinerModel(Graph graph, boolean willAddVIs, boolean isLP) {
-		super(graph, willAddVIs, isLP);
+	public SteinerModel(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
 	}
-	
-	protected int n; 
-	protected int d;
 	
 	protected IloNumVar[][][] x;
 	
 	protected void initVars() {
 		try {
-			n = graph.getVertexCount();
-			d = graph.getDstCount();
-			cplex = new IloCplex();
 			x = new IloNumVar[n][n][];
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {			
@@ -170,8 +164,6 @@ public class SteinerModel extends ILPModel {
 					}
 				}
 			}
-
-			
 			// crossing
 			if (!allowCrossing) {
 				for (Quartet<Node, Node, Node, Node> crossPair: graph.getCrossList()) {
