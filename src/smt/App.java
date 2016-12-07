@@ -37,15 +37,15 @@ import model.SteinerPF2ModelLP;
 
 public class App {
 	
-    int vertexCount = 30;
-    int dstCount = 15;
+    int vertexCount = 23;
+    int dstCount = 11;
     Graph graph;
     private boolean draw = false;
     private boolean generate = true;
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 100;
+		int iter = 10;
 //		for (dstCount = 4; dstCount < 11; dstCount++) {
 //			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
@@ -91,7 +91,7 @@ public class App {
 //					double c_steinerlp = runModel(steinerlp, true);
 					double c_steinerpf2lp = runModel(steinerpf2lp, true);
 //					double c_steinermf = runModel(steinermf, true);
-//					double c_steinermflp = runModel(steinermflp, true);
+					double c_steinermflp = runModel(steinermflp, true);
 
 //					double LP1Cost = runModel(smtlp, false);
 //					double LP2Cost = runModel(smtViLp, false);
@@ -100,8 +100,8 @@ public class App {
 					
 //					logObjective(c_steiner_int, graph.getInstId(), false);
 //					logObjective(c_steinerlp, graph.getInstId(), false);
-					logObjective(c_steinerpf2lp, graph.getInstId(), true);
-//					logObjective(c_steinermflp, -1, true);
+					logObjective(c_steinerpf2lp, graph.getInstId(), false);
+					logObjective(c_steinermflp, -1, true);
 					
 					
 //					logObjective(LP1Cost, graph.getInstId(), false);
