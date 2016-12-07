@@ -272,8 +272,23 @@ public class SteinerMultiFlowModel extends SteinerModel {
 
 	@Override
 	public Double[][] getZVar() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			Double[][] zval = new Double[z.length][z.length];
+			for (int i = 0 ; i < z.length; i++) {
+				for (int j = 0; j < z.length; j++) {
+					if (i < j) {
+					System.out.print(cplex.getValue(z[i][j]) + " ");						
+					zval[i][j] = cplex.getValue(z[i][j]);
+					}
+				}
+				System.out.println();
+			}
+			System.out.println("Objective: " + cplex.getObjValue());
+			return zval;		
+		} catch (IloException e) {			
+			e.printStackTrace();
+			return null;
+		}		
 	}
 
 	@Override

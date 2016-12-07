@@ -25,14 +25,15 @@ import model.SMTOnlyFlow;
 import model.SteinerModel;
 import model.SteinerMultiFlowModel;
 import model.SteinerPF2Model;
+import model.SteinerPF2Relaxed;
 
 public class App {
 	
-    int vertexCount = 20;
-    int dstCount = 9;
+    int vertexCount = 10;
+    int dstCount = 5;
     Graph graph;
     private boolean draw = false;
-    private boolean generate = false;
+    private boolean generate = true;
     private boolean allowCrossing = true;
     
 	public int run() {
@@ -64,26 +65,28 @@ public class App {
 					ILPModel smtViLp2 = new SMTMultiFlowModel(graph, true, Constants.LP, false);
 					
 //					ILPModel steiner_int = new SteinerModel(graph, false, Constants.INTEGER, false);
-//					ILPModel steinerlp = new SteinerModel(graph, false, Constants.LP, false);
-					ILPModel steinerpf2lp = new SteinerPF2Model(graph, false, Constants.LP, false);
-//					ILPModel steinerpf2 = new SteinerPF2Model(graph, false, Constants.INTEGER, false);
-//					ILPModel steinermf = new SteinerMultiFlowModel(graph, false, Constants.INTEGER, false);
-//					ILPModel steinermflp = new SteinerMultiFlowModel(graph, false, Constants.LP, false);
+					ILPModel steinerlp = new SteinerModel(graph, false, Constants.LP, false);
+//					ILPModel steinerpf2lp = new SteinerPF2Model(graph, false, Constants.LP, false);
+//					ILPModel steinerpf2 = new SteinerPF2Model(graph, false, Constants.LP, false);
+//					ILPModel steinerpf2rel = new SteinerPF2Relaxed(graph, false, Constants.LP, false);
+					ILPModel steinermf = new SteinerMultiFlowModel(graph, false, Constants.INTEGER, false);
+					ILPModel steinermflp = new SteinerMultiFlowModel(graph, false, Constants.LP, false);
 					
 //					Algorithm bip = new BIPAlgorithm(true, true);
 					Algorithm bipmulti = new BIPAlgorithm(false, true);
 					
 					
-
+//
 //					double c_smtlp= runModel(smtlp,  true);
-//					double c_smtvilp= runModel(smtViLp,  true);
+//					double c_smtvilp= runModel(smtViLp1,  true);
 //					double ca1 = runAlg(bip);
 //					double ca2 = runAlg(bipmulti);
 					
 //					
 //					double c_steiner_int = runModel(steiner_int, true);
 //					double c_steinerlp = runModel(steinerlp, true);
-					double c_steinerpf2lp = runModel(steinerpf2lp, true);
+//					double c_steinerpf2 = runModel(steinerpf2, true);
+//					double c_steinerpf2rel = runModel(steinerpf2rel, true);
 //					double c_steinermf = runModel(steinermf, true);
 //					double c_steinerpf2 = runModel(steinerpf2, true);
 //					double c_steinermflp = runModel(steinermflp, true);
@@ -95,11 +98,13 @@ public class App {
 //					double cost_lazy = runModel(smt_lazy, false);
 //					double cost2 = runModel(smtViLp2, false);
 //					double algCost = runAlg(bipmulti);				
-					
+
+//					logObjective(c_steinerpf2rel, graph.getInstId(), false);
 //					logObjective(c_steiner_int, graph.getInstId(), false);
 //					logObjective(c_steinerlp, -1, false);
-//					logObjective(c_steinermflp,-1, false);
-					logObjective(c_steinerpf2lp, -1, false);				
+//					logObjective(c_steinermflp,-1, true);
+//					logObjective(c_steinerpf2, graph.getInstId(), false);
+
 					
 					
 //					logObjective(c_smt, graph.getInstId(), false);
@@ -107,7 +112,7 @@ public class App {
 //					logObjective(o_smt, -1, true);
 //
 ////					
-//					logObjective(c_steinermf, -1, false);
+//					logObjective(c_steinermf, -1, true);
 //					logObjective(c_steinerpf2, -1, true);
 //					logObjective(LP0Cost, graph.getInstId(), false);					
 //					logObjective(LP1Cost, -1, false);
