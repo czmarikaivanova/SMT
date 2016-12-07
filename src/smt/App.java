@@ -33,7 +33,7 @@ public class App {
     int dstCount = 5;
     Graph graph;
     private boolean draw = false;
-    private boolean generate = true;
+    private boolean generate = false;
     private boolean allowCrossing = true;
     
 	public int run() {
@@ -54,7 +54,7 @@ public class App {
 						graph = new Graph(vertexCount, dstCount);			
 					}
 					else {
-						graph = new Graph("saved_inst/nofrax.txt"); // from file, todo
+						graph = new Graph("saved_inst/fracMF.txt"); // from file, todo
 					}	
 					graph.saveInstance();
 					graph.generateAMPLData();
@@ -89,7 +89,7 @@ public class App {
 //					double c_steinerpf2rel = runModel(steinerpf2rel, true);
 //					double c_steinermf = runModel(steinermf, true);
 //					double c_steinerpf2 = runModel(steinerpf2, true);
-//					double c_steinermflp = runModel(steinermflp, true);
+					double c_steinermflp = runModel(steinermflp, true);
 
 //					double LP0Cost = runModel(smtlp, false);
 //					double LP1Cost = runModel(smtViLp1, false);
@@ -102,7 +102,7 @@ public class App {
 //					logObjective(c_steinerpf2rel, graph.getInstId(), false);
 //					logObjective(c_steiner_int, graph.getInstId(), false);
 //					logObjective(c_steinerlp, -1, false);
-//					logObjective(c_steinermflp,-1, true);
+					logObjective(c_steinermflp,-1, true);
 //					logObjective(c_steinerpf2, graph.getInstId(), false);
 
 					
