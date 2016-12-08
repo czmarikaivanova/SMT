@@ -41,11 +41,11 @@ public class App {
     int dstCount = 11;
     Graph graph;
     private boolean draw = false;
-    private boolean generate = true;
+    private boolean generate = false;
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 10;
+		int iter = 1;
 //		for (dstCount = 4; dstCount < 11; dstCount++) {
 //			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
@@ -62,7 +62,7 @@ public class App {
 						graph = new Graph(vertexCount, dstCount);			
 					}
 					else {
-						graph = new Graph("saved_inst/instance3.txt"); // from file, todo
+						graph = new Graph("saved_inst/fracMF.txt"); // from file, todo
 					}	
 					graph.saveInstance();
 					graph.generateAMPLData();
@@ -89,7 +89,7 @@ public class App {
 //					
 //					double c_steiner_int = runModel(steiner_int, true);
 //					double c_steinerlp = runModel(steinerlp, true);
-					double c_steinerpf2lp = runModel(steinerpf2lp, true);
+//					double c_steinerpf2lp = runModel(steinerpf2lp, true);
 //					double c_steinermf = runModel(steinermf, true);
 					double c_steinermflp = runModel(steinermflp, true);
 
@@ -100,7 +100,7 @@ public class App {
 					
 //					logObjective(c_steiner_int, graph.getInstId(), false);
 //					logObjective(c_steinerlp, graph.getInstId(), false);
-					logObjective(c_steinerpf2lp, graph.getInstId(), false);
+//					logObjective(c_steinerpf2lp, graph.getInstId(), false);
 					logObjective(c_steinermflp, -1, true);
 					
 					
