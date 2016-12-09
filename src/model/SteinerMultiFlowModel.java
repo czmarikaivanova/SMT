@@ -224,7 +224,7 @@ public class SteinerMultiFlowModel extends ILPModel {
 				for (int t = 0; t < d; t++) {
 					for (int i = 0; i < n; i++) {
 						for (int j = 0; j < n; j++) {
-							if (j > i && s != t) {
+							if (j != i && s != t) {
 								cplex.addLe(f[i][j][s][t], x[i][j][s]);
 							}
 						}
@@ -276,8 +276,21 @@ public class SteinerMultiFlowModel extends ILPModel {
 
 	@Override
 	public Double[][] getZVar() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			Double[][] zval = new Double[z.length][z.length];
+			for (int i = 0 ; i < z.length; i++) {
+				for (int j = i+1; j < z.length; j++) {
+					System.out.print(cplex.getValue(z[i][j]) + " ");						
+					zval[i][j] = cplex.getValue(z[i][j]);						
+				}
+				System.out.println();
+			}
+			System.out.println("Objective: " + cplex.getObjValue());
+			return zval;		
+		} catch (IloException e) {			
+			e.printStackTrace();
+			return null;
+		}		
 	}
 
 	@Override
