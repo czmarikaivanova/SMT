@@ -18,8 +18,9 @@ import ilog.cplex.IloCplex;
 
 public class MEBModel extends ILPModel {
 
-	public MEBModel(Graph graph, boolean allowCrossing) {
-		super(graph, allowCrossing);
+	public MEBModel(Graph graph, boolean willAddVIs, boolean isLP, boolean allowCrossing, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
+		this.allowCrossing = allowCrossing;
 	}
 
 	int n; 
@@ -36,32 +37,45 @@ public class MEBModel extends ILPModel {
 			x = new IloNumVar[n][n][];
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
-					x[i][j] = cplex.boolVarArray(d);
+					if (isLP) {
+						x[i][j] = cplex.numVarArray(d,0,1);
+					}
+					else {
+						x[i][j] = cplex.boolVarArray(d);						
+					}
 				}					
 			}
 			p = cplex.numVarArray(n, 0, 99999);
 			
 			z = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {
-				z[j] = cplex.boolVarArray(n);	
+				if (isLP) {
+					z[j] = cplex.numVarArray(n,0,1);	
+				}
+				else {
+					z[j] = cplex.boolVarArray(n);						
+				}
 			}	
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
 	}
-
-	@Override
-	public void createConstraints() {
+	
+	protected void createObjFunction() {
 		try {
-
-			// create model and solve it				
 			IloLinearNumExpr obj = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {
 				obj.addTerm(1,p[i]);
 			}
-			cplex.addMinimize(obj);				
-			// -------------------------------------- constraints							
-			
+			cplex.addMinimize(obj);	
+		} catch (IloException e) {
+			e.printStackTrace();
+		}			
+	}
+
+	@Override
+	public void createConstraints() {
+		try {
 			// Size
 			IloLinearNumExpr expr0 = cplex.linearNumExpr();				
 			for (int i = 0; i < n; i++) {					
@@ -237,7 +251,7 @@ public class MEBModel extends ILPModel {
     }
 
     public String toString() {
-    	return Constants.MEB_STRING + "(" + n + ", " + d + ")";
+    	return Constants.MEB_STRING + (isLP ? "_LP" : "") + "(" + n + ", " + d + ")";
     }
 
 	@Override

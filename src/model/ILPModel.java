@@ -21,12 +21,25 @@ public abstract class ILPModel {
 	protected IloCplex cplex;
 	protected IloNumVar[][] z;
 	protected Graph graph;
-	protected boolean allowCrossing;
+	protected boolean allowCrossing = true;
+	protected boolean willAddVIs;
+	protected boolean isLP;
+	protected int n;
+	protected int d;
+	protected boolean lazy;
 	
-	public ILPModel(Graph graph, boolean allowCrossing) {
+	public ILPModel(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
 		this.graph = graph;
-		this.allowCrossing = allowCrossing;		
-//		populate();		
+		this.willAddVIs = willAddVIs;
+		this.isLP = isLP;
+		this.lazy = lazy;
+		try {
+			cplex = new IloCplex();
+		} catch (IloException e) {
+			e.printStackTrace();
+		}
+		n = graph.getVertexCount();
+		d = graph.getDstCount();
 		createModel();		
 	}
 	
@@ -36,18 +49,21 @@ public abstract class ILPModel {
 	}
 		
 	protected abstract void initVars();
+	protected abstract void createObjFunction();
 	protected abstract void createConstraints();
-	public abstract void addCrossCliqueConstraints(ArrayList<Clique> cliqueList);
+	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {}
 	public abstract Double[][] getZVar();
 	public abstract Double[][][] getXVar();
 	
 	protected void createModel() {
 		initVars();
+		createObjFunction();
 		createConstraints();
 	}
 	
 	public boolean solve() {
 		try {
+			cplex.solve();
 			return cplex.solve();
 		} catch (IloException e) {
 			e.printStackTrace();
@@ -55,44 +71,9 @@ public abstract class ILPModel {
 		}
 	}
 	
-	public boolean solveAndLogTime(boolean logCost, boolean logTime, boolean newline, int instID) {
-		try {
-//			cplex.setParam(IloCplex.Param.ClockType, 1);
-//			cplex.getCplexTime();
-//			long start = System.currentTimeMillis();
-			boolean ret = cplex.solve();
-//			long end = System.currentTimeMillis();
-//			if (logTime) {
-//				File datafile = new File("logs/runtime_log.txt");
-//				FileWriter fw = new FileWriter(datafile,true);
-//				fw.write(this.toString() + " Time: " + (end - start)/1000. + " seconds\n");
-//				fw.close();
-//			}
-//			if (logCost) {
-//	 			File datafile = new File("logs/cost_log.txt");
-//				FileWriter fw = new FileWriter(datafile,true);		
-////				fw.write(this.toString() +  " ID: " + this.graph.getInstId() + "\n ");
-////				fw.write("Cost: " );
-//				fw.write((!newline ? instID + " " : "" ) + cplex.getObjValue() + " ");
-//				if (newline) {
-//					fw.write("\n");
-//				}
-////				fw.write("\n ------------------\n");
-//				fw.close();
-//			}
-			return ret;
-		} catch (IloException e) {
-			e.printStackTrace();
-			return false;
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//			return false;
-		} 
-	}	
-	
-	public IloCplex getModel() {
-		return cplex;
-	}
+//	public IloCplex getModel() {
+//		return cplex;
+//	}
 
 	public void end() {
 		cplex.end();

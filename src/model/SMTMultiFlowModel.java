@@ -3,31 +3,33 @@ package model;
 import smt.Constants;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
+import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 import graph.Graph;
 
-public class SMTMultiFlowModel extends SMTModel {
+public class SMTMultiFlowModel extends SteinerMultiFlowModel {
 
-	public SMTMultiFlowModel(Graph graph, boolean allowCrossing) {
-		super(graph, allowCrossing);
+	public SMTMultiFlowModel(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
 	}
 	
-	protected IloNumVar[][][][] f;
+	protected IloNumVar[][][] y;
 	
 	@Override
 	protected void initVars() {
-//		n = graph.getVertexCount();
-//		d = n - 1;
 		try {
 			super.initVars();
-			cplex = new IloCplex();
-			f = new IloNumVar[n][n][d][];
-			for (int i = 0; i < n; i++) {				
-				for (int j = 0; j < n; j++) {
-					for (int k = 0; k < d; k++) {
-						f[i][j][k] = cplex.boolVarArray(d);
+			y = new IloNumVar[n][n][];		
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {			
+					if (isLP) {
+						y[i][j] = cplex.numVarArray(d, 0, 1);
 					}
+					else {
+						y[i][j] = cplex.boolVarArray(d);						
+					}
+	
 				}					
 			}
 
@@ -36,101 +38,52 @@ public class SMTMultiFlowModel extends SMTModel {
 		}
 	}
 	
-	@Override
-	public void createConstraints() {
+	protected void createObjFunction() {
 		try {
-			super.createConstraints();
-			// create model and solve it							
-			// -------------------------------------- constraints							
-			
-
-			// Flow conservation - normal
-			for (int s = 0; s < d; s++) {					
-				for (int t = 0; t < d; t++) {
-					for (int i = 0; i < n; i++) {						
-						if (t != i && s != i && s != t) {
-							IloLinearNumExpr expr1a = cplex.linearNumExpr();
-							IloLinearNumExpr expr1b = cplex.linearNumExpr();	
-							for (int j = 0; j < n; j++) {
-								if (i != j && j != s) {
-									expr1a.addTerm(1.0, f[i][j][s][t]);									
-								}								
-							}
-							for (int j = 0; j < n; j++) {
-								if (i != j && j != t) {								
-									expr1b.addTerm(1.0, f[j][i][s][t]);
-								}								
-							}						
-							cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));
-						}
-					}
-				}	
-			}		
-			
-			// Flow conservation - dest
-			for (int s = 0; s < d; s++) {
-				for (int t = 0; t < d; t++) {
-					if (s != t) {
-						IloLinearNumExpr expr2a = cplex.linearNumExpr();
-						IloLinearNumExpr expr2b = cplex.linearNumExpr();	
-						for (int i = 0; i < n; i++) {
-							if (i != t) {
-								expr2a.addTerm(1.0, f[t][i][s][t]);									
-								expr2b.addTerm(1.0, f[i][t][s][t]);									
-							}								
-						}
-						cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b)));
-					}
-				}
-			}				
-
-			// Flow conservation - source
-			for (int s = 0; s < d; s++) {
-				for (int t = 0; t < d; t++) {
-					if (s != t) {
-						IloLinearNumExpr expr2a = cplex.linearNumExpr();
-						IloLinearNumExpr expr2b = cplex.linearNumExpr();	
-						for (int i = 0; i < n; i++) {
-							if (i != s) {
-								expr2a.addTerm(1.0, f[s][i][s][t]);									
-								expr2b.addTerm(1.0, f[i][s][s][t]);									
-							}								
-						}
-						cplex.addEq(1,cplex.sum(expr2a, cplex.negative(expr2b)));
-					}
-				}
-			}				
-			
-			
-			// capacity
-//			for (int s = 0; s < n; s++) {
-//				for (int t = 0; t < n; t++) {
-//					for (int i = 0; i < n; i++) {
-//						for (int j = 0; j < n; j++) {
-//							if (j > i && s != t) {
-//								cplex.addLe(f[i][j][s][t], x[i][j][s]);
-//							}
-//						}
-//					}
-//				}
-//			}		
-			
-			
-			// capacity alt
-			for (int s = 0; s < d; s++) {
-				for (int t = 0; t < d; t++) {
-					for (int i = 0; i < n; i++) {
-						for (int j = 0; j < n; j++) {
-							if (j > i && s != t) {
-								cplex.addLe(cplex.sum(f[i][j][s][t], f[j][i][s][t]), z[i][j]);
-							}
+			// create model and solve it				
+			IloLinearNumExpr obj = cplex.linearNumExpr();
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						for (int s = 0; s < d; s++) {
+							obj.addTerm(graph.getRequir(i,j), y[i][j][s]);
 						}
 					}
 				}
-			}					
+			}
+			cplex.addMinimize(obj);	
 		} catch (IloException e) {
-			System.err.println("Concert exception caught: " + e);
-		}	
+			e.printStackTrace();
+		}			
+	}	
+	
+	public void createConstraints() {
+		super.createConstraints();
+		//		// YVar
+		try {
+			
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						for (int s = 0; s < d; s++) {
+							IloLinearNumExpr expr7 = cplex.linearNumExpr();
+							for (int k = 0; k < n; k++) {
+								if ((graph.getRequir(i,k) >= graph.getRequir(i,j)) && (i != k)) {
+									expr7.addTerm(1.0, y[i][k][s]);
+								}
+							}
+							cplex.addLe(x[i][j][s], expr7);
+						}			
+					}
+				}					
+			}
+			if (willAddVIs) {
+				addValidInequalities();
+			}
+			
+		} catch (IloException e) {
+			e.printStackTrace();
+		}		
 	}
 	
 	public Double[][][][] getFVar() {
@@ -159,6 +112,64 @@ public class SMTMultiFlowModel extends SMTModel {
 	
 	public String toString() {
     	return Constants.SMT_MULTI_FLOW_STRING + "(" + n + "," + d + ")";
+	}
+	
+	public void addValidInequalities() {
+		try {
+			
+			// y_sum=1
+			for (int s = 0; s < d; s ++) {
+				IloLinearNumExpr expr1 = cplex.linearNumExpr();
+				for (int j = 0; j < n; j++) {
+					if (j != s) {
+						expr1.addTerm(1.0, y[s][j][s]);						
+					}
+				}
+				cplex.addEq(expr1, 1.0);
+			}
+			
+			// x to nondest => y from there 
+			for (int j = d; j < n; j++) {
+				for (int s = 0; s < d; s++) {
+					IloLinearNumExpr expr1 = cplex.linearNumExpr();
+					IloLinearNumExpr expr2 = cplex.linearNumExpr();
+					for (int i = 0; i < n; i++) {
+						if (i != j) {
+							expr1.addTerm(1.0, y[j][i][s]);
+							expr2.addTerm(1.0, x[i][j][s]);
+						}
+					}
+					cplex.addGe(expr1, expr2);
+				}
+			}			
+			// f imp y in nondest 
+			for (int j = d; j < n; j ++) {
+				for (int s = 0; s < d; s++) {
+					for (int t = 0; t < d; t++) {
+						for (int k = 0; k < n; k++) {
+							if (j != k && s != t) {
+								IloLinearNumExpr expr1 = cplex.linearNumExpr();
+								IloLinearNumExpr expr2 = cplex.linearNumExpr();
+								for (int i = 0; i < n; i++) {
+									if (i != j) { 
+										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
+											expr1.addTerm(1.0, f[j][i][s][t]);
+										}
+										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
+											expr2.addTerm(1.0, y[j][i][s]);										
+										}
+									}
+								}
+								cplex.addLe(expr1, expr2);
+							}
+						}
+					}
+				}
+			}	
+		} catch (IloException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 		
 

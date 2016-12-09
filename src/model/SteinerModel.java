@@ -17,38 +17,42 @@ import smt.Constants;
 
 public class SteinerModel extends ILPModel {	
 	
-	public SteinerModel(Graph graph, boolean allowCrossing) {
-		super(graph, allowCrossing);
+	public SteinerModel(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
 	}
-	
-	protected int n; 
-	protected int d;
 	
 	protected IloNumVar[][][] x;
 	
 	protected void initVars() {
 		try {
-			n = graph.getVertexCount();
-			d = graph.getDstCount();
-			cplex = new IloCplex();
 			x = new IloNumVar[n][n][];
 			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {				
-					x[i][j] = cplex.boolVarArray(d);
+				for (int j = 0; j < n; j++) {			
+					if (isLP) {
+						x[i][j] = cplex.numVarArray(d, 0, 1);
+					}
+					else {
+						x[i][j] = cplex.boolVarArray(d);						
+					}
+
 				}					
 			}
 			z = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {		
-				z[j] = cplex.boolVarArray(n);	
+				if (isLP) {
+					z[j] = cplex.numVarArray(n, 0, 1);					
+				}
+				else {
+					z[j] = cplex.boolVarArray(n);
+				}
 			}									
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void createConstraints() {
+	protected void createObjFunction() {
 		try {
-			// create model and solve it				
 			IloLinearNumExpr obj = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
@@ -58,8 +62,13 @@ public class SteinerModel extends ILPModel {
 				}
 			}
 			cplex.addMinimize(obj);				
-			// -------------------------------------- constraints							
-			
+		} catch (IloException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void createConstraints() {
+		try {
 			// Size
 			IloLinearNumExpr expr = cplex.linearNumExpr();				
 			for (int i = 0; i < n; i++) {					
@@ -155,8 +164,6 @@ public class SteinerModel extends ILPModel {
 					}
 				}
 			}
-
-			
 			// crossing
 			if (!allowCrossing) {
 				for (Quartet<Node, Node, Node, Node> crossPair: graph.getCrossList()) {

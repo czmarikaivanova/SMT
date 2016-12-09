@@ -7,8 +7,8 @@ import graph.Graph;
 
 public class SMTMultiFlowModelVI extends SMTMultiFlowModel {
 
-	public SMTMultiFlowModelVI(Graph graph, boolean allowCrossing) {
-		super(graph, allowCrossing);
+	public SMTMultiFlowModelVI(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
 	}
 	
 	@Override

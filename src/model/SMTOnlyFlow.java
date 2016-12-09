@@ -21,8 +21,8 @@ public class SMTOnlyFlow extends ILPModel {
 		
 	protected IloNumVar[][][] y;		
 	protected IloNumVar[][][][] f;
-	public SMTOnlyFlow(Graph graph, boolean allowCrossing) {
-		super(graph, allowCrossing);
+	public SMTOnlyFlow(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
 	}
 	
 	@Override
@@ -36,21 +36,54 @@ public class SMTOnlyFlow extends ILPModel {
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {			
 					for (int s = 0; s < d; s++) {
-						f[i][j][s] = cplex.boolVarArray(d);	
+						if (isLP) {
+							f[i][j][s] = cplex.numVarArray(d, 0, 1);
+						}
+						else {
+							f[i][j][s] = cplex.boolVarArray(d);							
+						}
 					}
-					
-					y[i][j] = cplex.boolVarArray(d);				
+					if (isLP) {
+						y[i][j] = cplex.numVarArray(d, 0, 1);
+					}
+					else {
+						y[i][j] = cplex.boolVarArray(d);						
+					}
 				}					
 			}
 			z = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {		
-				z[j] = cplex.boolVarArray(n);	
+				if (isLP) {
+					z[j] = cplex.numVarArray(n, 0, 1);	
+				}
+				else {
+					z[j] = cplex.boolVarArray(n);						
+				}
+
 			}									
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
-		
 	}
+	
+	protected void createObjFunction() {
+		try {
+			// create model and solve it				
+			IloLinearNumExpr obj = cplex.linearNumExpr();
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						for (int s = 0; s < d; s++) {
+							obj.addTerm(graph.getRequir(i,j), y[i][j][s]);
+						}
+					}
+				}
+			}
+			cplex.addMinimize(obj);	
+		} catch (IloException e) {
+			e.printStackTrace();
+		}			
+	}	
 
 	@Override
 	protected void createConstraints() {

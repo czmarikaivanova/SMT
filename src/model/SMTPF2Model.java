@@ -1,51 +1,41 @@
 package model;
 
-import graph.Clique;
-import graph.Graph;
-import graph.Node;
-
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
-import ilog.cplex.IloCplex;
+import graph.Graph;
 
-import java.util.ArrayList;
+public class SMTPF2Model extends SMTModel {
 
-import org.javatuples.Quartet;
-
-public class SteinerPF2Model extends ILPModel {
-
-	public SteinerPF2Model(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+	public SMTPF2Model(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
 		super(graph, willAddVIs, isLP, lazy);
 	}
-	
-	protected int n; 
-	protected int d;
-	
-	protected IloNumVar[][][] x;
+
+	protected IloNumVar[][] zz;
+	protected IloNumVar[][][] y;
 	protected IloNumVar[][][][] h;
 	
 	protected void initVars() {
 		try {
 			n = graph.getVertexCount();
 			d = graph.getDstCount();
-			x = new IloNumVar[n][n][];
+			y = new IloNumVar[n][n][];
 			h = new IloNumVar[n][n][d][];		
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					for (int k = 0; k < d; k++) {
 						h[i][j][k] = cplex.numVarArray(d,0,1);	
 					}	
-					x[i][j] = cplex.numVarArray(d,0,1);
+					y[i][j] = cplex.numVarArray(d,0,1);
 				}					
 			}
-			z = new IloNumVar[n][];				
+			zz = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {
 				if (isLP) {
-					z[j] = cplex.numVarArray(n, 0, 1);					
+					zz[j] = cplex.numVarArray(n, 0, 1);					
 				}
 				else {
-					z[j] = cplex.boolVarArray(n);					
+					zz[j] = cplex.boolVarArray(n);					
 				}
 			}	
 		} catch (IloException e) {
@@ -53,24 +43,8 @@ public class SteinerPF2Model extends ILPModel {
 		}
 	}	
 	
-	protected void createObjFunction() {
-		try {
-			IloLinearNumExpr obj = cplex.linearNumExpr();
-			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					if (i != j) {
-						obj.addTerm(graph.getRequir(i,j), z[i][j]);
-					}
-				}
-			}
-			cplex.addMinimize(obj);				
-		} catch (IloException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	@Override
-	protected void createConstraints() {
+	public void createConstraints() {
 		try {
 	
 			// flow1
@@ -200,68 +174,6 @@ public class SteinerPF2Model extends ILPModel {
 			System.err.println("Concert exception caught: " + e);
 		}		
 		
-	}
-	
-	public void addLazyConstraints() {
-		
-	}
-
-	@Override
-	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public Double[][][] getXVar() {
-		try {
-			Double[][][] xval = new Double[x.length][x.length][x.length];
-			for (int i = 0 ; i < x.length; i++) {
-				for (int j = 0; j < x.length; j++) {
-					if (i != j) {
-						for (int k = 0; k < x.length; k++) {
-//							System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(x[i][j][k]) + " --");						
-							xval[i][j][k] = cplex.getValue(x[i][j][k]);
-						}
-					}
-				}
-//				System.out.println();
-			}
-			System.out.println("Objective: " + cplex.getObjValue());
-			return xval;		
-		} catch (IloException e) {			
-			e.printStackTrace();
-			return null;
-		}		
-	}	
-	
-	public Double[][] getZVar() {
-		try {
-			Double[][] zval = new Double[z.length][z.length];
-			for (int i = 0 ; i < z.length; i++) {
-				for (int j = 0; j < z.length; j++) {
-					if (i != j) {
-						System.out.print(cplex.getValue(z[i][j]) + " ");	
-						zval[i][j] = cplex.getValue(z[i][j]);
-//						if ((zval[i][j] % 1) != 0) {
-//							System.err.println("not fractional: " + graph.getInstId());
-//							System.exit(0);
-//						}
-					}
-				}
-				System.out.println();
-			}
-			System.out.println("Objective: " + cplex.getObjValue());
-			return zval;		
-		} catch (IloException e) {			
-			e.printStackTrace();
-			return null;
-		}		
-	}
-
-	@Override
-	public String toString() {
-		// TODO Auto-generated method stub
-		return "Steiner PF2";
 	}
 
 }

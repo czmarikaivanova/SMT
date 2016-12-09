@@ -18,8 +18,8 @@ import ilog.cplex.IloCplex;
 
 public class MultiFlow extends ILPModel {
 
-	public MultiFlow(Graph graph, boolean allowCrossing) {
-		super(graph, allowCrossing);
+	public MultiFlow(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
 
 	}
 
@@ -38,7 +38,13 @@ public class MultiFlow extends ILPModel {
 			for (int i = 0; i < n; i++) {				
 				for (int j = 0; j < n; j++) {
 					for (int k = 0; k < n; k++) {
-						x[i][j][k] = cplex.boolVarArray(n);
+						if (isLP) {
+							x[i][j][k] = cplex.numVarArray(n, 0, 1);		
+						}
+						else {
+							x[i][j][k] = cplex.boolVarArray(n);							
+						}
+
 					}
 				}					
 			}
@@ -46,8 +52,29 @@ public class MultiFlow extends ILPModel {
 			
 			z = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {
-				z[j] = cplex.boolVarArray(n);	
+				if (isLP) {
+					z[j] = cplex.numVarArray(n, 0, 1);
+				}
+				else {
+					z[j] = cplex.boolVarArray(n);					
+				}
 			}	
+		} catch (IloException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	protected void createObjFunction() {
+		try {
+			IloLinearNumExpr obj = cplex.linearNumExpr();
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i < j) {
+						obj.addTerm(graph.getRequir(i,j), z[i][j]);
+					}
+				}
+			}
+			cplex.addMinimize(obj);				
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
@@ -56,20 +83,6 @@ public class MultiFlow extends ILPModel {
 	@Override
 	public void createConstraints() {
 		try {
-
-			// create model and solve it				
-			IloLinearNumExpr obj = cplex.linearNumExpr();
-			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					if (i < j) {
-						obj.addTerm(graph.getRequir(i,j),z[i][j]);
-						//obj.addTerm(1.0,z[i][j]);
-					}
-				}
-			}
-			cplex.addMinimize(obj);				
-			// -------------------------------------- constraints							
-			
 			// Size
 			IloLinearNumExpr expr0 = cplex.linearNumExpr();				
 			for (int i = 0; i < n; i++) {					
@@ -249,7 +262,6 @@ public class MultiFlow extends ILPModel {
 	@Override
 	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

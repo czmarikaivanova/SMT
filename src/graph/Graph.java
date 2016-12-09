@@ -179,25 +179,25 @@ public class Graph implements Cloneable  {
     // get a string list of crossing edges + generate DS for crossing
     private String genCrossing() {
     	String crossStr = "";
-    	crossList = new ArrayList<Quartet<Node,Node,Node,Node>>();
-    	for (int i = 0; i < getVertexCount(); i++) {
-    		for (int j = i+1; j < getVertexCount(); j++) {
-    	    	for (int k = i+1; k < getVertexCount(); k++) {
-    	    		for (int l = k+1; l < getVertexCount(); l++) {
-    	    			if (i!=k && i!=l && j!=k && j!=l) {
-							if (Miscellaneous.edgesProperlyIntersect(getNode(i).getPoint(), 
-									getNode(j).getPoint(), 
-									getNode(k).getPoint(), 
-									getNode(l).getPoint())) {
-								crossStr += "(" + i + "," + j + "," + k + "," + l + ") ";
-								crossList.add(new Quartet<Node, Node, Node, Node>(getNode(i), getNode(j), getNode(k), getNode(l)));
-							}    	    
-							
-    	    			}
-    	    		}
-    	    	}    			
-    		}
-    	}
+//    	crossList = new ArrayList<Quartet<Node,Node,Node,Node>>();
+//    	for (int i = 0; i < getVertexCount(); i++) {
+//    		for (int j = i+1; j < getVertexCount(); j++) {
+//    	    	for (int k = i+1; k < getVertexCount(); k++) {
+//    	    		for (int l = k+1; l < getVertexCount(); l++) {
+//    	    			if (i!=k && i!=l && j!=k && j!=l) {
+//							if (Miscellaneous.edgesProperlyIntersect(getNode(i).getPoint(), 
+//									getNode(j).getPoint(), 
+//									getNode(k).getPoint(), 
+//									getNode(l).getPoint())) {
+//								crossStr += "(" + i + "," + j + "," + k + "," + l + ") ";
+//								crossList.add(new Quartet<Node, Node, Node, Node>(getNode(i), getNode(j), getNode(k), getNode(l)));
+//							}    	    
+//							
+//    	    			}
+//    	    		}
+//    	    	}    			
+//    		}
+//    	}
     	return  "set CROSS := " + crossStr + ";\n"; 
     }
 

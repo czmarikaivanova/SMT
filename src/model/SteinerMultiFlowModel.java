@@ -13,154 +13,33 @@ import graph.Clique;
 import graph.Graph;
 import graph.Node;
 
-public class SteinerMultiFlowModel extends ILPModel {
+public class SteinerMultiFlowModel extends SteinerModel {
 
-	public SteinerMultiFlowModel(Graph graph, boolean allowCrossing) {
-		super(graph, allowCrossing);
+	public SteinerMultiFlowModel(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
 	}
 	
-	protected int n; 
-	protected int d;
-	
-	protected IloNumVar[][][] x;
 	protected IloNumVar[][][][] f;
 	
 	protected void initVars() {
 		try {
-			n = graph.getVertexCount();
-			d = graph.getDstCount();
-			cplex = new IloCplex();
-			x = new IloNumVar[n][n][];
+			super.initVars();
 			f = new IloNumVar[n][n][d][];		
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					for (int k = 0; k < d; k++) {
 						f[i][j][k] = cplex.numVarArray(d,0,1);	
 					}	
-					x[i][j] = cplex.numVarArray(d,0,1);
 				}					
 			}
-			z = new IloNumVar[n][];				
-			for (int j = 0; j < n; j++) {
-				z[j] = cplex.boolVarArray(n);					
-			}	
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
 	}	
-	
+
 	public void createConstraints() {
 		try {
-			// create model and solve it				
-			IloLinearNumExpr obj = cplex.linearNumExpr();
-			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					if (i < j) {
-						obj.addTerm(graph.getRequir(i,j), z[i][j]);
-					}
-				}
-			}
-			cplex.addMinimize(obj);				
-			// -------------------------------------- constraints							
-			
-			// Size
-			IloLinearNumExpr expr = cplex.linearNumExpr();				
-			for (int i = 0; i < n; i++) {					
-				for (int j = i+1; j < n; j++) {
-					expr.addTerm(1.0, z[i][j]);
-				}	
-			}
-			cplex.addLe(expr, n-1);				
-	
-			// OneDirDest
-			for (int j = 0; j < d; j++) {					
-				for (int s = 0; s < d; s++) {
-					if (j != s) {
-						IloLinearNumExpr expr1 = cplex.linearNumExpr();			
-						for (int i = 0; i < n; i++) {
-							if (i != j) {
-								expr1.addTerm(1.0, x[i][j][s]);									
-							}								
-						}
-						cplex.addEq(expr1, 1.0);
-					}
-				}	
-			}		
-			
-			// OneDirNonDest_A
-			for (int j = d; j < n; j++) {
-				for (int s = 0; s < d; s++) {
-					for (int k = 0; k < n; k++) {
-						if (j != k) {
-							IloLinearNumExpr expr2 = cplex.linearNumExpr();
-							for (int i = 0; i < n; i++) {
-								if (i != j) {
-									expr2.addTerm(1.0, x[i][j][s]);
-								}
-							}
-							cplex.addLe(x[j][k][s], expr2);
-						}
-					}
-				}
-			}
-			
-			// OneDirNonDest_B	
-			for (int j = d; j < n; j++) {
-				for (int s = 0; s < d; s++) {
-					for (int k = 0; k < n; k++) {
-						IloLinearNumExpr expr3 = cplex.linearNumExpr();
-						for (int i = 0; i < n; i++) {
-							if (i != j) {
-								expr3.addTerm(1.0, x[i][j][s]);
-							}
-						}
-						cplex.addLe(expr3, 1.0);
-					}
-				}
-			}
-			
-			// NonDestNoLEaf
-			for (int j = d; j < n; j++) {
-				for (int s = 0; s < d; s++) {
-					IloLinearNumExpr expr4 = cplex.linearNumExpr();
-					for (int i = 0; i < n; i++) {
-						if (i != j) {
-							expr4.addTerm(1.0, x[i][j][s]);
-						}
-					}
-					IloLinearNumExpr expr5 = cplex.linearNumExpr();
-					for (int k = 0; k < n; k++) {
-						if (j != k) {
-							expr5.addTerm(1.0, x[j][k][s]);
-						}
-					}
-					cplex.addLe(expr4, expr5);
-				}
-			}
-	
-			// OneDir
-			for (int i = 0; i < n; i++) {
-				for (int j = i+1; j < n; j++) {
-					for (int s = 0; s < d; s++) {
-						IloLinearNumExpr expr6 = cplex.linearNumExpr();								
-						expr6.addTerm(1.0, x[i][j][s]);
-						expr6.addTerm(1.0, x[j][i][s]);
-						cplex.addEq(expr6, z[i][j]);						
-					}
-				}
-			}
-	
-			// NoCycles
-			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < d; j++) {
-					if (i != j) {
-						cplex.addEq(0.0, x[i][j][j]);
-					}
-				}
-			}
-
-			
-
+			super.createConstraints();
 			// Flow conservation - normal
 			for (int s = 0; s < d; s++) {					
 				for (int t = 0; t < d; t++) {
@@ -237,14 +116,16 @@ public class SteinerMultiFlowModel extends ILPModel {
 				for (int t = 0; t < d; t++) {
 					for (int i = 0; i < n; i++) {
 						for (int j = 0; j < n; j++) {
-							if (j > i && s != t) {
+							if (j != i && s != t) {
 								cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
 							}
 						}
 					}
 				}
 			}					
-			
+			if (willAddVIs) {
+				addValidInequalities();
+			}
 			
 			// crossing
 			if (!allowCrossing) {
@@ -263,6 +144,121 @@ public class SteinerMultiFlowModel extends ILPModel {
 			System.err.println("Concert exception caught: " + e);
 		}		
 	}
+
+	public void addValidInequalities() {
+		try {
+			// vi3
+//			for (int s = 0; s < d; s++) {
+//				for (int t = 0; t < d; t++) {
+//					for (int i = 0; i < n; i++) {
+//						for (int j = 0; j < n; j++) {
+//							if (j > i && s != t) {
+//								cplex.addLe(cplex.sum(x[i][j][s], x[j][i][t]), cplex.sum(1,f[i][j][s][t]));
+//							}
+//						}
+//					}
+//				}
+//			}					
+			// vi4
+			for (int s = 0; s < d; s++) {
+				for (int i = 0; i < n; i++) {
+					for (int j = 0; j < n; j++) {
+						IloLinearNumExpr expr1 = cplex.linearNumExpr();
+						for (int t = 0; t < d; t++) {
+							if (s != t)
+							expr1.addTerm(1.0, f[i][j][s][t]);
+						}
+						if (j > i) {
+							cplex.addLe(x[i][j][s], expr1);
+						}
+					}
+				}
+			}	
+			
+//			// vi5
+//			for (int s = 0; s < d; s++) {
+//				for (int i = 0; i < n; i++) {
+//					for (int j = 0; j < d; j++) {
+//							cplex.addLe(x[i][j][s], x[j][i][j]);
+//					}
+//				}
+//			}				
+//			// vi6
+//			for (int s = 0; s < d; s++) {
+//				for (int i = 0; i < n; i++) {
+//					for (int j = 0; j < d; j++) {
+//						cplex.addEq(x[i][j][s], f[j][i][j][s]);
+//					}
+//				}
+//			}	
+//						
+//			// vi7
+//			for (int s = 0; s < d; s++) {
+//				for (int i = 0; i < n; i++) {
+//					for (int j = 0; j < d; j++) {
+//						cplex.addEq(x[i][j][s], f[i][j][s][j]);
+//					}
+//				}
+//			}	
+						
+////			// vi8
+//			for (int s = 0; s < d; s++) {
+//				for (int t1 = 0; t1 < d; t1++) {
+//					if (s != t1) {
+//						for (int t2 = 0; t2 < d; t2++) {
+//							if (s != t2 && t1 != t2) {
+//								for (int i = 0; i < n; i++) {
+//									for (int j = 0; j < n; j++) {
+//										if (i != j) {
+//											cplex.addLe(cplex.sum(f[i][j][s][t1], f[j][i][s][t2]), cplex.sum(2,cplex.negative(f[i][j][t1][t2])));
+//										}
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}				
+////			// vi9
+//			for (int s = 0; s < d; s++) {
+//				for (int t1 = 0; t1 < d; t1++) {
+//					if (s != t1) {
+//						for (int t2 = 0; t2 < d; t2++) {
+//							if (s != t2 && t1 != t2) {
+//								for (int i = 0; i < n; i++) {
+//									for (int j = 0; j < n; j++) {
+//										if (i != j) {
+//											cplex.addLe(cplex.sum(f[i][j][s][t1], f[j][i][s][t2]), cplex.sum(2,cplex.negative(f[j][i][t1][t2])));
+//										}
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}				
+			// vi10
+			for (int s = 0; s < d; s++) {
+				for (int t1 = 0; t1 < d; t1++) {
+					if (s != t1) {
+						for (int t2 = 0; t2 < d; t2++) {
+							if (s != t2 && t1 != t2) {
+								for (int i = 0; i < n; i++) {
+									for (int j = 0; j < n; j++) {
+										if (i != j) {
+											cplex.addLe(f[i][j][s][t2],cplex.sum(f[i][j][s][t1], f[i][j][t1][t2]));
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}		
+		} catch (IloException e) {
+			System.err.println("Concert exception caught: " + e);
+		}	
+	}	
 
 	public String toString() {
     	return "Steiner_MULTI_FLOW ";

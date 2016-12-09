@@ -12,8 +12,8 @@ import graph.Node;
 
 public class SMTFlowModel extends SMTModel {
 
-	public SMTFlowModel(Graph graph, boolean allowCrossing) {
-		super(graph, allowCrossing);
+	public SMTFlowModel(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+		super(graph, willAddVIs, isLP, lazy);
 	}
 	
 	protected IloNumVar[][][] f;
@@ -24,7 +24,12 @@ public class SMTFlowModel extends SMTModel {
 			f = new IloNumVar[n][n][];		
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
-					f[i][j] = cplex.boolVarArray(n);	
+					if (isLP) {
+						f[i][j] = cplex.numVarArray(n, 0, 1);
+					}
+					else {
+						f[i][j] = cplex.boolVarArray(n);						
+					}
 				}					
 			}
 		} catch (IloException e) {
