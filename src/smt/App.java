@@ -22,6 +22,7 @@ import model.SMTModel;
 import model.SMTMultiFlowModel;
 import model.SMTMultiFlowModelVI;
 import model.SMTOnlyFlow;
+import model.SMTPF2Model;
 import model.SteinerModel;
 import model.SteinerMultiFlowModel;
 import model.SteinerPF2Model;
@@ -29,15 +30,15 @@ import model.SteinerPF2Relaxed;
 
 public class App {
 	
-    int vertexCount = 10;
-    int dstCount = 5;
+    int vertexCount = 11;
+    int dstCount = 6;
     Graph graph;
     private boolean draw = false;
-    private boolean generate = false;
+    private boolean generate = true;
     private boolean allowCrossing = true;
     
 	public int run() {
-		int iter = 1;
+		int iter = 10;
 //		for (dstCount = 4; dstCount < 11; dstCount++) {
 //			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
@@ -58,22 +59,23 @@ public class App {
 					}	
 					graph.saveInstance();
 					graph.generateAMPLData();
-					ILPModel smt = new SMTModel(graph, false, Constants.INTEGER, false);
-					ILPModel smt_lazy = new SMTModel(graph, false, Constants.INTEGER, false);
-					ILPModel smtlp = new SMTModel(graph, false, Constants.LP, false);
+					ILPModel smt = new SMTModel(graph, false, Constants.LP, false);
+//					ILPModel smt_lazy = new SMTModel(graph, false, Constants.INTEGER, false);
+					ILPModel smtlp = new SMTModel(graph, false, Constants.INTEGER, false);
 					ILPModel smtViLp1 = new SMTMultiFlowModel(graph, false, Constants.LP, false);
 					ILPModel smtViLp2 = new SMTMultiFlowModel(graph, true, Constants.LP, false);
+					ILPModel smtPf2LP = new SMTPF2Model(graph, false, Constants.LP, false);
 					
 //					ILPModel steiner_int = new SteinerModel(graph, false, Constants.INTEGER, false);
-					ILPModel steinerlp = new SteinerModel(graph, false, Constants.LP, false);
+//					ILPModel steinerlp = new SteinerModel(graph, false, Constants.LP, false);
 //					ILPModel steinerpf2lp = new SteinerPF2Model(graph, false, Constants.LP, false);
 //					ILPModel steinerpf2 = new SteinerPF2Model(graph, false, Constants.LP, false);
 //					ILPModel steinerpf2rel = new SteinerPF2Relaxed(graph, false, Constants.LP, false);
-					ILPModel steinermf = new SteinerMultiFlowModel(graph, false, Constants.INTEGER, false);
-					ILPModel steinermflp = new SteinerMultiFlowModel(graph, false, Constants.LP, false);
+//					ILPModel steinermf = new SteinerMultiFlowModel(graph, false, Constants.INTEGER, false);
+//					ILPModel steinermflp = new SteinerMultiFlowModel(graph, false, Constants.LP, false);
 					
 //					Algorithm bip = new BIPAlgorithm(true, true);
-					Algorithm bipmulti = new BIPAlgorithm(false, true);
+//					Algorithm bipmulti = new BIPAlgorithm(false, true);
 					
 					
 //
@@ -91,23 +93,24 @@ public class App {
 //					double c_steinerpf2rel = runModel(steinerpf2rel, true);
 //					double c_steinermf = runModel(steinermf, true);
 //					double c_steinerpf2 = runModel(steinerpf2, true);
-					double c_steinermflp = runModel(steinermflp, true);
+//					double c_steinermflp = runModel(steinermflp, true);
 
-//					double LP0Cost = runModel(smtlp, false);
-//					double LP1Cost = runModel(smtViLp1, false);
-//					double LP2Cost = runModel(smtViLp2, false);
-//					double cost = runModel(smt, false);
+					double LP0Cost = runModel(smtlp, false);
+					double LP1Cost = runModel(smtViLp1, false);
+					double LP2Cost = runModel(smtViLp2, false);
+					double cost = runModel(smt, false);
 //					double cost_lazy = runModel(smt_lazy, false);
 //					double cost2 = runModel(smtViLp2, false);
+					double costPFLP = runModel(smtPf2LP, false);
 //					double algCost = runAlg(bipmulti);				
 
 //					logObjective(c_steinerpf2rel, graph.getInstId(), false);
 //					logObjective(c_steiner_int, graph.getInstId(), false);
 //					logObjective(c_steinerlp, graph.getInstId(), false);
 //					logObjective(c_steinerpf2lp, graph.getInstId(), false);
-					logObjective(c_steinermflp, -1, true);
+//					logObjective(c_steinermflp, -1, true);
 //					logObjective(c_steinerlp, -1, false);
-					logObjective(c_steinermflp,-1, true);
+//					logObjective(c_steinermflp,-1, true);
 //					logObjective(c_steinerpf2, graph.getInstId(), false);
 					
 //					logObjective(c_smt, graph.getInstId(), false);
@@ -116,11 +119,14 @@ public class App {
 ////					
 //					logObjective(c_steinermf, -1, true);
 //					logObjective(c_steinerpf2, -1, true);
-//					logObjective(LP0Cost, graph.getInstId(), false);					
-//					logObjective(LP1Cost, -1, false);
-//					logObjective(LP2Cost, -1, false);
-//					logObjective(cost, -1, false);
-//					logObjective(cost_lazy, -1, true);
+
+					logObjective(cost, graph.getInstId(), false);
+					
+					logObjective(costPFLP, -1, false);
+					logObjective(LP1Cost, -1, false);
+					logObjective(LP2Cost, -1, false);
+					logObjective(LP0Cost, -1, true);
+					//					logObjective(cost_lazy, -1, true);
 ////					logObjective(algCost, -1, true);
 //					sumLP1Cost += LP1Cost;
 //					sumLP2Cost += LP2Cost;

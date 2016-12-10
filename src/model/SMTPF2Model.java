@@ -11,31 +11,30 @@ public class SMTPF2Model extends SMTModel {
 		super(graph, willAddVIs, isLP, lazy);
 	}
 
-	protected IloNumVar[][] zz;
-	protected IloNumVar[][][] y;
-	protected IloNumVar[][][][] h;
+	protected IloNumVar[][] pz;
+	protected IloNumVar[][][] py;
+	protected IloNumVar[][][][] h;  // y hook
 	
 	protected void initVars() {
 		try {
-			n = graph.getVertexCount();
-			d = graph.getDstCount();
-			y = new IloNumVar[n][n][];
+			super.initVars();
+			py = new IloNumVar[n][n][];
 			h = new IloNumVar[n][n][d][];		
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					for (int k = 0; k < d; k++) {
 						h[i][j][k] = cplex.numVarArray(d,0,1);	
 					}	
-					y[i][j] = cplex.numVarArray(d,0,1);
+					py[i][j] = cplex.numVarArray(d,0,1);
 				}					
 			}
-			zz = new IloNumVar[n][];				
+			pz = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {
 				if (isLP) {
-					zz[j] = cplex.numVarArray(n, 0, 1);					
+					pz[j] = cplex.numVarArray(n, 0, 1);					
 				}
 				else {
-					zz[j] = cplex.boolVarArray(n);					
+					pz[j] = cplex.boolVarArray(n);					
 				}
 			}	
 		} catch (IloException e) {
@@ -46,15 +45,15 @@ public class SMTPF2Model extends SMTModel {
 	@Override
 	public void createConstraints() {
 		try {
-	
+			super.createConstraints();
 			// flow1
 			for (int t = 1; t < d; t++) { // must not be zero
 				IloLinearNumExpr expr1 = cplex.linearNumExpr();
 				IloLinearNumExpr expr2 = cplex.linearNumExpr();
 				for (int j = 0; j < n; j++) {
 					if (t != j) {
-						expr1.addTerm(1.0, x[j][t][t]);									
-						expr2.addTerm(1.0, x[t][j][t]);
+						expr1.addTerm(1.0, py[j][t][t]);									
+						expr2.addTerm(1.0, py[t][j][t]);
 					}								
 				}
 				cplex.addEq(cplex.sum(expr1, cplex.negative(expr2)), 1.0);
@@ -68,8 +67,8 @@ public class SMTPF2Model extends SMTModel {
 						IloLinearNumExpr expr2 = cplex.linearNumExpr();
 						for (int j = 0; j < n; j++) {
 							if (i != j) {
-								expr1.addTerm(1.0, x[j][i][t]);									
-								expr2.addTerm(1.0, x[i][j][t]);
+								expr1.addTerm(1.0, py[j][i][t]);									
+								expr2.addTerm(1.0, py[i][j][t]);
 							}								
 						}
 						cplex.addEq(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
@@ -111,14 +110,14 @@ public class SMTPF2Model extends SMTModel {
 				}				
 			}
 			
-			// h_x1
+			// h_py1
 			for (int k = 1; k < d; k++) { // must not be zero
 				for (int l = 1; l < d; l++) { // must not be zero
 					if (k != l) {
 						for (int i = 0; i < n; i++) {
 							for (int j = 0; j < n; j++) {
 								if (j != i) {
-									cplex.addLe(h[i][j][k][l], x[i][j][k]);
+									cplex.addLe(h[i][j][k][l], py[i][j][k]);
 								}
 							}
 						}
@@ -126,14 +125,14 @@ public class SMTPF2Model extends SMTModel {
 				}
 			}
 			
-			// h_x2
+			// h_py2
 			for (int k = 1; k < d; k++) { // must not be zero
 				for (int l = 1; l < d; l++) { // must not be zero
 					if (k != l) {
 						for (int i = 0; i < n; i++) {
 							for (int j = 0; j < n; j++) {
 								if (j != i) {
-									cplex.addLe(h[i][j][k][l], x[i][j][l]);
+									cplex.addLe(h[i][j][k][l], py[i][j][l]);
 								}
 							}
 						}
@@ -148,7 +147,7 @@ public class SMTPF2Model extends SMTModel {
 						for (int i = 0; i < n; i++) {
 							for (int j = 0; j < n; j++) {
 								if (j != i) {
-									cplex.addLe(cplex.sum(x[i][j][k], x[i][j][l], cplex.negative(h[i][j][k][l])), z[i][j]);
+									cplex.addLe(cplex.sum(py[i][j][k], py[i][j][l], cplex.negative(h[i][j][k][l])), pz[i][j]);
 								}
 							}
 						}
@@ -162,18 +161,45 @@ public class SMTPF2Model extends SMTModel {
 				IloLinearNumExpr expr2 = cplex.linearNumExpr();
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
-						expr1.addTerm(1.0, z[j][i]);
-						expr2.addTerm(1.0, z[i][j]);
+						expr1.addTerm(1.0, pz[j][i]);
+						expr2.addTerm(1.0, pz[i][j]);
 					}
 				}
 				cplex.addLe(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
 			}
 			
+			// pf smt relation
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						for (int t = 0; t < d; t++) {
+							cplex.addLe(py[i][j][t], x[j][i][t]);
+						}
+					}
+				}
+			}
+			
+			
 			
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
-		
 	}
-
+	public Double[][] getZVar() {
+		try {
+			Double[][] zval = new Double[z.length][z.length];
+			for (int i = 0 ; i < z.length; i++) {
+				for (int j = i+1; j < z.length; j++) {
+					System.out.print(cplex.getValue(z[i][j]) + " ");						
+					zval[i][j] = cplex.getValue(z[i][j]);						
+				}
+				System.out.println();
+			}
+			System.out.println("Objective: " + cplex.getObjValue());
+			return zval;		
+		} catch (IloException e) {			
+			e.printStackTrace();
+			return null;
+		}		
+	}
 }

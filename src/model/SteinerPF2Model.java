@@ -19,33 +19,30 @@ public class SteinerPF2Model extends ILPModel {
 		super(graph, willAddVIs, isLP, lazy);
 	}
 	
-	protected int n; 
-	protected int d;
 	
-	protected IloNumVar[][][] x;
+	protected IloNumVar[][] pz;
+	protected IloNumVar[][][] py;
 	protected IloNumVar[][][][] h;
 	
 	protected void initVars() {
 		try {
-			n = graph.getVertexCount();
-			d = graph.getDstCount();
-			x = new IloNumVar[n][n][];
+			py = new IloNumVar[n][n][];
 			h = new IloNumVar[n][n][d][];		
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					for (int k = 0; k < d; k++) {
 						h[i][j][k] = cplex.numVarArray(d,0,1);	
 					}	
-					x[i][j] = cplex.numVarArray(d,0,1);
+					py[i][j] = cplex.numVarArray(d,0,1);
 				}					
 			}
-			z = new IloNumVar[n][];				
+			pz = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {
 				if (isLP) {
-					z[j] = cplex.numVarArray(n, 0, 1);					
+					pz[j] = cplex.numVarArray(n, 0, 1);					
 				}
 				else {
-					z[j] = cplex.boolVarArray(n);					
+					pz[j] = cplex.boolVarArray(n);					
 				}
 			}	
 		} catch (IloException e) {
@@ -59,7 +56,7 @@ public class SteinerPF2Model extends ILPModel {
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
-						obj.addTerm(graph.getRequir(i,j), z[i][j]);
+						obj.addTerm(graph.getRequir(i,j), pz[i][j]);
 					}
 				}
 			}
@@ -79,8 +76,8 @@ public class SteinerPF2Model extends ILPModel {
 				IloLinearNumExpr expr2 = cplex.linearNumExpr();
 				for (int j = 0; j < n; j++) {
 					if (t != j) {
-						expr1.addTerm(1.0, x[j][t][t]);									
-						expr2.addTerm(1.0, x[t][j][t]);
+						expr1.addTerm(1.0, py[j][t][t]);									
+						expr2.addTerm(1.0, py[t][j][t]);
 					}								
 				}
 				cplex.addEq(cplex.sum(expr1, cplex.negative(expr2)), 1.0);
@@ -94,8 +91,8 @@ public class SteinerPF2Model extends ILPModel {
 						IloLinearNumExpr expr2 = cplex.linearNumExpr();
 						for (int j = 0; j < n; j++) {
 							if (i != j) {
-								expr1.addTerm(1.0, x[j][i][t]);									
-								expr2.addTerm(1.0, x[i][j][t]);
+								expr1.addTerm(1.0, py[j][i][t]);									
+								expr2.addTerm(1.0, py[i][j][t]);
 							}								
 						}
 						cplex.addEq(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
@@ -144,7 +141,7 @@ public class SteinerPF2Model extends ILPModel {
 						for (int i = 0; i < n; i++) {
 							for (int j = 0; j < n; j++) {
 								if (j != i) {
-									cplex.addLe(h[i][j][k][l], x[i][j][k]);
+									cplex.addLe(h[i][j][k][l], py[i][j][k]);
 								}
 							}
 						}
@@ -159,7 +156,7 @@ public class SteinerPF2Model extends ILPModel {
 						for (int i = 0; i < n; i++) {
 							for (int j = 0; j < n; j++) {
 								if (j != i) {
-									cplex.addLe(h[i][j][k][l], x[i][j][l]);
+									cplex.addLe(h[i][j][k][l], py[i][j][l]);
 								}
 							}
 						}
@@ -174,7 +171,7 @@ public class SteinerPF2Model extends ILPModel {
 						for (int i = 0; i < n; i++) {
 							for (int j = 0; j < n; j++) {
 								if (j != i) {
-									cplex.addLe(cplex.sum(x[i][j][k], x[i][j][l], cplex.negative(h[i][j][k][l])), z[i][j]);
+									cplex.addLe(cplex.sum(py[i][j][k], py[i][j][l], cplex.negative(h[i][j][k][l])), z[i][j]);
 								}
 							}
 						}
@@ -214,13 +211,13 @@ public class SteinerPF2Model extends ILPModel {
 
 	public Double[][][] getXVar() {
 		try {
-			Double[][][] xval = new Double[x.length][x.length][x.length];
-			for (int i = 0 ; i < x.length; i++) {
-				for (int j = 0; j < x.length; j++) {
+			Double[][][] xval = new Double[py.length][py.length][py.length];
+			for (int i = 0 ; i < py.length; i++) {
+				for (int j = 0; j < py.length; j++) {
 					if (i != j) {
-						for (int k = 0; k < x.length; k++) {
+						for (int k = 0; k < py.length; k++) {
 //							System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(x[i][j][k]) + " --");						
-							xval[i][j][k] = cplex.getValue(x[i][j][k]);
+							xval[i][j][k] = cplex.getValue(py[i][j][k]);
 						}
 					}
 				}
@@ -240,8 +237,8 @@ public class SteinerPF2Model extends ILPModel {
 			for (int i = 0 ; i < z.length; i++) {
 				for (int j = 0; j < z.length; j++) {
 					if (i != j) {
-						System.out.print(cplex.getValue(z[i][j]) + " ");	
-						zval[i][j] = cplex.getValue(z[i][j]);
+						System.out.print(cplex.getValue(pz[i][j]) + " ");	
+						zval[i][j] = cplex.getValue(pz[i][j]);
 //						if ((zval[i][j] % 1) != 0) {
 //							System.err.println("not fractional: " + graph.getInstId());
 //							System.exit(0);
