@@ -11,7 +11,11 @@ import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
+import ilog.cplex.IloCplex.UnknownObjectException;
+
+import org.javatuples.Pair;
 import org.javatuples.Quartet;
+import org.javatuples.Triplet;
 
 import smt.Constants;
 
@@ -22,6 +26,9 @@ public class SteinerModel extends ILPModel {
 	}
 	
 	protected IloNumVar[][][] x;
+	
+	
+	private IloNumVar[][][][] f;
 	
 	protected void initVars() {
 		try {
@@ -175,8 +182,6 @@ public class SteinerModel extends ILPModel {
 				}	
 			}
 			
-		//	cplex.addEq(z[0][1], 0);
-			//cplex.addEq(z[0][1], 1);
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
@@ -189,7 +194,7 @@ public class SteinerModel extends ILPModel {
 			for (int i = 0 ; i < x.length; i++) {
 				for (int j = 0; j < x.length; j++) {
 					if (i != j) {
-						for (int k = 0; k < x.length; k++) {
+						for (int k = 0; k < d; k++) {
 //							System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(x[i][j][k]) + " --");						
 							xval[i][j][k] = cplex.getValue(x[i][j][k]);
 						}
@@ -247,6 +252,116 @@ public class SteinerModel extends ILPModel {
     	return Constants.SMT_STRING + "(" + n + "," + d + ")";
 	}
 	
+	/**
+	 * Add flow balance normal constraints for given indices determined after 
+	 * a completed LP relaxation
+	 * @param i
+	 * @param s
+	 * @param t
+	 */
+	public void addFlowBalanceNormalConstraints(ArrayList<Pair<Integer, Integer>> idxList) {  // TODO finish for fixed s t variables !!!!
+		try {
+			f = initF();
+			for (Pair<Integer,  Integer> indices: idxList) {
+				int s = indices.getValue0();
+				int t = indices. getValue1();
+				for (int i = 0; i < n; i++) {
+					if (i != t) {
+						if (i != s) {
+							IloLinearNumExpr expr1a = cplex.linearNumExpr();
+							IloLinearNumExpr expr1b = cplex.linearNumExpr();	
+							for (int j = 0; j < n; j++) {
+								if (i != j) {
+									cplex.addLe(f[i][j][s][t], x[i][j][s]);
+									if (j != s) { // j != s
+										expr1a.addTerm(1.0, f[i][j][s][t]);	
+									}
+									if (j != t) { // j != t
+										expr1b.addTerm(1.0, f[j][i][s][t]);
+									}
+								}
+							}
+							cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));
+						}
+						else { // i == s
+							IloLinearNumExpr expr1a = cplex.linearNumExpr();
+							IloLinearNumExpr expr1b = cplex.linearNumExpr();	
+							for (int j = 0; j < n; j++) {
+								if (s != j) {
+									cplex.addLe(f[i][j][s][t], x[i][j][s]);
+									if (j != s) { // j != s
+										expr1a.addTerm(1.0, f[i][j][s][t]);	
+									}
+									if (j != t) { // j != t
+										expr1b.addTerm(1.0, f[j][i][s][t]);
+									}
+								}
+							}
+							cplex.addEq(1,cplex.sum(expr1a, cplex.negative(expr1b)));
+						}
+					}
+					else { // i == t
+						IloLinearNumExpr expr1a = cplex.linearNumExpr();
+						IloLinearNumExpr expr1b = cplex.linearNumExpr();	
+						for (int j = 0; j < n; j++) {
+							if (t != j) {
+								cplex.addLe(f[i][j][s][t], x[i][j][s]);
+								if (j != s) { // j != s
+									expr1a.addTerm(1.0, f[i][j][s][t]);	
+								}
+								if (j != t) { // j != t
+									expr1b.addTerm(1.0, f[j][i][s][t]);
+								}
+							}
+						}
+						cplex.addEq(-1,cplex.sum(expr1a, cplex.negative(expr1b)));
+					}
+				}
+			}
+		} catch (IloException e) {
+			return;
+		}
+	}
+	
+	private IloNumVar[][][][] initF() {
+		try {
+			f = new IloNumVar[n][n][d][];		
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					for (int k = 0; k < d; k++) {
+						f[i][j][k] = cplex.numVarArray(d,0,1);	
+					}	
+				}					
+			}
+			return f;
+		} catch (IloException e) {
+			e.printStackTrace();
+			return null;
+		}	
+	}
+	
+	public Double[][][][] getFVal() {
+		try {
+			Double[][][][] fVal =new Double[n][n][d][d];
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						for (int s = 0; s < d; s++) {
+							for (int t = 0; t < d; t++) {
+								if (s != t) {
+									fVal[i][j][s][t] = cplex.getValue(f[i][j][s][t]);
+								}
+							}
+						}
+					}
+				}
+			}
+			return fVal;
+		} catch (IloException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }
 	
 	

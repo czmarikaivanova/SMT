@@ -171,7 +171,7 @@ public class SteinerPF2Model extends ILPModel {
 						for (int i = 0; i < n; i++) {
 							for (int j = 0; j < n; j++) {
 								if (j != i) {
-									cplex.addLe(cplex.sum(py[i][j][k], py[i][j][l], cplex.negative(h[i][j][k][l])), z[i][j]);
+									cplex.addLe(cplex.sum(py[i][j][k], py[i][j][l], cplex.negative(h[i][j][k][l])), pz[i][j]);
 								}
 							}
 						}
@@ -185,8 +185,8 @@ public class SteinerPF2Model extends ILPModel {
 				IloLinearNumExpr expr2 = cplex.linearNumExpr();
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
-						expr1.addTerm(1.0, z[j][i]);
-						expr2.addTerm(1.0, z[i][j]);
+						expr1.addTerm(1.0, pz[j][i]);
+						expr2.addTerm(1.0, pz[i][j]);
 					}
 				}
 				cplex.addLe(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
@@ -231,34 +231,35 @@ public class SteinerPF2Model extends ILPModel {
 		}		
 	}	
 	
-	public Double[][] getZVar() {
+	public Double[][] getPZ() {
 		try {
-			Double[][] zval = new Double[z.length][z.length];
-			for (int i = 0 ; i < z.length; i++) {
-				for (int j = 0; j < z.length; j++) {
+			Double[][] zval = new Double[pz.length][pz.length];
+			for (int i = 0 ; i < pz.length; i++) {
+				for (int j = 0; j < pz.length; j++) {
 					if (i != j) {
-						System.out.print(cplex.getValue(pz[i][j]) + " ");	
 						zval[i][j] = cplex.getValue(pz[i][j]);
-//						if ((zval[i][j] % 1) != 0) {
-//							System.err.println("not fractional: " + graph.getInstId());
-//							System.exit(0);
-//						}
+						System.out.print(cplex.getValue(pz[i][j]) + " ");	
 					}
 				}
 				System.out.println();
 			}
-			System.out.println("Objective: " + cplex.getObjValue());
 			return zval;		
 		} catch (IloException e) {			
 			e.printStackTrace();
 			return null;
 		}		
-	}
+	}	
 
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
 		return "Steiner PF2";
+	}
+
+	@Override
+	public Double[][] getZVar() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

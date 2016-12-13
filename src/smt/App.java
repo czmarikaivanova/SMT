@@ -30,15 +30,16 @@ import model.SteinerPF2Relaxed;
 
 public class App {
 	
-    int vertexCount = 11;
-    int dstCount = 6;
+    int vertexCount = 20;
+    int dstCount = 11;
     Graph graph;
-    private boolean draw = false;
+    private boolean draw = true;
     private boolean generate = true;
     private boolean allowCrossing = true;
-    
+    private int n;
+    private int d;
 	public int run() {
-		int iter = 10;
+		int iter = 1;
 //		for (dstCount = 4; dstCount < 11; dstCount++) {
 //			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
@@ -55,83 +56,55 @@ public class App {
 						graph = new Graph(vertexCount, dstCount);			
 					}
 					else {
-						graph = new Graph("saved_inst/fracMF.txt"); // from file, todo
+						graph = new Graph("saved_inst/instance3.txt"); // from file, todo
 					}	
 					graph.saveInstance();
 					graph.generateAMPLData();
-					ILPModel smt = new SMTModel(graph, false, Constants.LP, false);
-//					ILPModel smt_lazy = new SMTModel(graph, false, Constants.INTEGER, false);
-					ILPModel smtlp = new SMTModel(graph, false, Constants.INTEGER, false);
-					ILPModel smtViLp1 = new SMTMultiFlowModel(graph, false, Constants.LP, false);
-					ILPModel smtViLp2 = new SMTMultiFlowModel(graph, true, Constants.LP, false);
-					ILPModel smtPf2LP = new SMTPF2Model(graph, false, Constants.LP, false);
+					n = graph.getVertexCount();
+					d = graph.getDstCount();
+					ArrayList<ILPModel> modelList = new ArrayList<ILPModel>();
 					
-//					ILPModel steiner_int = new SteinerModel(graph, false, Constants.INTEGER, false);
-//					ILPModel steinerlp = new SteinerModel(graph, false, Constants.LP, false);
-//					ILPModel steinerpf2lp = new SteinerPF2Model(graph, false, Constants.LP, false);
-//					ILPModel steinerpf2 = new SteinerPF2Model(graph, false, Constants.LP, false);
-//					ILPModel steinerpf2rel = new SteinerPF2Relaxed(graph, false, Constants.LP, false);
-//					ILPModel steinermf = new SteinerMultiFlowModel(graph, false, Constants.INTEGER, false);
-//					ILPModel steinermflp = new SteinerMultiFlowModel(graph, false, Constants.LP, false);
+					modelList.add(new SteinerModel(graph, false, Constants.LP, false));
+//					modelList.add(new SteinerMultiFlowModel(graph, false, Constants.LP, false));
+//					modelList.add(new SteinerPF2Model(graph, false, Constants.INTEGER, false));
+					
+					
+//					ILPModel smt_lazy = new SMTModel(graph, false, Constants.INTEGER, false);
+//					modelList.add(new SMTModel(graph, false, Constants.LP, false));
+//					modelList.add(new SMTPF2Model(graph, false, Constants.INTEGER, false));
+//					modelList.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
+//					modelList.add(new SMTMultiFlowModel(graph, true, Constants.LP, false));
+//					modelList.add(new SMTModel(graph, false, Constants.INTEGER, false));
+					
+					
+					
+					Double[][] pz = new Double[n][n];
+					Double[][] z =  new Double[n][n];
+					Double[][][] x = new Double[n][n][d];
+					for (ILPModel model: modelList) {
+						model.solve();
+						boolean newline = modelList.indexOf(model) == modelList.size() - 1;
+						int id = (modelList.indexOf(model) == 0) ? graph.getInstId() : -1;
+						double cost = model.getObjectiveValue();
+//						if (model instanceof SMTPF2Model) {
+//							pz = ((SMTPF2Model) model).getPZ();
+//							x = ((SMTPF2Model) model).getXVar();
+//						}
+						if (model instanceof SteinerModel && !(model instanceof SteinerMultiFlowModel)) {
+							x = ((SteinerModel)model).getXVar();
+							generateViolatedFlowConstraints(constructF(x));
+						}
+
+						z = model.getZVar();
+						draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
+						logObjective(cost, id, newline);
+					}
+
+					
 					
 //					Algorithm bip = new BIPAlgorithm(true, true);
 //					Algorithm bipmulti = new BIPAlgorithm(false, true);
-					
-					
-//
-//					double c_smtlp= runModel(smtlp,  true);
-//					double c_smtvilp= runModel(smtViLp1,  true);
-//					double ca1 = runAlg(bip);
-//					double ca2 = runAlg(bipmulti);
-					
-//					
-//					double c_steiner_int = runModel(steiner_int, true);
-//					double c_steinerlp = runModel(steinerlp, true);
-//					double c_steinerpf2lp = runModel(steinerpf2lp, true);
-//					double c_steinermf = runModel(steinermf, true);
-//					double c_steinerpf2 = runModel(steinerpf2, true);
-//					double c_steinerpf2rel = runModel(steinerpf2rel, true);
-//					double c_steinermf = runModel(steinermf, true);
-//					double c_steinerpf2 = runModel(steinerpf2, true);
-//					double c_steinermflp = runModel(steinermflp, true);
-
-					double LP0Cost = runModel(smtlp, false);
-					double LP1Cost = runModel(smtViLp1, false);
-					double LP2Cost = runModel(smtViLp2, false);
-					double cost = runModel(smt, false);
-//					double cost_lazy = runModel(smt_lazy, false);
-//					double cost2 = runModel(smtViLp2, false);
-					double costPFLP = runModel(smtPf2LP, false);
 //					double algCost = runAlg(bipmulti);				
-
-//					logObjective(c_steinerpf2rel, graph.getInstId(), false);
-//					logObjective(c_steiner_int, graph.getInstId(), false);
-//					logObjective(c_steinerlp, graph.getInstId(), false);
-//					logObjective(c_steinerpf2lp, graph.getInstId(), false);
-//					logObjective(c_steinermflp, -1, true);
-//					logObjective(c_steinerlp, -1, false);
-//					logObjective(c_steinermflp,-1, true);
-//					logObjective(c_steinerpf2, graph.getInstId(), false);
-					
-//					logObjective(c_smt, graph.getInstId(), false);
-//					logObjective(c_smtvi, -1, true);
-//					logObjective(o_smt, -1, true);
-////					
-//					logObjective(c_steinermf, -1, true);
-//					logObjective(c_steinerpf2, -1, true);
-
-					logObjective(cost, graph.getInstId(), false);
-					
-					logObjective(costPFLP, -1, false);
-					logObjective(LP1Cost, -1, false);
-					logObjective(LP2Cost, -1, false);
-					logObjective(LP0Cost, -1, true);
-					//					logObjective(cost_lazy, -1, true);
-////					logObjective(algCost, -1, true);
-//					sumLP1Cost += LP1Cost;
-//					sumLP2Cost += LP2Cost;
-//					sumCost += cost;
-//					sumAlgCost += algCost;
 //				}		
 //				avgLP1Cost = sumLP1Cost / iter;
 //				avgLP2Cost = sumLP2Cost / iter;
@@ -147,42 +120,159 @@ public class App {
 		return 0;
 	}
 	
+	private Double[][][][] constructF(Double[][][] x) {
+		Double[][][][] f = new Double[n][n][d][d];
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				for (int s = 0; s < d; s++) {
+					for (int t = 0; t < d; t++) {
+						if (x[j][i][s] != null && x[j][i][t] != null) {
+							double newval = Math.max(x[j][i][s] + x[j][i][t] - 1, 0);
+							f[i][j][s][t] = x[j][i][s] * x[j][i][t];
+//							if (f[i][j][s][t] > x[i][j][s]) {
+//								f[i][j][s][t] = x[i][j][s];
+//							}
+						}
+					}
+				}
+			}
+		}
+		return f;
+	}
+	
+	// this function has to be written nicer !
+	private void generateViolatedFlowConstraints(Double [][][][] f) {
+		ArrayList<Pair<Integer, Integer>> stPairs = new ArrayList<Pair<Integer,Integer>>();
+		int addingcnt = 0;
+		int okcnt = 0;
+		for (int s = 0; s < d; s++) {
+			for (int t = 0; t < d; t++) {
+				if (t != s) {
+					for (int i = 0; i < n; i++) {
+						if (i != s) {
+							if (i != t) {
+								double lhs = 0;
+								double rhs = 0;
+								for (int j = 0; j < n; j++) {  // flow balance normal
+									if (i != j) {
+										if (j != s) {
+											lhs += f[i][j][s][t];
+										}
+										if (j != t) {
+											rhs += f[j][i][s][t];
+										}
+									}
+								}
+								if (Math.abs(lhs - rhs) < 0.0005) {
+									System.out.println("add normal");
+									stPairs.add(new Pair<Integer, Integer>(s, t));
+									addingcnt++;
+									break;  // for i
+								}
+								else {
+									okcnt++;
+								}
+							}
+							else { // i == t
+								double lhs = 0;
+								double rhs = 0;
+								for (int j = 0; j < n; j++) {
+									if (i != j) {
+										if (j != s) {
+											lhs += f[i][j][s][t];
+										}
+										if (j != t) {
+											rhs += f[j][i][s][t];
+										}
+									}
+								}
+								if ((lhs - rhs < -1.005) || (lhs - rhs > -0.995)) { 
+//								if (lhs - rhs != -1) {
+//									model.addFlowBalanceNormalConstraint(i, s, t);
+									System.out.println("add dst");
+									addingcnt++;
+									break; // for i
+								}	
+								else {
+									okcnt++;
+								}
+							}
+						} else { // i == s
+							if (t != s) {
+								double lhs = 0;
+								double rhs = 0;
+								for (int j = 0; j < n; j++) {
+									if (i != j && j != s) {
+										lhs += f[i][j][s][t];
+									}
+									if (i != j && j != t) {
+										rhs += f[j][i][s][t];
+									}
+									if (lhs - rhs < 0.995 || lhs - rhs > 1.005) {
+//											model.addFlowBalanceNormalConstraint(i, s, t);
+										System.out.println("add source");
+										addingcnt++;
+										break; // for i
+									}		
+									else {
+										okcnt++;
+									}
+								}					
+							}
+						}
+					}
+				}
+			} 
+		}
+		System.err.println("pairs: " + stPairs.size());
+		System.err.println("added: " + addingcnt);
+		System.err.println("ok: " + okcnt);
+		SteinerModel model = new SteinerModel(graph, false, Constants.LP, false);
+		model.addFlowBalanceNormalConstraints(stPairs);
+		model.solve();
+		Double[][][][] fVar = model.getFVal();
+		System.err.println("next run: " + model.getObjectiveValue());
+		model.end();
+	}
+	
+	private void checkXXConstraint(Double[][][] x, Double[][] pz) {
+		System.err.println("checking z pz");
+		for (int i = 0; i < pz.length; i++) {
+			for (int j = i + 1; j < pz.length; j++) {
+				if (pz[i][j] != x[i][j][0]) {
+					System.err.println("pz" + i + "" +j+ ":" +pz[i][j]);
+					System.err.println("x" + i + "" +j+ ":" +x[i][j][0]);
+				}
+			}
+		}
+	}
+
+	private void checkZPZConstraint(Double[][] z, Double[][] pz) {
+		System.err.println("checking z pz");
+		for (int i = 0; i < z.length; i++) {
+			for (int j = i + 1; j < z.length; j++) {
+				if (z[i][j] != pz[i][j] + pz[j][i]) {
+					System.err.println("z" + i + "" +j+ ":" +z[i][j]);
+					System.err.println("pz" + i + "" +j+ ":" +pz[i][j]+ "and " + pz[j][i]);
+				}
+			}
+		}
+	}
+
 	private double runAlg(Algorithm alg) {
 		Graph tree = alg.solve(graph);
 		draw(tree, graph.getInstId(), alg.toString(), false);
 		return tree.evaluate(dstCount);
 	}
 	
-	private double runModel(ILPModel model, boolean newline) {
-		ArrayList<Integer> crossList = new ArrayList<Integer>();
+	private double runModel(ILPModel model) {
 		model.solve();
 		double lpCost1 = model.getObjectiveValue();
 		Double[][] z = (Double[][]) model.getZVar();
-//		if (hasCrossing(z)) {
-//			crossList.add(graph.getInstId());
-//		}
+
+		
 		draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
-//		CliqueModel cliqueModel = new CliqueModel(graph, z);
-//		cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
-//		Clique clique;
-//		do {
-//			cliqueModel.solveAndLogTime();
-//			Boolean[] clVar = cliqueModel.getCliqueVar();
-//			clique = cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar, cliqueModel.getObjectiveValue()); 
-//			cliqueList.add(clique);  // add new clique to the list of cliques
-//			cliqueModel.addClConstraint(clique);
-//		} while (clique.size() > 1);
-//		cliqueModel.end();
-//		listCliques(cliqueList);
-//		
-//		model = new SMTModel(graph, allowCrossing);
-//		model.addCrossCliqueConstraints(cliqueList);
-//		model.solveAndLogTime();
-		model.end();
-		System.err.println("Instances with crossing: ");
-		for (Integer c: crossList) {
-			System.err.println(c + "");	
-		}	
+		
 		return lpCost1;
 	}
 	

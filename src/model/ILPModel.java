@@ -63,7 +63,6 @@ public abstract class ILPModel {
 	
 	public boolean solve() {
 		try {
-			cplex.solve();
 			return cplex.solve();
 		} catch (IloException e) {
 			e.printStackTrace();

@@ -168,7 +168,7 @@ public class SMTPF2Model extends SMTModel {
 				cplex.addLe(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
 			}
 			
-			// pf smt relation
+			// pf smt relation 1
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
@@ -179,27 +179,84 @@ public class SMTPF2Model extends SMTModel {
 				}
 			}
 			
+			// pf smt relation 2
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						for (int k = 1; k < d; k++) {
+							for (int l = 1; l < d; l++) {
+								if (k != l) {
+									cplex.addLe(h[i][j][k][l], x[j][i][k]);
+								}
+							}
+						}
+					}
+				}
+			}
+			// pf smt relation 2
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						for (int k = 1; k < d; k++) {
+							for (int l = 1; l < d; l++) {
+								if (k != l) {
+									cplex.addLe(h[i][j][k][l], x[j][i][l]);
+								}
+							}
+						}
+					}
+				}
+			}			
+			
+			for (int i = 0; i < n ; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						cplex.addLe(cplex.sum(pz[i][j], pz[j][i]), 1.0);
+					}
+				}
+			}
 			
 			
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
 	}
-	public Double[][] getZVar() {
+	
+	public Double[][][] getPY() {
 		try {
-			Double[][] zval = new Double[z.length][z.length];
-			for (int i = 0 ; i < z.length; i++) {
-				for (int j = i+1; j < z.length; j++) {
-					System.out.print(cplex.getValue(z[i][j]) + " ");						
-					zval[i][j] = cplex.getValue(z[i][j]);						
+			Double[][][] xval = new Double[py.length][py.length][py.length];
+			for (int i = 0 ; i < py.length; i++) {
+				for (int j = 0; j < py.length; j++) {
+					if (i != j) {
+						for (int k = 0; k < py.length; k++) {
+							xval[i][j][k] = cplex.getValue(py[i][j][k]);
+						}
+					}
+				}
+			}
+			return xval;		
+		} catch (IloException e) {			
+			e.printStackTrace();
+			return null;
+		}		
+	}	
+	
+	public Double[][] getPZ() {
+		try {
+			Double[][] zval = new Double[pz.length][pz.length];
+			for (int i = 0 ; i < pz.length; i++) {
+				for (int j = 0; j < pz.length; j++) {
+					if (i != j) {
+						zval[i][j] = cplex.getValue(pz[i][j]);
+						System.out.print(cplex.getValue(pz[i][j]) + " ");	
+					}
 				}
 				System.out.println();
 			}
-			System.out.println("Objective: " + cplex.getObjValue());
 			return zval;		
 		} catch (IloException e) {			
 			e.printStackTrace();
 			return null;
 		}		
-	}
+	}	
 }

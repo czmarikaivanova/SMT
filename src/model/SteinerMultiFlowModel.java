@@ -289,11 +289,7 @@ public class SteinerMultiFlowModel extends SteinerModel {
 		}		
 	}
 
-	@Override
-	public Double[][][] getXVar() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 		
 
 
