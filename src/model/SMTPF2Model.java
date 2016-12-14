@@ -3,9 +3,10 @@ package model;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
+import ilog.concert.IloRange;
 import graph.Graph;
 
-public class SMTPF2Model extends SMTModel {
+public class SMTPF2Model extends ILPModel {
 
 	public SMTPF2Model(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
 		super(graph, willAddVIs, isLP, lazy);
@@ -14,17 +15,25 @@ public class SMTPF2Model extends SMTModel {
 	protected IloNumVar[][] pz;
 	protected IloNumVar[][][] py;
 	protected IloNumVar[][][][] h;  // y hook
+	protected IloNumVar[][][] y;	
+	
 	
 	protected void initVars() {
 		try {
-			super.initVars();
 			py = new IloNumVar[n][n][];
-			h = new IloNumVar[n][n][d][];		
+			h = new IloNumVar[n][n][d][];	
+			y = new IloNumVar[n][n][];		
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					for (int k = 0; k < d; k++) {
 						h[i][j][k] = cplex.numVarArray(d,0,1);	
-					}	
+					}
+					if (isLP) {
+						y[i][j] = cplex.numVarArray(d, 0, 1);
+					}
+					else {
+						y[i][j] = cplex.boolVarArray(d);
+					}					
 					py[i][j] = cplex.numVarArray(d,0,1);
 				}					
 			}
@@ -42,10 +51,38 @@ public class SMTPF2Model extends SMTModel {
 		}
 	}	
 	
+	protected void createObjFunction() {
+		try {
+			// create model and solve it				
+			IloLinearNumExpr obj = cplex.linearNumExpr();
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						for (int s = 0; s < d; s++) {
+							obj.addTerm(graph.getRequir(i,j), y[i][j][s]);
+						}
+					}
+				}
+			}
+			cplex.addMinimize(obj);	
+		} catch (IloException e) {
+			e.printStackTrace();
+		}			
+	}	
+	
 	@Override
 	public void createConstraints() {
 		try {
-			super.createConstraints();
+			//no_flow_back
+			
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						cplex.addEq(py[i][j][0], 0.0);
+					}
+				}
+			}
+			
 			// flow1
 			for (int t = 1; t < d; t++) { // must not be zero
 				IloLinearNumExpr expr1 = cplex.linearNumExpr();
@@ -167,53 +204,26 @@ public class SMTPF2Model extends SMTModel {
 				}
 				cplex.addLe(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
 			}
-			
-			// pf smt relation 1
+			// yvar
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
-						for (int t = 0; t < d; t++) {
-							cplex.addLe(py[i][j][t], x[j][i][t]);
-						}
-					}
-				}
-			}
-			
-			// pf smt relation 2
-			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					if (i != j) {
-						for (int k = 1; k < d; k++) {
-							for (int l = 1; l < d; l++) {
-								if (k != l) {
-									cplex.addLe(h[i][j][k][l], x[j][i][k]);
+						for (int s = 0; s < d; s++) {
+							IloLinearNumExpr expr7 = cplex.linearNumExpr();
+							for (int k = 0; k < n; k++) {
+								if ((graph.getRequir(i,k) >= graph.getRequir(i,j)) && (i != k)) {
+									expr7.addTerm(1.0, y[i][k][s]);
 								}
 							}
-						}
-					}
-				}
-			}
-			// pf smt relation 2
-			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					if (i != j) {
-						for (int k = 1; k < d; k++) {
-							for (int l = 1; l < d; l++) {
-								if (k != l) {
-									cplex.addLe(h[i][j][k][l], x[j][i][l]);
-								}
+							if (lazy) {
+								cplex.addLazyConstraint((IloRange) cplex.le(cplex.sum(pz[i][j], py[j][i][s], cplex.negative(py[i][j][s])), expr7));								
 							}
-						}
+							else {
+								cplex.addLe(cplex.sum(pz[i][j], py[j][i][s], cplex.negative(py[i][j][s])), expr7);								
+							}
+						}			
 					}
-				}
-			}			
-			
-			for (int i = 0; i < n ; i++) {
-				for (int j = 0; j < n; j++) {
-					if (i != j) {
-						cplex.addLe(cplex.sum(pz[i][j], pz[j][i]), 1.0);
-					}
-				}
+				}					
 			}
 			
 			
@@ -221,6 +231,27 @@ public class SMTPF2Model extends SMTModel {
 			System.err.println("Concert exception caught: " + e);
 		}		
 	}
+	
+	public void addValidInequalities() {
+		try {
+
+
+			// y_sum=1
+			for (int s = 0; s < d; s ++) {
+				IloLinearNumExpr expr1 = cplex.linearNumExpr();
+				for (int j = 0; j < n; j++) {
+					if (j != s) {
+						expr1.addTerm(1.0, y[s][j][s]);						
+					}
+				}
+				cplex.addEq(expr1, 1.0);
+			}
+
+		} catch (IloException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}	
 	
 	public Double[][][] getPY() {
 		try {
@@ -258,5 +289,23 @@ public class SMTPF2Model extends SMTModel {
 			e.printStackTrace();
 			return null;
 		}		
+	}
+
+	@Override
+	public Double[][] getZVar() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Double[][][] getXVar() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return null;
 	}	
 }

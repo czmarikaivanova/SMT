@@ -187,7 +187,7 @@ public class SteinerMultiFlowModel extends SteinerModel {
 //			for (int s = 0; s < d; s++) {
 //				for (int i = 0; i < n; i++) {
 //					for (int j = 0; j < d; j++) {
-//						cplex.addEq(x[i][j][s], f[j][i][j][s]);
+//						cplex.addEq(x[i][j][s], f[j][i][j][s]);P
 //					}
 //				}
 //			}	

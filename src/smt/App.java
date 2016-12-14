@@ -30,8 +30,8 @@ import model.SteinerPF2Relaxed;
 
 public class App {
 	
-    int vertexCount = 20;
-    int dstCount = 11;
+    int vertexCount = 16;
+    int dstCount = 8;
     Graph graph;
     private boolean draw = true;
     private boolean generate = true;
@@ -39,7 +39,7 @@ public class App {
     private int n;
     private int d;
 	public int run() {
-		int iter = 1;
+		int iter = 10;
 //		for (dstCount = 4; dstCount < 11; dstCount++) {
 //			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
@@ -64,16 +64,16 @@ public class App {
 					d = graph.getDstCount();
 					ArrayList<ILPModel> modelList = new ArrayList<ILPModel>();
 					
-					modelList.add(new SteinerModel(graph, false, Constants.LP, false));
+//					modelList.add(new SteinerModel(graph, false, Constants.LP, false));
 //					modelList.add(new SteinerMultiFlowModel(graph, false, Constants.LP, false));
 //					modelList.add(new SteinerPF2Model(graph, false, Constants.INTEGER, false));
 					
 					
 //					ILPModel smt_lazy = new SMTModel(graph, false, Constants.INTEGER, false);
-//					modelList.add(new SMTModel(graph, false, Constants.LP, false));
-//					modelList.add(new SMTPF2Model(graph, false, Constants.INTEGER, false));
-//					modelList.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
-//					modelList.add(new SMTMultiFlowModel(graph, true, Constants.LP, false));
+					modelList.add(new SMTModel(graph, false, Constants.LP, false));
+					modelList.add(new SMTPF2Model(graph, false, Constants.LP, false));
+					modelList.add(new SMTPF2Model(graph, true, Constants.LP, false));
+					modelList.add(new SMTMultiFlowModel(graph, true, Constants.LP, false));
 //					modelList.add(new SMTModel(graph, false, Constants.INTEGER, false));
 					
 					
@@ -90,13 +90,13 @@ public class App {
 //							pz = ((SMTPF2Model) model).getPZ();
 //							x = ((SMTPF2Model) model).getXVar();
 //						}
-						if (model instanceof SteinerModel && !(model instanceof SteinerMultiFlowModel)) {
-							x = ((SteinerModel)model).getXVar();
-							generateViolatedFlowConstraints(constructF(x));
-						}
+//						if (model instanceof SteinerModel && !(model instanceof SteinerMultiFlowModel)) {
+//							x = ((SteinerModel)model).getXVar();
+//							generateViolatedFlowConstraints(constructF(x));
+//						}
 
 						z = model.getZVar();
-						draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
+//						draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
 						logObjective(cost, id, newline);
 					}
 

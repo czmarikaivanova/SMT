@@ -258,8 +258,7 @@ public class SteinerPF2Model extends ILPModel {
 
 	@Override
 	public Double[][] getZVar() {
-		// TODO Auto-generated method stub
-		return null;
+		return getPZ();
 	}
 
 }
