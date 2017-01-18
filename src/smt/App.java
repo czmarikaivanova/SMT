@@ -59,12 +59,12 @@ public class App {
 					}	
 					graph.saveInstance();
 					graph.generateAMPLData();
-					ILPModel smt = new SMTModel(graph, false, Constants.LP, false);
+//					ILPModel smt = new SMTModel(graph, false, Constants.LP, false);
 //					ILPModel smt_lazy = new SMTModel(graph, false, Constants.INTEGER, false);
-					ILPModel smtlp = new SMTModel(graph, false, Constants.INTEGER, false);
+//					ILPModel smtlp = new SMTModel(graph, false, Constants.INTEGER, false);
 					ILPModel smtViLp1 = new SMTMultiFlowModel(graph, false, Constants.LP, false);
 					ILPModel smtViLp2 = new SMTMultiFlowModel(graph, true, Constants.LP, false);
-					ILPModel smtPf2LP = new SMTPF2Model(graph, false, Constants.LP, false);
+//					ILPModel smtPf2LP = new SMTPF2Model(graph, false, Constants.LP, false);
 					
 //					ILPModel steiner_int = new SteinerModel(graph, false, Constants.INTEGER, false);
 //					ILPModel steinerlp = new SteinerModel(graph, false, Constants.LP, false);
