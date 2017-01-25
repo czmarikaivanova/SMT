@@ -55,14 +55,20 @@ public abstract class ILPModel {
 	public abstract Double[][] getZVar();
 	public abstract Double[][][] getXVar();
 	
+	protected void addValidInequalities() {}
+	
 	protected void createModel() {
 		initVars();
 		createObjFunction();
 		createConstraints();
+		if (willAddVIs) {
+			addValidInequalities();
+		}
 	}
 	
-	public boolean solve() {
+	public boolean solve(boolean useTimeLimit, int seconds) {
 		try {
+			cplex.setParam(IloCplex.DoubleParam.TiLim, seconds);
 			return cplex.solve();
 		} catch (IloException e) {
 			e.printStackTrace();

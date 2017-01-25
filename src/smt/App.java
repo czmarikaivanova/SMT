@@ -19,8 +19,8 @@ import model.MEBModel;
 import model.MultiFlow;
 import model.SMTFlowModel;
 import model.SMTModel;
+import model.SMTModelFlexiFlow;
 import model.SMTMultiFlowModel;
-import model.SMTMultiFlowModelVI;
 import model.SMTOnlyFlow;
 import model.SMTPF2Model;
 import model.SteinerModel;
@@ -30,8 +30,8 @@ import model.SteinerPF2Relaxed;
 
 public class App {
 	
-    int vertexCount = 16;
-    int dstCount = 8;
+    int vertexCount = 14;
+    int dstCount = 7;
     Graph graph;
     private boolean draw = true;
     private boolean generate = true;
@@ -56,7 +56,7 @@ public class App {
 						graph = new Graph(vertexCount, dstCount);			
 					}
 					else {
-						graph = new Graph("saved_inst/instance3.txt"); // from file, todo
+						graph = new Graph("saved_inst/curr.txt"); // from file, todo
 					}	
 					graph.saveInstance();
 					graph.generateAMPLData();
@@ -70,10 +70,16 @@ public class App {
 					
 					
 //					ILPModel smt_lazy = new SMTModel(graph, false, Constants.INTEGER, false);
-					modelList.add(new SMTModel(graph, false, Constants.LP, false));
-					modelList.add(new SMTPF2Model(graph, false, Constants.LP, false));
-					modelList.add(new SMTPF2Model(graph, true, Constants.LP, false));
-					modelList.add(new SMTMultiFlowModel(graph, true, Constants.LP, false));
+//					modelList.add(new SMTModel(graph, false, Constants.LP, false));
+//					modelList.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
+//					modelList.add(new SMTPF2Model(graph, false, Constants.LP, false));
+//					modelList.add(new SMTMultiFlowModel(graph, true, Constants.LP, false));
+//					modelList.add(new SMTPF2Model(graph, true, Constants.LP, false));
+//					modelList.add(new SMTMultiFlowModel(graph, false, Constants.INTEGER, false));
+//					modelList.add(new SMTPF2Model(graph, false, Constants.INTEGER, false));
+
+					modelList.add(new SMTModelFlexiFlow(graph, false, Constants.LP, false));
+					
 //					modelList.add(new SMTModel(graph, false, Constants.INTEGER, false));
 					
 					
@@ -82,7 +88,7 @@ public class App {
 					Double[][] z =  new Double[n][n];
 					Double[][][] x = new Double[n][n][d];
 					for (ILPModel model: modelList) {
-						model.solve();
+						model.solve(true, Constants.MAX_SOL_TIME);
 						boolean newline = modelList.indexOf(model) == modelList.size() - 1;
 						int id = (modelList.indexOf(model) == 0) ? graph.getInstId() : -1;
 						double cost = model.getObjectiveValue();
@@ -229,7 +235,7 @@ public class App {
 		System.err.println("ok: " + okcnt);
 		SteinerModel model = new SteinerModel(graph, false, Constants.LP, false);
 		model.addFlowBalanceNormalConstraints(stPairs);
-		model.solve();
+		model.solve(false, 0);
 		Double[][][][] fVar = model.getFVal();
 		System.err.println("next run: " + model.getObjectiveValue());
 		model.end();
@@ -266,7 +272,7 @@ public class App {
 	}
 	
 	private double runModel(ILPModel model) {
-		model.solve();
+		model.solve(false, 0);
 		double lpCost1 = model.getObjectiveValue();
 		Double[][] z = (Double[][]) model.getZVar();
 

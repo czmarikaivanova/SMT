@@ -77,10 +77,6 @@ public class SMTMultiFlowModel extends SteinerMultiFlowModel {
 					}
 				}					
 			}
-			if (willAddVIs) {
-				addValidInequalities();
-			}
-			
 		} catch (IloException e) {
 			e.printStackTrace();
 		}		
@@ -116,7 +112,7 @@ public class SMTMultiFlowModel extends SteinerMultiFlowModel {
 	
 	public void addValidInequalities() {
 		try {
-			
+			super.addValidInequalities();
 			// y_sum=1
 			for (int s = 0; s < d; s ++) {
 				IloLinearNumExpr expr1 = cplex.linearNumExpr();

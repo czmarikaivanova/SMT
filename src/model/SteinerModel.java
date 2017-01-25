@@ -27,7 +27,6 @@ public class SteinerModel extends ILPModel {
 	
 	protected IloNumVar[][][] x;
 	
-	
 	private IloNumVar[][][][] f;
 	
 	protected void initVars() {
@@ -84,7 +83,6 @@ public class SteinerModel extends ILPModel {
 				}	
 			}
 			cplex.addLe(expr, n-1);				
-	
 			// OneDirDest
 			for (int j = 0; j < d; j++) {					
 				for (int s = 0; s < d; s++) {
@@ -99,7 +97,6 @@ public class SteinerModel extends ILPModel {
 					}
 				}	
 			}		
-			
 			// OneDirNonDest_A
 			for (int j = d; j < n; j++) {
 				for (int s = 0; s < d; s++) {
@@ -116,7 +113,6 @@ public class SteinerModel extends ILPModel {
 					}
 				}
 			}
-			
 			// OneDirNonDest_B	
 			for (int j = d; j < n; j++) {
 				for (int s = 0; s < d; s++) {
@@ -131,7 +127,6 @@ public class SteinerModel extends ILPModel {
 					}
 				}
 			}
-			
 			// NonDestNoLEaf
 			for (int j = d; j < n; j++) {
 				for (int s = 0; s < d; s++) {
@@ -150,7 +145,6 @@ public class SteinerModel extends ILPModel {
 					cplex.addLe(expr4, expr5);
 				}
 			}
-	
 			// OneDir
 			for (int i = 0; i < n; i++) {
 				for (int j = i+1; j < n; j++) {
@@ -162,7 +156,6 @@ public class SteinerModel extends ILPModel {
 					}
 				}
 			}
-	
 			// NoCycles
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < d; j++) {
@@ -186,7 +179,6 @@ public class SteinerModel extends ILPModel {
 			System.err.println("Concert exception caught: " + e);
 		}		
 	}
-
 	
 	public Double[][][] getXVar() {
 		try {
@@ -362,6 +354,7 @@ public class SteinerModel extends ILPModel {
 			return null;
 		}
 	}
+
 }
 	
 	
