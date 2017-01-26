@@ -23,6 +23,7 @@ import model.SMTModelFlexiFlow;
 import model.SMTMultiFlowModel;
 import model.SMTOnlyFlow;
 import model.SMTPF2Model;
+import model.STFlow;
 import model.SteinerModel;
 import model.SteinerMultiFlowModel;
 import model.SteinerPF2Model;
@@ -30,8 +31,8 @@ import model.SteinerPF2Relaxed;
 
 public class App {
 	
-    int vertexCount = 14;
-    int dstCount = 7;
+    int vertexCount = 25;
+    int dstCount = 15;
     Graph graph;
     private boolean draw = true;
     private boolean generate = true;
@@ -39,7 +40,7 @@ public class App {
     private int n;
     private int d;
 	public int run() {
-		int iter = 10;
+		int iter = 1;
 //		for (dstCount = 4; dstCount < 11; dstCount++) {
 //			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
@@ -56,7 +57,7 @@ public class App {
 						graph = new Graph(vertexCount, dstCount);			
 					}
 					else {
-						graph = new Graph("saved_inst/curr.txt"); // from file, todo
+						graph = new Graph("saved_inst/random.txt"); // from file, todo
 					}	
 					graph.saveInstance();
 					graph.generateAMPLData();
@@ -72,13 +73,14 @@ public class App {
 //					ILPModel smt_lazy = new SMTModel(graph, false, Constants.INTEGER, false);
 //					modelList.add(new SMTModel(graph, false, Constants.LP, false));
 //					modelList.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
-//					modelList.add(new SMTPF2Model(graph, false, Constants.LP, false));
+	//				modelList.add(new SMTPF2Model(graph, false, Constants.LP, false));
 //					modelList.add(new SMTMultiFlowModel(graph, true, Constants.LP, false));
 //					modelList.add(new SMTPF2Model(graph, true, Constants.LP, false));
 //					modelList.add(new SMTMultiFlowModel(graph, false, Constants.INTEGER, false));
 //					modelList.add(new SMTPF2Model(graph, false, Constants.INTEGER, false));
 
-					modelList.add(new SMTModelFlexiFlow(graph, false, Constants.LP, false));
+//					modelList.add(new SMTModelFlexiFlow(graph, false, Constants.LP, false));
+					modelList.add(new STFlow(graph, null));
 					
 //					modelList.add(new SMTModel(graph, false, Constants.INTEGER, false));
 					
@@ -92,6 +94,7 @@ public class App {
 						boolean newline = modelList.indexOf(model) == modelList.size() - 1;
 						int id = (modelList.indexOf(model) == 0) ? graph.getInstId() : -1;
 						double cost = model.getObjectiveValue();
+						System.out.println("obj: " + cost);
 //						if (model instanceof SMTPF2Model) {
 //							pz = ((SMTPF2Model) model).getPZ();
 //							x = ((SMTPF2Model) model).getXVar();
