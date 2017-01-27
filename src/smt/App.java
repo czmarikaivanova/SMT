@@ -31,11 +31,11 @@ import model.SteinerPF2Relaxed;
 
 public class App {
 	
-    int vertexCount = 25;
-    int dstCount = 15;
+    int vertexCount = 4;
+    int dstCount = 4;
     Graph graph;
     private boolean draw = true;
-    private boolean generate = true;
+    private boolean generate = false;
     private boolean allowCrossing = true;
     private int n;
     private int d;
@@ -57,7 +57,7 @@ public class App {
 						graph = new Graph(vertexCount, dstCount);			
 					}
 					else {
-						graph = new Graph("saved_inst/random.txt"); // from file, todo
+						graph = new Graph("saved_inst/weird.txt"); // from file, todo
 					}	
 					graph.saveInstance();
 					graph.generateAMPLData();
@@ -79,8 +79,8 @@ public class App {
 //					modelList.add(new SMTMultiFlowModel(graph, false, Constants.INTEGER, false));
 //					modelList.add(new SMTPF2Model(graph, false, Constants.INTEGER, false));
 
-//					modelList.add(new SMTModelFlexiFlow(graph, false, Constants.LP, false));
-					modelList.add(new STFlow(graph, null));
+					modelList.add(new SMTModelFlexiFlow(graph, false, Constants.LP, false));
+//					modelList.add(new STFlow(graph, null));
 					
 //					modelList.add(new SMTModel(graph, false, Constants.INTEGER, false));
 					

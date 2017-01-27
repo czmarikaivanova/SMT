@@ -8,34 +8,42 @@ import graph.Graph;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
+import ilog.cplex.IloCplex;
 
 public class STFlow extends ILPModel {
 
 	private int s;
 	private int t;
-	private double[][] cap;
 	private IloNumVar[][][][] f;
-
 	
 	
-	public STFlow(Graph graph, Double[][][] xvar) {
-		super(graph, false, Constants.LP, false);
-		cap = new double[n][n];
-		for (int i = 0; i < n; i ++) {
-			for (int j = 0; j < n; j++) {
-				if (i != j) {
-//					this.cap[i][j] = xvar[i][j][s];
-					this.cap[i][j] = 1.0;
-				}
-			}
+	public STFlow(Graph graph, Double[][][] xvar, int s, int t) {
+		this.graph = graph;
+		this.willAddVIs = false;
+		this.isLP = Constants.LP;
+		this.lazy = false;
+		try {
+			cplex = new IloCplex();
+		} catch (IloException e) {
+			e.printStackTrace();
+		}
+		n = graph.getVertexCount();
+		d = graph.getDstCount();
+		this.s = s;
+		this.t = t;
+		createModel();	
+		addCapacityConstraints(xvar);
+		try {
+			cplex.exportModel("stFlowModel.lp");
+		} catch (IloException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
 	@Override
 	protected void initVars() {
 		try {
-			s = 0;
-			t = 1;
 			f = new IloNumVar[n][n][d][];		
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
@@ -128,18 +136,7 @@ public class STFlow extends ILPModel {
 //			}				
 			
 			
-			// capacity
-//			for (int s = 0; s < d; s++) {
-//				for (int t = 0; t < d; t++) {
-					for (int i = 0; i < n; i++) {
-						for (int j = 0; j < n; j++) {
-							if (j != i && s != t) {
-								cplex.addLe(f[i][j][s][t], 1.0);
-							}
-						}
-					}
-//				}
-//			}					
+				
 			
 			// f sym
 //			for (int s = 0; s < d; s++) {
@@ -153,13 +150,27 @@ public class STFlow extends ILPModel {
 					}
 //				}
 //			}					
-			
-
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
 	}
+	
+	private void addCapacityConstraints(Double[][][] xvar) {
+		try {
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (j != i && s != t) {
 
+							cplex.addLe(f[i][j][s][t], xvar[i][j][s]);
+//							cplex.addLe(f[j][i][t][s], xvar[j][i][t]);
+					}
+				}
+			}
+		} catch (IloException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public Double[][] getZVar() {
 		return null;
