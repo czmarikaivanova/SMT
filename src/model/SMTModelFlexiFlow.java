@@ -27,32 +27,36 @@ public class SMTModelFlexiFlow extends SMTModel {
 			ArrayList<Pair<Integer, Integer>> stPairs = new ArrayList<Pair<Integer,Integer>>();
 			boolean solved = false;
 			boolean ret;
-			int correct = 0;
-			int wrong = 0;
 			stPairs.add(new Pair<Integer, Integer>(0, 1));
 			this.addFlowConstraints(stPairs);
 			stPairs.clear();
 			do {
+				int correct = 0;
+				int wrong = 0;
 				ret = cplex.solve();
+				System.err.println("OBJECTIVE: "+ cplex.getObjValue());
+//				this.getZVar();
 				solved = true;
 				for (int s = 0; s < d; s++) {
 					for (int t = 0; t < d; t++) {
 						if (s != t) {
 							STFlow stFlowModel = new STFlow(graph, getXVar(), s, t);
-							getFVal();
+//							getFVal();
 							stFlowModel.solve(false, 0);
-							double val = stFlowModel.getObjectiveValue();
 							if (!stFlowModel.solve(false, 0)) {
 								wrong++;
 								stPairs.add(new Pair<Integer, Integer>(s, t));
 								solved = false;
-//								break;
+//								if (wrong > 4) {
+//									break;
+//								}
 							}
 							else {
 								correct++;
 							}
 						}
 					}
+//					if (!solved && wrong > 4) break;
 //					if (!solved) break;
 				}
 				System.err.println("Correct: " + correct);
@@ -84,33 +88,7 @@ public class SMTModelFlexiFlow extends SMTModel {
 
 	
 	public void createConstraints() {
-			super.createConstraints();
-	
-//			// capacity  TODO : remove
-//			for (int s = 0; s < d; s++) {
-//				for (int t = 0; t < d; t++) {
-//					for (int i = 0; i < n; i++) {
-//						for (int j = 0; j < n; j++) {
-//							if (j != i && s != t) {
-//								cplex.addLe(f[i][j][s][t], x[i][j][s]);
-//							}
-//						}
-//					}
-//				}
-//			}					
-//			
-//			// f sym
-//			for (int s = 0; s < d; s++) {
-//				for (int t = 0; t < d; t++) {
-//					for (int i = 0; i < n; i++) {
-//						for (int j = 0; j < n; j++) {
-//							if (j != i && s != t) {
-//								cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
-//							}
-//						}
-//					}
-//				}
-//			}					
+			super.createConstraints();					
 	}
 	
 	public void addFlowConstraints(ArrayList<Pair<Integer, Integer>> stPairs) {
@@ -200,8 +178,69 @@ public class SMTModelFlexiFlow extends SMTModel {
 							}
 						}
 //					}
-//				}				
-			}
+//				}	
+						
+					if (willAddVIs) {
+										
+							// vi10
+								for (int t1 = 0; t1 < d; t1++) {
+									if (s != t1) {
+										for (int t2 = 0; t2 < d; t2++) {
+											if (s != t2 && t1 != t2) {
+												for (int i = 0; i < n; i++) {
+													for (int j = 0; j < n; j++) {
+														if (i != j) {
+															cplex.addLe(f[i][j][s][t2],cplex.sum(f[i][j][s][t1], f[i][j][t1][t2]));
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+//								// y_sum=1
+									IloLinearNumExpr exprYsum = cplex.linearNumExpr();
+									for (int j = 0; j < n; j++) {
+										if (j != s) {
+											exprYsum.addTerm(1.0, y[s][j][s]);						
+										}
+									}
+									cplex.addEq(exprYsum, 1.0);
+								
+//								// x to nondest => y from there 
+								for (int j = d; j < n; j++) {
+										IloLinearNumExpr expr1 = cplex.linearNumExpr();
+										IloLinearNumExpr expr2 = cplex.linearNumExpr();
+										for (int i = 0; i < n; i++) {
+											if (i != j) {
+												expr1.addTerm(1.0, y[j][i][s]);
+												expr2.addTerm(1.0, x[i][j][s]);
+											}
+										}
+										cplex.addGe(expr1, expr2);
+								}			
+//								// f imp y in nondest 
+								for (int j = 0; j < n; j ++) {
+											for (int k = 0; k < n; k++) {
+												if (j != k && s != t) {
+													IloLinearNumExpr expr1 = cplex.linearNumExpr();
+													IloLinearNumExpr expr2 = cplex.linearNumExpr();
+													for (int i = 0; i < n; i++) {
+														if (i != j) { 
+															if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
+																expr1.addTerm(1.0, f[j][i][s][t]);
+															}
+															if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
+																expr2.addTerm(1.0, y[j][i][s]);										
+															}
+														}
+													}
+													cplex.addLe(expr1, expr2);
+												}
+											}
+								}									
+						}
+					}
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}	

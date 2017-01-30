@@ -187,14 +187,14 @@ public class SteinerModel extends ILPModel {
 				for (int j = 0; j < x.length; j++) {
 					if (i != j) {
 						for (int k = 0; k < d; k++) {
-							if (k == 0 || k == 1)   {
-								System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(x[i][j][k]) + " --");						
-							}
+//							if (k == 0 || k == 1)   {
+//								System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(x[i][j][k]) + " --");						
+//							}
 							xval[i][j][k] = cplex.getValue(x[i][j][k]);
 						}
 					}
 				}
-				System.out.println();
+//				System.out.println();
 			}
 			return xval;		
 		} catch (IloException e) {			
@@ -342,15 +342,7 @@ public class SteinerModel extends ILPModel {
 						for (int s = 0; s < d; s++) {
 							for (int t = 0; t < d; t++) {
 								if (s != t) {
-									if (s == 0 && t == 1 || s == 1 && t == 0) { 
-										fVal[i][j][s][t] = cplex.getValue(f[i][j][s][t]);
-										if (s == 0 && t == 1) {
-											System.out.println(i + " " + j + " " + s + " " + t + " = " + fVal[i][j][s][t]);
-										}
-										if (t == 0 && s == 1) {
-											System.out.println(i + " " + j + " " + s + " " + t + " = " + fVal[j][i][t][s]);										
-										}
-									}
+									fVal[i][j][s][t] = cplex.getValue(f[i][j][s][t]);
 								}
 							}
 						}

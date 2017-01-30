@@ -24,6 +24,7 @@ public class STFlow extends ILPModel {
 		this.lazy = false;
 		try {
 			cplex = new IloCplex();
+			cplex.setOut(null);
 		} catch (IloException e) {
 			e.printStackTrace();
 		}

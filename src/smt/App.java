@@ -31,16 +31,16 @@ import model.SteinerPF2Relaxed;
 
 public class App {
 	
-    int vertexCount = 4;
-    int dstCount = 4;
+    int vertexCount = 16;
+    int dstCount = 8;
     Graph graph;
     private boolean draw = true;
-    private boolean generate = false;
+    private boolean generate = true;
     private boolean allowCrossing = true;
     private int n;
     private int d;
 	public int run() {
-		int iter = 1;
+		int iter = 10;
 //		for (dstCount = 4; dstCount < 11; dstCount++) {
 //			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
@@ -72,7 +72,7 @@ public class App {
 					
 //					ILPModel smt_lazy = new SMTModel(graph, false, Constants.INTEGER, false);
 //					modelList.add(new SMTModel(graph, false, Constants.LP, false));
-//					modelList.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
+					modelList.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
 	//				modelList.add(new SMTPF2Model(graph, false, Constants.LP, false));
 //					modelList.add(new SMTMultiFlowModel(graph, true, Constants.LP, false));
 //					modelList.add(new SMTPF2Model(graph, true, Constants.LP, false));
@@ -80,6 +80,7 @@ public class App {
 //					modelList.add(new SMTPF2Model(graph, false, Constants.INTEGER, false));
 
 					modelList.add(new SMTModelFlexiFlow(graph, false, Constants.LP, false));
+//					modelList.add(new SMTModelFlexiFlow(graph, true, Constants.LP, false));
 //					modelList.add(new STFlow(graph, null));
 					
 //					modelList.add(new SMTModel(graph, false, Constants.INTEGER, false));

@@ -9,6 +9,7 @@ import graph.Graph;
 public class SMTModel extends SteinerModel {
 	public SMTModel (Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
 		super(graph, willAddVIs, isLP, lazy);
+
 	}
 	
 	protected IloNumVar[][][] y;		
