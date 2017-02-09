@@ -68,7 +68,9 @@ public abstract class ILPModel {
 	
 	public boolean solve(boolean useTimeLimit, int seconds) {
 		try {
-//			cplex.setParam(IloCplex.DoubleParam.TiLim, seconds);
+			if (useTimeLimit) {
+				cplex.setParam(IloCplex.DoubleParam.TiLim, seconds);
+			}
 			return cplex.solve();
 		} catch (IloException e) {
 			e.printStackTrace();
@@ -94,5 +96,14 @@ public abstract class ILPModel {
 	}
 	public abstract String toString();
 
-
+	public double getCplexTime() {
+		try {
+			return cplex.getCplexTime();
+		} catch (IloException e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
+	
+	
 }

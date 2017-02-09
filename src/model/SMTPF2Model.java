@@ -232,16 +232,42 @@ public class SMTPF2Model extends ILPModel {
 	
 	public void addValidInequalities() {
 		try {
-			super.addValidInequalities();
-			for (int t = 1; t < d; t++) {
-				for (int i = 0; i < n; i++) {
-					if (i != t) {
-						cplex.addEq(py[t][i][t], 0.0);
-						cplex.addEq(py[i][t][t], pz[i][t]);
+			for (int i = 0; i < n; i++) {
+//				for (int t = 1; t < d; t++) {
+//					if (i != t) {
+//						cplex.addEq(py[i][t][t], pz[i][t]);  // 3l
+//						cplex.addEq(py[t][i][t], 0.0);  // 3k
+//					}
+//				}
+//				if (i >= 1 && i < d)  {
+//					IloLinearNumExpr expr = cplex.linearNumExpr();
+//					for (int j = 0; j < n; j++) {
+//						if (i != j) {
+//							expr.addTerm(1.0, pz[j][i]);
+//						}
+//					}
+//					cplex.addEq(expr, 1.0);  // (A)
+//				}
+				if (i >= d) {
+					IloLinearNumExpr expr = cplex.linearNumExpr();
+					for (int j = 0; j < n; j++) {
+						if (i != j) {
+							expr.addTerm(1.0, pz[j][i]);
+						}
 					}
+					cplex.addLe(expr, 1.0);  // (B)
 				}
 			}
-			
+//			super.addValidInequalities();
+//			for (int t = 1; t < d; t++) {
+//				for (int i = 0; i < n; i++) {
+//					if (i != t) {
+//						cplex.addEq(py[t][i][t], 0.0);
+//						cplex.addEq(py[i][t][t], pz[i][t]);
+//					}
+//				}
+//			}
+//			
 ////			// y_sum=1
 //			for (int s = 0; s < d; s ++) {
 //				IloLinearNumExpr expr1 = cplex.linearNumExpr();
@@ -348,11 +374,11 @@ public class SMTPF2Model extends ILPModel {
 	
 	public Double[][][] getPY() {
 		try {
-			Double[][][] xval = new Double[py.length][py.length][py.length];
-			for (int i = 0 ; i < py.length; i++) {
-				for (int j = 0; j < py.length; j++) {
+			Double[][][] xval = new Double[n][n][d];
+			for (int i = 0 ; i < n; i++) {
+				for (int j = 0; j < n; j++) {
 					if (i != j) {
-						for (int k = 0; k < py.length; k++) {
+						for (int k = 0; k < d; k++) {
 							xval[i][j][k] = cplex.getValue(py[i][j][k]);
 						}
 					}
@@ -392,9 +418,26 @@ public class SMTPF2Model extends ILPModel {
 
 	@Override
 	public Double[][][] getXVar() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		try {
+			Double[][][] xval = new Double[n][n][d];
+			for (int i = 0 ; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						for (int k = 0; k < d; k++) {
+//							System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(x[i][j][k]) + " --");						
+							xval[i][j][k] = cplex.getValue(py[i][j][k]);
+						}
+					}
+				}
+//				System.out.println();
+			}
+			System.out.println("Objective: " + cplex.getObjValue());
+			return xval;		
+		} catch (IloException e) {			
+			e.printStackTrace();
+			return null;
+		}		
+	}	
 
 	@Override
 	public String toString() {

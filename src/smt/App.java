@@ -31,16 +31,16 @@ import model.SteinerPF2Relaxed;
 
 public class App {
 	
-    int vertexCount = 16;
+    int vertexCount = 18;
     int dstCount = 8;
     Graph graph;
-    private boolean draw = true;
+    private boolean draw = false;
     private boolean generate = true;
     private boolean allowCrossing = true;
     private int n;
     private int d;
 	public int run() {
-		int iter = 10;
+		int iter = 20;
 //		for (dstCount = 4; dstCount < 11; dstCount++) {
 //			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
@@ -72,15 +72,19 @@ public class App {
 					
 //					ILPModel smt_lazy = new SMTModel(graph, false, Constants.INTEGER, false);
 //					modelList.add(new SMTModel(graph, false, Constants.LP, false));
-					modelList.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
-	//				modelList.add(new SMTPF2Model(graph, false, Constants.LP, false));
-//					modelList.add(new SMTMultiFlowModel(graph, true, Constants.LP, false));
+//					modelList.add(new SMTModel(graph, true, Constants.LP, false));
+//					modelList.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
+//					modelList.add(new SMTMultiFlowModel(graph, true, Constants.LP, false));//					
+					modelList.add(new SMTPF2Model(graph, false, Constants.LP, false));
 //					modelList.add(new SMTPF2Model(graph, true, Constants.LP, false));
-//					modelList.add(new SMTMultiFlowModel(graph, false, Constants.INTEGER, false));
-//					modelList.add(new SMTPF2Model(graph, false, Constants.INTEGER, false));
 
-					modelList.add(new SMTModelFlexiFlow(graph, false, Constants.LP, false));
-//					modelList.add(new SMTModelFlexiFlow(graph, true, Constants.LP, false));
+					
+					//					modelList.add(new SMTPF2Model(graph, true, Constants.INTEGER, false));
+//					modelList.add(new SMTMultiFlowModel(graph, false, Constants.INTEGER, false));
+
+
+//					modelList.add(new SMTModelFlexiFlow(graph, false, Constants.LP, false));
+//					modelList.add(new SMTModelFlexiFlow(graph, false, Constants.LP, false));
 //					modelList.add(new STFlow(graph, null));
 					
 //					modelList.add(new SMTModel(graph, false, Constants.INTEGER, false));
@@ -91,21 +95,27 @@ public class App {
 					Double[][] z =  new Double[n][n];
 					Double[][][] x = new Double[n][n][d];
 					for (ILPModel model: modelList) {
+						double startT = model.getCplexTime();
 						model.solve(true, Constants.MAX_SOL_TIME);
+						double stopT = model.getCplexTime();
 						boolean newline = modelList.indexOf(model) == modelList.size() - 1;
+						logTime(model, startT, stopT, newline);
 						int id = (modelList.indexOf(model) == 0) ? graph.getInstId() : -1;
 						double cost = model.getObjectiveValue();
 						System.out.println("obj: " + cost);
-//						if (model instanceof SMTPF2Model) {
-//							pz = ((SMTPF2Model) model).getPZ();
+						if (model instanceof SMTPF2Model) {
+							pz = ((SMTPF2Model) model).getPZ();
+							x =  ((SMTPF2Model) model).getXVar();
+							checkPF2B(pz, x);
+							draw(pz, graph.getInstId(), model.toString(), true);
 //							x = ((SMTPF2Model) model).getXVar();
-//						}
+						}
 //						if (model instanceof SteinerModel && !(model instanceof SteinerMultiFlowModel)) {
 //							x = ((SteinerModel)model).getXVar();
 //							generateViolatedFlowConstraints(constructF(x));
 //						}
 
-						z = model.getZVar();
+//						z = model.getZVar();
 //						draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
 						logObjective(cost, id, newline);
 					}
@@ -130,6 +140,8 @@ public class App {
 		return 0;
 	}
 	
+
+
 	private Double[][][][] constructF(Double[][][] x) {
 		Double[][][][] f = new Double[n][n][d][d];
 		for (int i = 0; i < n; i++) {
@@ -148,101 +160,6 @@ public class App {
 			}
 		}
 		return f;
-	}
-	
-	// this function has to be written nicer !
-	private void generateViolatedFlowConstraints(Double [][][][] f) {
-		ArrayList<Pair<Integer, Integer>> stPairs = new ArrayList<Pair<Integer,Integer>>();
-		int addingcnt = 0;
-		int okcnt = 0;
-		for (int s = 0; s < d; s++) {
-			for (int t = 0; t < d; t++) {
-				if (t != s) {
-					for (int i = 0; i < n; i++) {
-						if (i != s) {
-							if (i != t) {
-								double lhs = 0;
-								double rhs = 0;
-								for (int j = 0; j < n; j++) {  // flow balance normal
-									if (i != j) {
-										if (j != s) {
-											lhs += f[i][j][s][t];
-										}
-										if (j != t) {
-											rhs += f[j][i][s][t];
-										}
-									}
-								}
-								if (Math.abs(lhs - rhs) < 0.0005) {
-									System.out.println("add normal");
-									stPairs.add(new Pair<Integer, Integer>(s, t));
-									addingcnt++;
-									break;  // for i
-								}
-								else {
-									okcnt++;
-								}
-							}
-							else { // i == t
-								double lhs = 0;
-								double rhs = 0;
-								for (int j = 0; j < n; j++) {
-									if (i != j) {
-										if (j != s) {
-											lhs += f[i][j][s][t];
-										}
-										if (j != t) {
-											rhs += f[j][i][s][t];
-										}
-									}
-								}
-								if ((lhs - rhs < -1.005) || (lhs - rhs > -0.995)) { 
-//								if (lhs - rhs != -1) {
-//									model.addFlowBalanceNormalConstraint(i, s, t);
-									System.out.println("add dst");
-									addingcnt++;
-									break; // for i
-								}	
-								else {
-									okcnt++;
-								}
-							}
-						} else { // i == s
-							if (t != s) {
-								double lhs = 0;
-								double rhs = 0;
-								for (int j = 0; j < n; j++) {
-									if (i != j && j != s) {
-										lhs += f[i][j][s][t];
-									}
-									if (i != j && j != t) {
-										rhs += f[j][i][s][t];
-									}
-									if (lhs - rhs < 0.995 || lhs - rhs > 1.005) {
-//											model.addFlowBalanceNormalConstraint(i, s, t);
-										System.out.println("add source");
-										addingcnt++;
-										break; // for i
-									}		
-									else {
-										okcnt++;
-									}
-								}					
-							}
-						}
-					}
-				}
-			} 
-		}
-		System.err.println("pairs: " + stPairs.size());
-		System.err.println("added: " + addingcnt);
-		System.err.println("ok: " + okcnt);
-		SteinerModel model = new SteinerModel(graph, false, Constants.LP, false);
-		model.addFlowBalanceNormalConstraints(stPairs);
-		model.solve(false, 0);
-		Double[][][][] fVar = model.getFVal();
-		System.err.println("next run: " + model.getObjectiveValue());
-		model.end();
 	}
 	
 	private void checkXXConstraint(Double[][][] x, Double[][] pz) {
@@ -284,6 +201,38 @@ public class App {
 		draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
 		
 		return lpCost1;
+	}
+
+	
+	private void checkPF2B(Double[][] zv, Double[][][] f) {
+		
+		for (int i = 0; i < n; i++) {
+			double sumIn = 0;
+			for (int j = 0; j < n; j++) {
+				if (i != j) {
+					sumIn += zv[j][i];	
+				}
+			}
+			System.err.println("sum in: " +i + " = " + sumIn);
+			if (sumIn > 1.01) {
+				System.err.println(" MORE THAN ONE!!---------------------!");
+//				System.exit(1);
+			}
+		}
+		for (int t = 1; t < d; t++) {
+			for (int i = 0; i < n; i++ ) {
+				if (i != t) {
+					if (f[t][i][t] != 0) {
+						System.err.println("F_t_i_t is not zero!= " + f[t][i][t] + "\n  t = " + t + " " +  " i = " + i );
+					}
+					if (zv[i][t] - f[i][t][t] > 0.001) {
+						System.err.println("F_t_i_t is not equal to x= " + f[i][t][t] + "and " + zv[i][t] + " \n  t = " + t + " " +  " i = " + i );
+					}
+					
+				}
+			}
+		}
+		
 	}
 	
 	private void compareVars(Double[][][][] xv1, Double[][][][] xv2) {
@@ -372,11 +321,25 @@ public class App {
 		}
     }		
 	
+	private void logTime(ILPModel model, double startT, double stopT, boolean newLine) {
+        try	{
+        	File datafile = new File("logs/runtime_log.txt");
+        	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
+        	double elapsedTime = stopT-startT;
+//        	fw.write(model.toString() + ": " + elapsedTime + (newLine ? "\n" : ""));
+        	fw.write(elapsedTime + (newLine ? "\n" : "\t"));
+        	fw.close();
+        } catch(IOException ioe) {
+            System.err.println("IOException: " + ioe.getMessage());
+        }
+		
+	}	
+	
 	private void logObjective(double obj, int id, boolean newline) {
         try	{
         	File datafile = new File("logs/cost_log.txt");
         	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
-        	fw.write((id > 0 ? id + ": ": " ") +  Miscellaneous.round(obj, 2) + (newline ? "\n" : "\t "));
+        	fw.write((id > 0 ? id + ": ": " ") +  Miscellaneous.round(obj, 5) + (newline ? "\n" : "\t "));
         	fw.close();
         } catch(IOException ioe) {
             System.err.println("IOException: " + ioe.getMessage());

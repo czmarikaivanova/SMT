@@ -36,6 +36,7 @@ public class STFlow extends ILPModel {
 		addCapacityConstraints(xvar);
 		try {
 			cplex.exportModel("stFlowModel.lp");
+			cplex.setOut(null);
 		} catch (IloException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -102,39 +103,39 @@ public class STFlow extends ILPModel {
 //				}	
 //			}		
 			
-			// Flow conservation - dest
-//			for (int s = 0; s < d; s++) {
-//				for (int t = 0; t < d; t++) {
-//					if (s != t) {
-						IloLinearNumExpr expr2a = cplex.linearNumExpr();
-						IloLinearNumExpr expr2b = cplex.linearNumExpr();	
-						for (int i = 0; i < n; i++) {
-							if (i != t) {
-								expr2a.addTerm(1.0, f[t][i][s][t]);									
-								expr2b.addTerm(1.0, f[i][t][s][t]);									
-							}								
-						}
-						cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b)));
-//					}
-//				}
-//			}				
-
-			// Flow conservation - source
-//			for (int s = 0; s < d; s++) {
-//				for (int t = 0; t < d; t++) {
-//					if (s != t) {
-						IloLinearNumExpr expr3a = cplex.linearNumExpr();
-						IloLinearNumExpr expr3b = cplex.linearNumExpr();	
-						for (int i = 0; i < n; i++) {
-							if (i != s) {
-								expr3a.addTerm(1.0, f[s][i][s][t]);									
-								expr3b.addTerm(1.0, f[i][s][s][t]);									
-							}								
-						}
-						cplex.addEq(1,cplex.sum(expr3a, cplex.negative(expr3b)));
-//					}
-//				}
-//			}				
+//			// Flow conservation - dest
+////			for (int s = 0; s < d; s++) {
+////				for (int t = 0; t < d; t++) {
+////					if (s != t) {
+//						IloLinearNumExpr expr2a = cplex.linearNumExpr();
+//						IloLinearNumExpr expr2b = cplex.linearNumExpr();	
+//						for (int i = 0; i < n; i++) {
+//							if (i != t) {
+//								expr2a.addTerm(1.0, f[t][i][s][t]);									
+//								expr2b.addTerm(1.0, f[i][t][s][t]);									
+//							}								
+//						}
+//						cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b)));
+////					}
+////				}
+////			}				
+//
+//			// Flow conservation - source
+////			for (int s = 0; s < d; s++) {
+////				for (int t = 0; t < d; t++) {
+////					if (s != t) {
+//						IloLinearNumExpr expr3a = cplex.linearNumExpr();
+//						IloLinearNumExpr expr3b = cplex.linearNumExpr();	
+//						for (int i = 0; i < n; i++) {
+//							if (i != s) {
+//								expr3a.addTerm(1.0, f[s][i][s][t]);									
+//								expr3b.addTerm(1.0, f[i][s][s][t]);									
+//							}								
+//						}
+//						cplex.addEq(1,cplex.sum(expr3a, cplex.negative(expr3b)));
+////					}
+////				}
+////			}				
 			
 			
 				

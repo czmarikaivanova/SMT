@@ -2,6 +2,8 @@ package model;
 
 import java.util.ArrayList;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
+
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
@@ -9,6 +11,9 @@ import ilog.cplex.IloCplex;
 
 import org.javatuples.Pair;
 import org.javatuples.Quartet;
+
+import smt.Constants;
+import smt.Miscellaneous;
 
 import graph.Graph;
 import graph.Node;
@@ -19,7 +24,7 @@ public class SMTModelFlexiFlow extends SMTModel {
 		super(graph, willAddVIs, isLP, lazy);
 	}
 	
-//protected IloNumVar[][][][] f;
+protected IloNumVar[][][][] f;
 
 	public boolean solve(boolean useTimeLimit, int seconds) {
 		try {
@@ -27,27 +32,52 @@ public class SMTModelFlexiFlow extends SMTModel {
 			ArrayList<Pair<Integer, Integer>> stPairs = new ArrayList<Pair<Integer,Integer>>();
 			boolean solved = false;
 			boolean ret;
-			stPairs.add(new Pair<Integer, Integer>(0, 1));
-			this.addFlowConstraints(stPairs);
-			stPairs.clear();
+//			stPairs.add(new Pair<Integer, Integer>(0, 1));
+//			stPairs.add(new Pair<Integer, Integer>(0, 3));
+//			stPairs.add(new Pair<Integer, Integer>(2, 3));
+//			stPairs.add(new Pair<Integer, Integer>(2, 5));
+//			stPairs.add(new Pair<Integer, Integer>(4, 5));
+//			stPairs.add(new Pair<Integer, Integer>(6, 7));
+//			this.addFlowConstraints(stPairs);
+
+
 			do {
+				stPairs.clear();
 				int correct = 0;
 				int wrong = 0;
+				double maxDiff = -1;
+				Pair<Integer, Integer> pairToAdd = new Pair<Integer, Integer>(0, 1);
+				int sA = 0;
+				int tA = 1;
+				System.err.println(this.toString() + " " + cplex.getNrows());
+				System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
+				System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
 				ret = cplex.solve();
 				System.err.println("OBJECTIVE: "+ cplex.getObjValue());
-//				this.getZVar();
+				//				this.getZVar();
 				solved = true;
+
 				for (int s = 0; s < d; s++) {
 					for (int t = 0; t < d; t++) {
 						if (s != t) {
 							STFlow stFlowModel = new STFlow(graph, getXVar(), s, t);
 //							getFVal();
-							stFlowModel.solve(false, 0);
-							if (!stFlowModel.solve(false, 0)) {
+							stFlowModel.solve(false, 3600);
+//							if (!stFlowModel.solve(false, 0)) {
+							
+							double stVal = stFlowModel.getObjectiveValue();
+							if (stVal > -0.8) {
+								if (stVal > maxDiff) {
+									maxDiff = stVal;
+									sA = s;
+									tA = t;
+								}
+//								System.err.println("val: " + stVal);
 								wrong++;
 								stPairs.add(new Pair<Integer, Integer>(s, t));
+//								stPairs.add(new Pair<Integer, Integer>(t, s));
 								solved = false;
-//								if (wrong > 4) {
+//								if (wrong > 6) {
 //									break;
 //								}
 							}
@@ -56,11 +86,17 @@ public class SMTModelFlexiFlow extends SMTModel {
 							}
 						}
 					}
-//					if (!solved && wrong > 4) break;
+//					if (!solved && wrong > 6) break;
 //					if (!solved) break;
 				}
 				System.err.println("Correct: " + correct);
 				System.err.println("Wrong: " + wrong);
+				System.err.println("Max Diff: " + maxDiff + "Pair: " + sA + " " + tA);
+//				for (Pair<Integer, Integer> pair: stPairs) {
+//					System.err.println(pair.getValue0() + " " + pair.getValue1());
+//				}
+//				stPairs.clear();
+//				stPairs.add(new Pair<Integer, Integer>(sA, tA));
 				addFlowConstraints(stPairs);
 			} while (!solved);
 			return ret;
@@ -245,6 +281,10 @@ public class SMTModelFlexiFlow extends SMTModel {
 			System.err.println("Concert exception caught: " + e);
 		}	
 	
+	}
+	
+	public String toString() {
+		return Constants.SMT_FLEXI_STRING;
 	}
 	
 }
