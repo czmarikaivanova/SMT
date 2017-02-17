@@ -17,6 +17,7 @@ public class Constants {
 	public static final String MULTIROOT_STRING = "_MULTIROOT";
 	public static final int MAX_SOL_TIME = 3600;
 	public static final String SMT_FLEXI_STRING = "SMT_FLEXI_FLOW";
+	public static final String SMT_PF2_STRING = "SMT_PF2";
 	
 	public static boolean  LP = true;
 	public static boolean INTEGER = false;

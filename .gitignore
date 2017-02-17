@@ -145,3 +145,6 @@ hs_err_pid*
 instances
 amplfiles
 logs
+
+# App.java is changing all the time
+./src/smt/App.java

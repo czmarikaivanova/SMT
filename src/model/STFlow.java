@@ -81,27 +81,21 @@ public class STFlow extends ILPModel {
 	public void createConstraints() {
 		try {
 			// Flow conservation - normal
-//			for (int s = 0; s < d; s++) {					
-//				for (int t = 0; t < d; t++) {
-					for (int i = 0; i < n; i++) {						
-						if (t != i && s != i && s != t) {
-							IloLinearNumExpr expr1a = cplex.linearNumExpr();
-							IloLinearNumExpr expr1b = cplex.linearNumExpr();	
-							for (int j = 0; j < n; j++) {
-								if (i != j && j != s) {
-									expr1a.addTerm(1.0, f[i][j][s][t]);									
-								}								
-							}
-							for (int j = 0; j < n; j++) {
-								if (i != j && j != t) {								
-									expr1b.addTerm(1.0, f[j][i][s][t]);
-								}								
-							}						
-							cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));
-						}
-					}
-//				}	
-//			}		
+			for (int i = 0; i < n; i++) {						
+				if (t != i && s != i && s != t) {
+					IloLinearNumExpr expr1a = cplex.linearNumExpr();
+					IloLinearNumExpr expr1b = cplex.linearNumExpr();	
+					for (int j = 0; j < n; j++) {
+						if (i != j && j != s) {
+							expr1a.addTerm(1.0, f[i][j][s][t]);									
+						}								
+						if (i != j && j != t) {								
+							expr1b.addTerm(1.0, f[j][i][s][t]);
+						}								
+					}						
+					cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));
+				}
+			}
 			
 //			// Flow conservation - dest
 ////			for (int s = 0; s < d; s++) {

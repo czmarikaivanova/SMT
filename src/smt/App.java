@@ -31,16 +31,16 @@ import model.SteinerPF2Relaxed;
 
 public class App {
 	
-    int vertexCount = 18;
-    int dstCount = 8;
+    int vertexCount = 12;
+    int dstCount = 6;
     Graph graph;
-    private boolean draw = false;
-    private boolean generate = true;
+    private boolean draw = true;
+    private boolean generate = false;
     private boolean allowCrossing = true;
     private int n;
     private int d;
 	public int run() {
-		int iter = 20;
+		int iter = 1;
 //		for (dstCount = 4; dstCount < 11; dstCount++) {
 //			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
@@ -57,7 +57,7 @@ public class App {
 						graph = new Graph(vertexCount, dstCount);			
 					}
 					else {
-						graph = new Graph("saved_inst/weird.txt"); // from file, todo
+						graph = new Graph("saved_inst/basic_pf2_diff.txt"); // from file, todo
 					}	
 					graph.saveInstance();
 					graph.generateAMPLData();
@@ -68,32 +68,31 @@ public class App {
 //					modelList.add(new SteinerModel(graph, false, Constants.LP, false));
 //					modelList.add(new SteinerMultiFlowModel(graph, false, Constants.LP, false));
 //					modelList.add(new SteinerPF2Model(graph, false, Constants.INTEGER, false));
+
 					
-					
-//					ILPModel smt_lazy = new SMTModel(graph, false, Constants.INTEGER, false);
 //					modelList.add(new SMTModel(graph, false, Constants.LP, false));
 //					modelList.add(new SMTModel(graph, true, Constants.LP, false));
 //					modelList.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
 //					modelList.add(new SMTMultiFlowModel(graph, true, Constants.LP, false));//					
-					modelList.add(new SMTPF2Model(graph, false, Constants.LP, false));
+//					modelList.add(new SMTPF2Model(graph, false, Constants.LP, false));
 //					modelList.add(new SMTPF2Model(graph, true, Constants.LP, false));
 
 					
-					//					modelList.add(new SMTPF2Model(graph, true, Constants.INTEGER, false));
+//					modelList.add(new SMTPF2Model(graph, true, Constants.INTEGER, false));
 //					modelList.add(new SMTMultiFlowModel(graph, false, Constants.INTEGER, false));
 
 
-//					modelList.add(new SMTModelFlexiFlow(graph, false, Constants.LP, false));
+//					modelList.add(new SMTModelFlexiFlow(graph, true, Constants.LP, false));
 //					modelList.add(new SMTModelFlexiFlow(graph, false, Constants.LP, false));
 //					modelList.add(new STFlow(graph, null));
 					
-//					modelList.add(new SMTModel(graph, false, Constants.INTEGER, false));
+					modelList.add(new SMTModel(graph, false, Constants.INTEGER, false));
 					
 					
 					
-					Double[][] pz = new Double[n][n];
+					Double[][] pf2_x = new Double[n][n];
 					Double[][] z =  new Double[n][n];
-					Double[][][] x = new Double[n][n][d];
+					Double[][][] pf2_f = new Double[n][n][d];
 					for (ILPModel model: modelList) {
 						double startT = model.getCplexTime();
 						model.solve(true, Constants.MAX_SOL_TIME);
@@ -104,19 +103,21 @@ public class App {
 						double cost = model.getObjectiveValue();
 						System.out.println("obj: " + cost);
 						if (model instanceof SMTPF2Model) {
-							pz = ((SMTPF2Model) model).getPZ();
-							x =  ((SMTPF2Model) model).getXVar();
-							checkPF2B(pz, x);
-							draw(pz, graph.getInstId(), model.toString(), true);
+							pf2_x = ((SMTPF2Model) model).getPZ();
+							pf2_f =  ((SMTPF2Model) model).getXVar();
+							checkPF2B(pf2_x, pf2_f);
+							draw(pf2_x, graph.getInstId(), model.toString(), true);
+//							draw(pf2_f, graph.getInstId(), model.toString(), true);
 //							x = ((SMTPF2Model) model).getXVar();
 						}
 //						if (model instanceof SteinerModel && !(model instanceof SteinerMultiFlowModel)) {
 //							x = ((SteinerModel)model).getXVar();
 //							generateViolatedFlowConstraints(constructF(x));
 //						}
-
-//						z = model.getZVar();
-//						draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
+						else {
+						z = model.getZVar();
+						draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
+						}
 						logObjective(cost, id, newline);
 					}
 
@@ -213,10 +214,9 @@ public class App {
 					sumIn += zv[j][i];	
 				}
 			}
-			System.err.println("sum in: " +i + " = " + sumIn);
+//			System.err.println("sum in: " +i + " = " + sumIn);
 			if (sumIn > 1.01) {
-				System.err.println(" MORE THAN ONE!!---------------------!");
-//				System.exit(1);
+				System.err.println(" MORE THAN ONE!!---------------------!" + sumIn + " " + i + " " + graph.getInstId());
 			}
 		}
 		for (int t = 1; t < d; t++) {

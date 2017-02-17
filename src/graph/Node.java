@@ -28,10 +28,22 @@ public class Node {
 		this.id = id;  
 	}
 	
-	public Node(int id, boolean isDest) {
+	public Node(int id, boolean isDest, Node[] nodes) {
 		super();
-		Random rnd = new Random();		
-		this.p = new Point(rnd.nextInt(Constants.MAX_COORD), rnd.nextInt(Constants.MAX_COORD));
+		Random rnd = new Random();
+		boolean nodeAccepted;
+		do {
+			nodeAccepted = true;
+			this.p = new Point(rnd.nextInt(Constants.MAX_COORD), rnd.nextInt(Constants.MAX_COORD));
+			if (nodes != null && nodes.length > 0) {
+				for (Node node: nodes) {
+					if (node != null && node.getPoint().getX() == p.getX() && node.getPoint().getY() == p.getY()) {
+						nodeAccepted = false;
+						break;
+					}
+				}
+			}
+		} while (!nodeAccepted);
 		this.isDest = isDest;
 		orderedNeighbours = new ArrayList<Node>();
 		incidentEdges = new ArrayList<Edge>();

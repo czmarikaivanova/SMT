@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
 
@@ -29,75 +30,49 @@ protected IloNumVar[][][][] f;
 	public boolean solve(boolean useTimeLimit, int seconds) {
 		try {
 			cplex.setParam(IloCplex.DoubleParam.TiLim, seconds);
-			ArrayList<Pair<Integer, Integer>> stPairs = new ArrayList<Pair<Integer,Integer>>();
+			PriorityQueue<STPair> pairQueue = new PriorityQueue<STPair>();
 			boolean solved = false;
 			boolean ret;
-//			stPairs.add(new Pair<Integer, Integer>(0, 1));
-//			stPairs.add(new Pair<Integer, Integer>(0, 3));
-//			stPairs.add(new Pair<Integer, Integer>(2, 3));
-//			stPairs.add(new Pair<Integer, Integer>(2, 5));
-//			stPairs.add(new Pair<Integer, Integer>(4, 5));
-//			stPairs.add(new Pair<Integer, Integer>(6, 7));
-//			this.addFlowConstraints(stPairs);
-
-
 			do {
-				stPairs.clear();
+				pairQueue.clear();
 				int correct = 0;
 				int wrong = 0;
-				double maxDiff = -1;
-				Pair<Integer, Integer> pairToAdd = new Pair<Integer, Integer>(0, 1);
-				int sA = 0;
-				int tA = 1;
-				System.err.println(this.toString() + " " + cplex.getNrows());
 				System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
 				System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
+				double startT = this.getCplexTime();
 				ret = cplex.solve();
+				double stopT = this.getCplexTime();
 				System.err.println("OBJECTIVE: "+ cplex.getObjValue());
+				double time = stopT - startT;
+				System.err.println("TIME: "+ time);
 				//				this.getZVar();
 				solved = true;
-
+				Double[][][] xVar = getXVar();
 				for (int s = 0; s < d; s++) {
 					for (int t = 0; t < d; t++) {
 						if (s != t) {
-							STFlow stFlowModel = new STFlow(graph, getXVar(), s, t);
+							STFlow stFlowModel = new STFlow(graph, xVar, s, t);
 //							getFVal();
 							stFlowModel.solve(false, 3600);
-//							if (!stFlowModel.solve(false, 0)) {
-							
 							double stVal = stFlowModel.getObjectiveValue();
-							if (stVal > -0.8) {
-								if (stVal > maxDiff) {
-									maxDiff = stVal;
-									sA = s;
-									tA = t;
-								}
-//								System.err.println("val: " + stVal);
+							if (stVal > -0.99) {
 								wrong++;
-								stPairs.add(new Pair<Integer, Integer>(s, t));
-//								stPairs.add(new Pair<Integer, Integer>(t, s));
+								pairQueue.add(new STPair(s, t, stVal));
 								solved = false;
-//								if (wrong > 6) {
 //									break;
-//								}
 							}
 							else {
 								correct++;
 							}
 						}
 					}
-//					if (!solved && wrong > 6) break;
 //					if (!solved) break;
 				}
-				System.err.println("Correct: " + correct);
-				System.err.println("Wrong: " + wrong);
-				System.err.println("Max Diff: " + maxDiff + "Pair: " + sA + " " + tA);
-//				for (Pair<Integer, Integer> pair: stPairs) {
-//					System.err.println(pair.getValue0() + " " + pair.getValue1());
-//				}
-//				stPairs.clear();
-//				stPairs.add(new Pair<Integer, Integer>(sA, tA));
-				addFlowConstraints(stPairs);
+				System.err.println("Correct: " + correct + "\n");
+				System.err.println("Wrong: " + wrong + "\n");
+//				addFlowConstraints(pairQueue,pairQueue.size());
+				addFlowConstraints(pairQueue,2);
+				pairQueue.clear();
 			} while (!solved);
 			return ret;
 		} catch (IloException e) {
@@ -106,20 +81,34 @@ protected IloNumVar[][][][] f;
 		}
 	}
 	
+	private void initFlexiVars(int s, int t) {
+		for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+				try {
+					f[i][j][s][t] = cplex.numVar(0, 1);
+					f[i][j][t][s] = cplex.numVar(0, 1);
+				} catch (IloException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}	
+		}					
+		}		
+	}
+	
 	protected void initVars() {
-		try {
+//		try {
 			super.initVars();
-			f = new IloNumVar[n][n][d][];		
-			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					for (int k = 0; k < d; k++) {
-						f[i][j][k] = cplex.numVarArray(d,0,1);	
-					}	
-				}					
-			}
-		} catch (IloException e) {
-			e.printStackTrace();
-		}
+			f = new IloNumVar[n][n][d][d];		
+//			for (int i = 0; i < n; i++) {
+//				for (int j = 0; j < n; j++) {
+//					for (int k = 0; k < d; k++) {
+//						f[i][j][k] = cplex.numVarArray(d,0,1);	
+//					}	
+//				}					
+//			}
+//		} catch (IloException e) {
+//			e.printStackTrace();
+//		}
 	}	
 
 	
@@ -127,113 +116,74 @@ protected IloNumVar[][][][] f;
 			super.createConstraints();					
 	}
 	
-	public void addFlowConstraints(ArrayList<Pair<Integer, Integer>> stPairs) {
+	/**
+	 * 
+	 * @param queue Queue of constraints
+	 * @param maxPCnt how many should be added
+	 */
+	public void addFlowConstraints(PriorityQueue<STPair> queue, int maxPCnt) {
 		try {
-			for (Pair<Integer, Integer> pair: stPairs) {
-				int s = pair.getValue0();
-				int t = pair.getValue1();
-				// Flow conservation - normal
-//				for (int s = 0; s < d; s++) {					
-//					for (int t = 0; t < d; t++) {
-						for (int i = 0; i < n; i++) {						
-							if (t != i && s != i && s != t) {
-								IloLinearNumExpr expr1a = cplex.linearNumExpr();
-								IloLinearNumExpr expr1b = cplex.linearNumExpr();	
-								for (int j = 0; j < n; j++) {
-									if (i != j && j != s) {
-										expr1a.addTerm(1.0, f[i][j][s][t]);									
-									}								
-								}
-								for (int j = 0; j < n; j++) {
-									if (i != j && j != t) {								
-										expr1b.addTerm(1.0, f[j][i][s][t]);
-									}								
-								}						
-								cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));
-							}
+			int cnt = 0;
+			while (queue.size() > 0 && cnt < maxPCnt) {
+				cnt ++;
+				STPair pair = queue.poll();
+				System.out.println(pair.toString());
+				int s = pair.getS();
+				int t = pair.getT();
+				initFlexiVars(s, t);
+				IloLinearNumExpr expr2a = cplex.linearNumExpr();
+				IloLinearNumExpr expr2b = cplex.linearNumExpr();	
+				IloLinearNumExpr expr3a = cplex.linearNumExpr();
+				IloLinearNumExpr expr3b = cplex.linearNumExpr();	
+				for (int i = 0; i < n; i++) {
+					if (i != t) {
+						expr2a.addTerm(1.0, f[t][i][s][t]);									
+						expr2b.addTerm(1.0, f[i][t][s][t]);									
+					}	
+					if (i != s) {
+						expr3a.addTerm(1.0, f[s][i][s][t]);									
+						expr3b.addTerm(1.0, f[i][s][s][t]);									
+					}				
+					IloLinearNumExpr expr1a = cplex.linearNumExpr();
+					IloLinearNumExpr expr1b = cplex.linearNumExpr();	
+					for (int j = 0; j < n; j++) {
+						if (j != i && s != t) {
+							cplex.addLe(f[i][j][s][t], x[i][j][s]);			//capacity
+							cplex.addEq(f[i][j][s][t], f[j][i][t][s]);		// f sym
 						}
-//					}	
-//				}		
+						if (t != i && s != i && s != t) {
+							if (i != j && j != s) {
+								expr1a.addTerm(1.0, f[i][j][s][t]);									
+							}								
+							if (i != j && j != t) {								
+								expr1b.addTerm(1.0, f[j][i][s][t]);
+							}	
+						}
+					}
+					cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b))); // flow conservation - normal
+				}
+				cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b))); // flow conservation - dest
+				cplex.addEq(1,cplex.sum(expr3a, cplex.negative(expr3b)));    // flow conservation - source
 				
-				// Flow conservation - dest
-//				for (int s = 0; s < d; s++) {
-//					for (int t = 0; t < d; t++) {
-//						if (s != t) {
-							IloLinearNumExpr expr2a = cplex.linearNumExpr();
-							IloLinearNumExpr expr2b = cplex.linearNumExpr();	
-							for (int i = 0; i < n; i++) {
-								if (i != t) {
-									expr2a.addTerm(1.0, f[t][i][s][t]);									
-									expr2b.addTerm(1.0, f[i][t][s][t]);									
-								}								
-							}
-							cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b)));
-//						}
-//					}
-//				}				
 
-				// Flow conservation - source
-//				for (int s = 0; s < d; s++) {
-//					for (int t = 0; t < d; t++) {
-//						if (s != t) {
-							IloLinearNumExpr expr3a = cplex.linearNumExpr();
-							IloLinearNumExpr expr3b = cplex.linearNumExpr();	
-							for (int i = 0; i < n; i++) {
-								if (i != s) {
-									expr3a.addTerm(1.0, f[s][i][s][t]);									
-									expr3b.addTerm(1.0, f[i][s][s][t]);									
-								}								
-							}
-							cplex.addEq(1,cplex.sum(expr3a, cplex.negative(expr3b)));
-//						}
-//					}
-//				}				
-				
-				
-				// capacity
-//				for (int s = 0; s < d; s++) {
-//					for (int t = 0; t < d; t++) {
-						for (int i = 0; i < n; i++) {
-							for (int j = 0; j < n; j++) {
-								if (j != i && s != t) {
-									cplex.addLe(f[i][j][s][t], x[i][j][s]);
-								}
-							}
-						}
-//					}
-//				}					
-				
-				// f sym
-//				for (int s = 0; s < d; s++) {
-//					for (int t = 0; t < d; t++) {
-						for (int i = 0; i < n; i++) {
-							for (int j = 0; j < n; j++) {
-								if (j != i && s != t) {
-									cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
-								}
-							}
-						}
-//					}
-//				}	
-						
 					if (willAddVIs) {
 										
 							// vi10
-								for (int t1 = 0; t1 < d; t1++) {
-									if (s != t1) {
-										for (int t2 = 0; t2 < d; t2++) {
-											if (s != t2 && t1 != t2) {
-												for (int i = 0; i < n; i++) {
-													for (int j = 0; j < n; j++) {
-														if (i != j) {
-															cplex.addLe(f[i][j][s][t2],cplex.sum(f[i][j][s][t1], f[i][j][t1][t2]));
-														}
-													}
-												}
-											}
-										}
-									}
-								}
+//								for (int t1 = 0; t1 < d; t1++) {
+//									if (s != t1) {
+//										for (int t2 = 0; t2 < d; t2++) {
+//											if (s != t2 && t1 != t2) {
+//												for (int i = 0; i < n; i++) {
+//													for (int j = 0; j < n; j++) {
+//														if (i != j) {
+//															cplex.addLe(f[i][j][s][t2],cplex.sum(f[i][j][s][t1], f[i][j][t1][t2]));
+//														}
+//													}
+//												}
+//											}
+//										}
+//									}
+//								}
 //								// y_sum=1
 									IloLinearNumExpr exprYsum = cplex.linearNumExpr();
 									for (int j = 0; j < n; j++) {
@@ -276,7 +226,7 @@ protected IloNumVar[][][][] f;
 											}
 								}									
 						}
-					}
+			}
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}	

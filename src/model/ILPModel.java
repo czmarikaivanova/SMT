@@ -35,6 +35,7 @@ public abstract class ILPModel {
 		this.lazy = lazy;
 		try {
 			cplex = new IloCplex();
+//			cplex.setOut(null);
 		} catch (IloException e) {
 			e.printStackTrace();
 		}

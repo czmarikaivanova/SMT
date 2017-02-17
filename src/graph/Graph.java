@@ -49,7 +49,7 @@ public class Graph implements Cloneable  {
 	private void generatePoints() {
     	nodes = new Node[vertexCount];
     	for (int i = 0; i < vertexCount; i++) {
-    		nodes[i] = new Node(i, i < dstCount);
+    		nodes[i] = new Node(i, i < dstCount, nodes);
     	}
     	orderNeighbours();
     }    

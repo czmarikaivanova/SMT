@@ -1,5 +1,6 @@
 package model;
 
+import smt.Constants;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
@@ -10,6 +11,8 @@ public class SMTPF2Model extends ILPModel {
 
 	public SMTPF2Model(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
 		super(graph, willAddVIs, isLP, lazy);
+//		System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
+//		System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
 	}
 
 	protected IloNumVar[][] pz;
@@ -225,6 +228,10 @@ public class SMTPF2Model extends ILPModel {
 					}
 				}					
 			}
+			
+			// to be deleted
+//			cplex.addLe(py[0][12][2],0);
+//			cplex.addEq(y[5][7][3], 0.0);
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
@@ -233,12 +240,12 @@ public class SMTPF2Model extends ILPModel {
 	public void addValidInequalities() {
 		try {
 			for (int i = 0; i < n; i++) {
-//				for (int t = 1; t < d; t++) {
-//					if (i != t) {
-//						cplex.addEq(py[i][t][t], pz[i][t]);  // 3l
-//						cplex.addEq(py[t][i][t], 0.0);  // 3k
-//					}
-//				}
+				for (int t = 1; t < d; t++) {
+					if (i != t) {
+						cplex.addEq(py[i][t][t], pz[i][t]);  // 3l
+						cplex.addEq(py[t][i][t], 0.0);  // 3k
+					}
+				}
 //				if (i >= 1 && i < d)  {
 //					IloLinearNumExpr expr = cplex.linearNumExpr();
 //					for (int j = 0; j < n; j++) {
@@ -248,15 +255,15 @@ public class SMTPF2Model extends ILPModel {
 //					}
 //					cplex.addEq(expr, 1.0);  // (A)
 //				}
-				if (i >= d) {
-					IloLinearNumExpr expr = cplex.linearNumExpr();
-					for (int j = 0; j < n; j++) {
-						if (i != j) {
-							expr.addTerm(1.0, pz[j][i]);
-						}
-					}
-					cplex.addLe(expr, 1.0);  // (B)
-				}
+//				if (i >= d) {
+//					IloLinearNumExpr expr = cplex.linearNumExpr();
+//					for (int j = 0; j < n; j++) {
+//						if (i != j) {
+//							expr.addTerm(1.0, pz[j][i]);
+//						}
+//					}
+//					cplex.addLe(expr, 1.0);  // (B)
+//				}
 			}
 //			super.addValidInequalities();
 //			for (int t = 1; t < d; t++) {
@@ -398,7 +405,9 @@ public class SMTPF2Model extends ILPModel {
 				for (int j = 0; j < pz.length; j++) {
 					if (i != j) {
 						zval[i][j] = cplex.getValue(pz[i][j]);
-						System.out.print(cplex.getValue(pz[i][j]) + " ");	
+//						if (j == 2 && cplex.getValue(pz[i][j]) > 0) {
+							System.out.print(i + " " + j + " " +" :" + cplex.getValue(pz[i][j]) + " --");	
+//						}
 					}
 				}
 				System.out.println();
@@ -424,12 +433,15 @@ public class SMTPF2Model extends ILPModel {
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
 						for (int k = 0; k < d; k++) {
-//							System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(x[i][j][k]) + " --");						
+//							if (j == 2 &&  cplex.getValue(py[i][j][k]) > 0 || k == 5 && cplex.getValue(py[i][j][k])> 0) {
+							if (k == 2 && cplex.getValue(py[i][j][k]) > 0  ) {
+								System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(py[i][j][k]) + " --");	
+							}
 							xval[i][j][k] = cplex.getValue(py[i][j][k]);
 						}
 					}
 				}
-//				System.out.println();
+				System.out.println();
 			}
 			System.out.println("Objective: " + cplex.getObjValue());
 			return xval;		
@@ -441,7 +453,6 @@ public class SMTPF2Model extends ILPModel {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return null;
-	}	
+    	return Constants.SMT_PF2_STRING + "(" + n + "," + d + ")";
+	}
 }
