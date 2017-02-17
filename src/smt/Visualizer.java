@@ -1,6 +1,7 @@
 package smt;
 
 
+import graph.Clique;
 import graph.Edge;
 import graph.Graph;
 import graph.Node;
@@ -12,6 +13,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -26,8 +28,12 @@ public class Visualizer extends JPanel {
     Graph graph;
     Graph tree;
     boolean useArrows;
+    boolean toFile;
+    BufferedImage bi;
+    Graphics2D g2d;
+    String title;
     
-    public Visualizer(Object solution, Graph graph, boolean useArrows) {
+    public Visualizer(Object solution, Graph graph, boolean useArrows, boolean toFile, String title) {
     	if (solution instanceof Graph) {
     		this.tree = (Graph) solution;
     		this.z = null;
@@ -44,6 +50,8 @@ public class Visualizer extends JPanel {
     	}
         this.graph = graph;        
         this.useArrows = useArrows;
+        this.toFile = toFile;
+        this.title = title;
     }
     
     @Override
@@ -60,14 +68,18 @@ public class Visualizer extends JPanel {
 	  }
 
     private void paintFromFVar(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
+    	if (toFile) {
+        	bi = new BufferedImage(Constants.WINDOW_SIZE, Constants.WINDOW_SIZE, BufferedImage.TYPE_INT_ARGB);
+        	g2d = bi.createGraphics();
+        	g2d.setColor(Color.WHITE);
+        	g2d.fillRect(0, 0, Constants.WINDOW_SIZE, Constants.WINDOW_SIZE);
+    		
+    	} 
+    	else {
+    		g2d = (Graphics2D) g;
+    	}
         for (int i = 0; i < graph.getVertexCount(); i++) {
-            Color color;        
-            if (i < graph.getDstCount()) {
-                color = Color.black;
-            } else {
-                color = Color.lightGray;
-            }        
+            Color color = (i < graph.getDstCount() ? Color.black : Color.lightGray);         
             g2d.setColor(color);   
             Node p = graph.getNode(i);
             float xu = Math.round(p.getPoint().getX() * 10);
@@ -97,20 +109,24 @@ public class Visualizer extends JPanel {
             	}
             }
         } 
+        drawToFile();
 	}
 
 	private void paintFromTree(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
-        
-        for (int i = 0; i < tree.getVertexCount(); i++) {
-            Color color;
-            Node u = tree.getNode(i);
-            if (i < graph.getDstCount()) {
-                color = Color.black;
-            } else {
-                color = Color.lightGray;
-            }        
+    	if (toFile) {
+        	bi = new BufferedImage(Constants.WINDOW_SIZE, Constants.WINDOW_SIZE, BufferedImage.TYPE_INT_ARGB);
+        	g2d = bi.createGraphics();
+        	g2d.setColor(Color.WHITE);
+        	g2d.fillRect(0, 0, Constants.WINDOW_SIZE, Constants.WINDOW_SIZE);
+    		
+    	} 
+    	else {
+    		g2d = (Graphics2D) g;
+    	}
+        for (int i = 0; i < graph.getVertexCount(); i++) {
+            Color color = (i < graph.getDstCount() ? Color.black : Color.lightGray);           
             g2d.setColor(color);            
+            Node u = tree.getNode(i);
             float xu = Math.round(u.getPoint().getX() * 10);
             float yu = Math.round(u.getPoint().getY() * 10);
             g2d.fillOval((int) xu-5,(int) yu-5, 10, 10);
@@ -125,21 +141,22 @@ public class Visualizer extends JPanel {
                 g2d.setColor(color);
             }
         }
+        drawToFile();
       }    
     
     private void paintFromZVar(Graphics g) {
-    	BufferedImage bi = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
-    	Graphics2D g2d = bi.createGraphics();
-    	g2d.setColor(Color.WHITE);
-    	g2d.fillRect(0, 0, 1000, 1000);
-//        Graphics2D g2d = (Graphics2D) g;
+    	if (toFile) {
+        	bi = new BufferedImage(Constants.WINDOW_SIZE, Constants.WINDOW_SIZE, BufferedImage.TYPE_INT_ARGB);
+        	g2d = bi.createGraphics();
+        	g2d.setColor(Color.WHITE);
+        	g2d.fillRect(0, 0, Constants.WINDOW_SIZE, Constants.WINDOW_SIZE);
+    		
+    	} 
+    	else {
+    		g2d = (Graphics2D) g;
+    	}
         for (int i = 0; i < graph.getVertexCount(); i++) {
-            Color color;        
-            if (i < graph.getDstCount()) {
-                color = Color.black;
-            } else {
-                color = Color.lightGray;
-            }        
+            Color color = (i < graph.getDstCount() ? Color.black : Color.lightGray);        
             g2d.setColor(color);   
             Node p = graph.getNode(i);
             float xu = Math.round(p.getPoint().getX() * 10);
@@ -167,12 +184,7 @@ public class Visualizer extends JPanel {
             	}
             }
         } 
-        try {
-			ImageIO.write(bi, "PNG", new File("c:\\yourImageName.PNG"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        drawToFile();
     }
     
     /**
@@ -206,6 +218,19 @@ public class Visualizer extends JPanel {
        g.fillPolygon(xpoints, ypoints, 3);
     }
 
+    
+    private void drawToFile() {
+        try {
+			if (toFile) {
+				File instFile = new File("images/img_" + title + new File("images/").list().length + ".png");
+				ImageIO.write(bi, "PNG", instFile);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+
+   
 }
 
    
