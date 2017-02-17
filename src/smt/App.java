@@ -40,7 +40,7 @@ public class App {
     private int n;
     private int d;
 	public int run() {
-		int iter = 1;
+		int iter = 10;
 //		for (dstCount = 4; dstCount < 11; dstCount++) {
 //			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
 				double avgLP1Cost;
