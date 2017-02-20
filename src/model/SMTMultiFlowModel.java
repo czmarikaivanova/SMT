@@ -12,8 +12,8 @@ public class SMTMultiFlowModel extends SteinerMultiFlowModel {
 
 	public SMTMultiFlowModel(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
 		super(graph, willAddVIs, isLP, lazy);
-		System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
-		System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
+//		System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
+//		System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
 	}
 	
 	protected IloNumVar[][][] y;
