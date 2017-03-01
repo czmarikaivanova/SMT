@@ -33,6 +33,7 @@ protected IloNumVar[][][][] f;
 			PriorityQueue<STPair> pairQueue = new PriorityQueue<STPair>();
 			boolean solved = false;
 			boolean ret;
+			IloCplex singleFlowCplex = new IloCplex();
 			do {
 				pairQueue.clear();
 				int correct = 0;
@@ -52,7 +53,7 @@ protected IloNumVar[][][][] f;
 				for (int s = 0; s < d; s++) {
 					for (int t = 0; t < d; t++) {
 						if (s != t) {
-							stFlowModel = new STFlow(graph, xVar, s, t);
+							stFlowModel = new STFlow(graph, xVar, s, t, singleFlowCplex);
 //							getFVal();
 							stFlowModel.solve(false, 3600);
 							double stVal = stFlowModel.getObjectiveValue();
@@ -71,7 +72,12 @@ protected IloNumVar[][][][] f;
 				}
 				System.err.println("Correct: " + correct + "\n");
 				System.err.println("Wrong: " + wrong + "\n");
-				pairQueue = leaveMatching(pairQueue);
+				if (wrong > (wrong + correct)/10 ) {
+					pairQueue = leaveMatching(pairQueue);					
+				}
+				if (pairQueue.size() > 0 && pairQueue.peek().getDiff() < -0.9) {
+					solved = true;
+				}
 				addFlowConstraints(pairQueue,pairQueue.size());
 //				addFlowConstraints(pairQueue,2);
 				pairQueue.clear();

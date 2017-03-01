@@ -17,13 +17,15 @@ public class STFlow extends ILPModel {
 	private IloNumVar[][][][] f;
 	
 	
-	public STFlow(Graph graph, Double[][][] xvar, int s, int t) {
+	public STFlow(Graph graph, Double[][][] xvar, int s, int t, IloCplex cplex) {
 		this.graph = graph;
 		this.willAddVIs = false;
 		this.isLP = Constants.LP;
 		this.lazy = false;
 		try {
-			cplex = new IloCplex();
+			cplex.clearModel();
+			this.cplex = cplex;
+//			cplex = new IloCplex();
 			cplex.setOut(null);
 		} catch (IloException e) {
 			e.printStackTrace();

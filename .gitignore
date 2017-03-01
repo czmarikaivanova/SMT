@@ -157,6 +157,6 @@ images
 App.java
 
 # dist directory
-./dist/
+/dist/*
 
 
