@@ -4,11 +4,9 @@ import java.util.ArrayList;
 
 import org.javatuples.Quartet;
 
-import smt.Constants;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
-import ilog.cplex.IloCplex;
 import graph.Clique;
 import graph.Graph;
 import graph.Node;
@@ -152,9 +150,9 @@ public class SteinerMultiFlowModel extends SteinerModel {
 								expr1.addTerm(1.0, f[i][j][s][t]);
 							}
 						}
-						if (j > i) {
+//						if (j > i) {
 							cplex.addLe(x[i][j][s], expr1);
-						}
+//						}
 					}
 				}
 			}	

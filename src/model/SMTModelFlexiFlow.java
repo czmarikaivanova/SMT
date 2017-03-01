@@ -47,11 +47,12 @@ protected IloNumVar[][][][] f;
 				System.err.println("TIME: "+ time);
 				//				this.getZVar();
 				solved = true;
+				STFlow stFlowModel;
 				Double[][][] xVar = getXVar();
 				for (int s = 0; s < d; s++) {
 					for (int t = 0; t < d; t++) {
 						if (s != t) {
-							STFlow stFlowModel = new STFlow(graph, xVar, s, t);
+							stFlowModel = new STFlow(graph, xVar, s, t);
 //							getFVal();
 							stFlowModel.solve(false, 3600);
 							double stVal = stFlowModel.getObjectiveValue();
@@ -70,8 +71,9 @@ protected IloNumVar[][][][] f;
 				}
 				System.err.println("Correct: " + correct + "\n");
 				System.err.println("Wrong: " + wrong + "\n");
-//				addFlowConstraints(pairQueue,pairQueue.size());
-				addFlowConstraints(pairQueue,2);
+				pairQueue = leaveMatching(pairQueue);
+				addFlowConstraints(pairQueue,pairQueue.size());
+//				addFlowConstraints(pairQueue,2);
 				pairQueue.clear();
 			} while (!solved);
 			return ret;
@@ -81,17 +83,18 @@ protected IloNumVar[][][][] f;
 		}
 	}
 	
+	
 	private void initFlexiVars(int s, int t) {
 		for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-				try {
-					f[i][j][s][t] = cplex.numVar(0, 1);
-					f[i][j][t][s] = cplex.numVar(0, 1);
-				} catch (IloException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}	
-		}					
+			for (int j = 0; j < n; j++) {
+					try {
+						f[i][j][s][t] = cplex.numVar(0, 1);
+						f[i][j][t][s] = cplex.numVar(0, 1);
+					} catch (IloException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}	
+			}					
 		}		
 	}
 	
@@ -231,6 +234,30 @@ protected IloNumVar[][][][] f;
 			System.err.println("Concert exception caught: " + e);
 		}	
 	
+	}
+	
+	private PriorityQueue<STPair> leaveMatching(PriorityQueue<STPair> stQueue) {
+		System.out.println("---------------------------QUEUE--------------");
+		System.out.println(stQueue.toString());
+		if (stQueue.size() == 0) return stQueue;
+		STPair[] inArray = stQueue.toArray(new STPair[stQueue.size()]);
+		ArrayList<STPair> outArray = new ArrayList<STPair>();
+		outArray.add(inArray[0]);
+		for (int i = 1; i < inArray.length; i++) {
+			STPair currPair = inArray[i];
+			boolean add = true;
+			for (STPair pair : outArray) {
+				if (pair.getS() == currPair.getS() || pair.getS() == currPair.getT() || pair.getT() == currPair.getS() || pair.getT() == currPair.getT()) {
+					add = false;
+					break;
+				}
+			}
+			if(add) {
+				outArray.add(currPair);
+			}
+		}
+		System.out.println(outArray.toString());
+		return new PriorityQueue<STPair>(outArray);
 	}
 	
 	public String toString() {

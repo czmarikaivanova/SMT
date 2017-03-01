@@ -101,7 +101,7 @@ public class SMTPF2Model extends ILPModel {
 
 			// flow2
 			for (int i = 1; i < n; i++) { // must not be zero
-				for (int t = 1; t < d; t++) { // must not be zero
+				for (int t = 0; t < d; t++) { // must not be zero OR CAN BE???
 					if (i != t) {
 						IloLinearNumExpr expr1 = cplex.linearNumExpr();
 						IloLinearNumExpr expr2 = cplex.linearNumExpr();
@@ -117,8 +117,8 @@ public class SMTPF2Model extends ILPModel {
 			}
 			
 			// flow3
-			for (int k = 1; k < d; k++) { // must not be zero
-				for (int l = 1; l < d; l++) {
+			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
+				for (int l = 0; l < d; l++) {
 					if (k != l) {
 						IloLinearNumExpr expr1 = cplex.linearNumExpr();
 						IloLinearNumExpr expr2 = cplex.linearNumExpr();
@@ -133,8 +133,8 @@ public class SMTPF2Model extends ILPModel {
 
 			// flow4
 			for (int i = 1; i < n; i++) { // must not be zero
-				for (int k = 1; k < d; k++) { // must not be zero
-					for (int l = 1; l < d; l++) { // must not be zero
+				for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
+					for (int l = 0; l < d; l++) { // must not be zero OR CAN BE???
 						if (k != l) {
 							IloLinearNumExpr expr1 = cplex.linearNumExpr();
 							IloLinearNumExpr expr2 = cplex.linearNumExpr();
@@ -151,8 +151,8 @@ public class SMTPF2Model extends ILPModel {
 			}
 			
 			// h_py1
-			for (int k = 1; k < d; k++) { // must not be zero
-				for (int l = 1; l < d; l++) { // must not be zero
+			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
+				for (int l = 0; l < d; l++) { // must not be zero OR CAN BE???
 					if (k != l) {
 						for (int i = 0; i < n; i++) {
 							for (int j = 0; j < n; j++) {
@@ -166,8 +166,8 @@ public class SMTPF2Model extends ILPModel {
 			}
 			
 			// h_py2
-			for (int k = 1; k < d; k++) { // must not be zero
-				for (int l = 1; l < d; l++) { // must not be zero
+			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
+				for (int l = 0; l < d; l++) { // must not be zero OR CAN BE???
 					if (k != l) {
 						for (int i = 0; i < n; i++) {
 							for (int j = 0; j < n; j++) {
@@ -181,8 +181,8 @@ public class SMTPF2Model extends ILPModel {
 			}			
 			
 			// h_x_stronger
-			for (int k = 1; k < d; k++) { // must not be zero
-				for (int l = 1; l < d; l++) { // must not be zero
+			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
+				for (int l = 0; l < d; l++) { // must not be zero OR CAN BE???
 					if (k != l) {
 						for (int i = 0; i < n; i++) {
 							for (int j = 0; j < n; j++) {
@@ -228,10 +228,17 @@ public class SMTPF2Model extends ILPModel {
 					}
 				}					
 			}
-			
-			// to be deleted
-//			cplex.addLe(py[0][12][2],0);
-//			cplex.addEq(y[5][7][3], 0.0);
+
+			// (B) - necessary, see instance in ..\pictures
+			for (int i = d; i < n; i++) {
+				IloLinearNumExpr expr = cplex.linearNumExpr();
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						expr.addTerm(1.0, pz[j][i]);
+					}
+				}
+				cplex.addLe(expr, 1.0);  
+			}
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
@@ -256,27 +263,11 @@ public class SMTPF2Model extends ILPModel {
 //					}
 //					cplex.addEq(expr, 1.0);  // (A)
 //				}
-				if (i >= d) {
-					IloLinearNumExpr expr = cplex.linearNumExpr();
-					for (int j = 0; j < n; j++) {
-						if (i != j) {
-							expr.addTerm(1.0, pz[j][i]);
-						}
-					}
-					cplex.addLe(expr, 1.0);  // (B)
-				}
-			}
-			for (int t = 1; t < d; t++) {
-				for (int i = 0; i < n; i++) {
-					if (i != t) {
-						cplex.addEq(py[t][i][t], 0.0);
-						cplex.addEq(py[i][t][t], pz[i][t]);
-					}
-				}
+
 			}
 			
 //			// y_sum=1
-			for (int s = 0; s < d; s ++) {
+			for (int s = 0; s < d; s++) {
 				IloLinearNumExpr expr1 = cplex.linearNumExpr();
 				for (int j = 0; j < n; j++) {
 					if (j != s) {
@@ -286,7 +277,7 @@ public class SMTPF2Model extends ILPModel {
 				cplex.addEq(expr1, 1.0);
 			}
 
-//			// x to nondest => y from there 
+//			 x to nondest => y from there 
 			for (int j = d; j < n; j++) {
 				for (int s = 0; s < d; s++) {
 					IloLinearNumExpr expr1 = cplex.linearNumExpr();
@@ -303,8 +294,8 @@ public class SMTPF2Model extends ILPModel {
 				}
 			}			
 			
-//			// f imp y in nondest 
-			for (int j = 0; j < n; j ++) {
+//			 f imp y in nondest 
+			for (int j = 0; j < n; j++) {
 				for (int s = 0; s < d; s++) {
 					for (int t = 0; t < d; t++) {
 						for (int k = 0; k < n; k++) {
@@ -330,22 +321,21 @@ public class SMTPF2Model extends ILPModel {
 					}
 				}
 			}
-////			
-////			// vi4
+//			// vi4
 			for (int s = 0; s < d; s++) {
 				for (int i = 0; i < n; i++) {
 					for (int j = 0; j < n; j++) {
-						IloLinearNumExpr expr1 = cplex.linearNumExpr();
-						IloLinearNumExpr expr2 = cplex.linearNumExpr();
-						for (int t = 0; t < d; t++) {
-							if (s != t) {
-								expr1.addTerm(1.0, py[i][j][t]);
-								expr1.addTerm(1.0, py[j][i][s]);
-								expr1.addTerm(-1.0, h[i][j][s][t]);
-								expr1.addTerm(-1.0, h[j][i][s][t]);
+						if (j != i) {
+							IloLinearNumExpr expr1 = cplex.linearNumExpr();
+							IloLinearNumExpr expr2 = cplex.linearNumExpr();
+							for (int t = 0; t < d; t++) {
+								if (s != t) {
+									expr1.addTerm(1.0, py[i][j][t]);
+									expr1.addTerm(1.0, py[j][i][s]);
+									expr1.addTerm(-1.0, h[i][j][s][t]);
+									expr1.addTerm(-1.0, h[j][i][s][t]);
+								}
 							}
-						}
-						if (j > i) {
 							expr2.addTerm(1.0, pz[i][j]);
 							expr2.addTerm(-1.0, py[i][j][s]);
 							expr2.addTerm(1.0, py[j][i][s]);
@@ -354,8 +344,7 @@ public class SMTPF2Model extends ILPModel {
 					}
 				}
 			}	
-////			
-////			// vi10
+//			// vi10
 			for (int s = 0; s < d; s++) {
 				for (int t1 = 0; t1 < d; t1++) {
 					if (s != t1) {
@@ -437,7 +426,6 @@ public class SMTPF2Model extends ILPModel {
 
 	@Override
 	public Double[][] getZVar() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

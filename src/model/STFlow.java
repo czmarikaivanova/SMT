@@ -34,13 +34,12 @@ public class STFlow extends ILPModel {
 		this.t = t;
 		createModel();	
 		addCapacityConstraints(xvar);
-		try {
-			cplex.exportModel("stFlowModel.lp");
+//		try {
+//			cplex.exportModel("stFlowModel.lp");
 			cplex.setOut(null);
-		} catch (IloException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		} catch (IloException e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	@Override

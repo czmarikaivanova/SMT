@@ -3,9 +3,7 @@ package model;
 import smt.Constants;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
-import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
-import ilog.cplex.IloCplex;
 import graph.Graph;
 
 public class SMTMultiFlowModel extends SteinerMultiFlowModel {
@@ -17,9 +15,6 @@ public class SMTMultiFlowModel extends SteinerMultiFlowModel {
 	}
 	
 	protected IloNumVar[][][] y;
-	
-	
-
 	
 	@Override
 	protected void initVars() {
@@ -34,10 +29,8 @@ public class SMTMultiFlowModel extends SteinerMultiFlowModel {
 					else {
 						y[i][j] = cplex.boolVarArray(d);						
 					}
-	
 				}					
 			}
-
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
@@ -167,7 +160,7 @@ public class SMTMultiFlowModel extends SteinerMultiFlowModel {
 				}
 			}			
 			// f imp y in nondest 
-			for (int j = 0; j < n; j ++) {
+			for (int j = 0; j < n; j++) {
 				for (int s = 0; s < d; s++) {
 					for (int t = 0; t < d; t++) {
 						for (int k = 0; k < n; k++) {

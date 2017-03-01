@@ -5,17 +5,7 @@ import graph.Graph;
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import org.javatuples.Quartet;
-import smt.Constants;
-import smt.Miscellaneous;
 
 public abstract class ILPModel {
 	protected IloCplex cplex;
@@ -79,10 +69,6 @@ public abstract class ILPModel {
 		}
 	}
 	
-//	public IloCplex getModel() {
-//		return cplex;
-//	}
-
 	public void end() {
 		cplex.end();
 	}

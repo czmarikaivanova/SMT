@@ -10,12 +10,7 @@ import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
-import ilog.cplex.IloCplex;
-import ilog.cplex.IloCplex.UnknownObjectException;
-
-import org.javatuples.Pair;
 import org.javatuples.Quartet;
-import org.javatuples.Triplet;
 
 import smt.Constants;
 
@@ -26,7 +21,6 @@ public class SteinerModel extends ILPModel {
 	}
 	
 	protected IloNumVar[][][] x;
-	
 	
 	protected void initVars() {
 		try {
@@ -243,8 +237,6 @@ public class SteinerModel extends ILPModel {
 	public String toString() {
     	return Constants.SMT_STRING + "(" + n + "," + d + ")";
 	}
-	
-	
 	
 //	private IloNumVar[][][][] initF() {
 //		try {
