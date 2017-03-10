@@ -75,11 +75,13 @@ protected IloNumVar[][][][] f;
 				if (wrong > (wrong + correct)/10 ) {
 					pairQueue = leaveMatching(pairQueue);					
 				}
-				if (pairQueue.size() > 0 && pairQueue.peek().getDiff() < -0.9) {
+				if (pairQueue.size() > 0 && pairQueue.peek().getDiff() < -0.95) {
 					solved = true;
 				}
-				addFlowConstraints(pairQueue,pairQueue.size());
-//				addFlowConstraints(pairQueue,2);
+				else {
+					addFlowConstraints(pairQueue,pairQueue.size());
+//					addFlowConstraints(pairQueue,2);
+				}
 				pairQueue.clear();
 			} while (!solved);
 			return ret;
