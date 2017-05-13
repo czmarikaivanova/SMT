@@ -15,9 +15,9 @@ import org.javatuples.Quartet;
 import smt.App;
 import smt.Constants;
 
-public class SteinerModel extends ILPModel {	
+public class SteinerX extends ILPModel {	
 	
-	public SteinerModel(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+	public SteinerX(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
 		super(graph, willAddVIs, isLP, lazy);
 	}
 	
@@ -51,7 +51,7 @@ public class SteinerModel extends ILPModel {
 		}
 	}
 	
-	protected void createObjFunction() {
+	protected void createObjFunction() { // linear objective function for steiner tree
 		try {
 			IloLinearNumExpr obj = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {
@@ -121,24 +121,7 @@ public class SteinerModel extends ILPModel {
 					}
 				}
 			}
-			// NonDestNoLEaf
-			for (int j = d; j < n; j++) {
-				for (int s = 0; s < d; s++) {
-					IloLinearNumExpr expr4 = cplex.linearNumExpr();
-					for (int i = 0; i < n; i++) {
-						if (i != j) {
-							expr4.addTerm(1.0, x[i][j][s]);
-						}
-					}
-					IloLinearNumExpr expr5 = cplex.linearNumExpr();
-					for (int k = 0; k < n; k++) {
-						if (j != k) {
-							expr5.addTerm(1.0, x[j][k][s]);
-						}
-					}
-					cplex.addLe(expr4, expr5);
-				}
-			}
+
 			// OneDir
 			for (int i = 0; i < n; i++) {
 				for (int j = i+1; j < n; j++) {
@@ -158,17 +141,6 @@ public class SteinerModel extends ILPModel {
 					}
 				}
 			}
-			// crossing
-			if (!allowCrossing) {
-				for (Quartet<Node, Node, Node, Node> crossPair: graph.getCrossList()) {
-					int i = crossPair.getValue0().getId();
-					int j = crossPair.getValue1().getId();
-					int k = crossPair.getValue2().getId();
-					int l = crossPair.getValue3().getId();				
-					cplex.addLe(cplex.sum(z[i][j], z[k][l], z[l][k], z[j][i]), 1.0);
-				}	
-			}
-			
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		

@@ -7,9 +7,9 @@ import ilog.concert.IloNumVar;
 import ilog.concert.IloRange;
 import graph.Graph;
 
-public class SMTPF2Model extends SMTPF1Model {
+public class SMTF2 extends SMTF1VI {
 
-	public SMTPF2Model(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+	public SMTF2(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
 		super(graph, willAddVIs, isLP, lazy);
 //		System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
 //		System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
@@ -33,31 +33,12 @@ public class SMTPF2Model extends SMTPF1Model {
 			e.printStackTrace();
 		}
 	}	
-	
-	protected void createObjFunction() {
-		try {
-			// create model and solve it				
-			IloLinearNumExpr obj = cplex.linearNumExpr();
-			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					if (i != j) {
-						for (int s = 0; s < d; s++) {
-							obj.addTerm(graph.getRequir(i,j), y[i][j][s]);
-						}
-					}
-				}
-			}
-			cplex.addMinimize(obj);	
-		} catch (IloException e) {
-			e.printStackTrace();
-		}			
-	}	
+	// objecive from SMTF1
 	
 	@Override
 	public void createConstraints() {
 		try {
 			super.createConstraints();
-
 			// flow3
 			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
 				for (int l = 0; l < d; l++) {
@@ -72,7 +53,6 @@ public class SMTPF2Model extends SMTPF1Model {
 					}
 				}
 			}		
-
 			// flow4
 			for (int i = 1; i < n; i++) { // must not be zero
 				for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
@@ -91,7 +71,6 @@ public class SMTPF2Model extends SMTPF1Model {
 					}
 				}				
 			}
-			
 			// h_py1
 			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
 				for (int l = 0; l < d; l++) { // must not be zero OR CAN BE???
@@ -106,7 +85,6 @@ public class SMTPF2Model extends SMTPF1Model {
 					}
 				}
 			}
-			
 			// h_py2
 			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
 				for (int l = 0; l < d; l++) { // must not be zero OR CAN BE???
@@ -121,7 +99,6 @@ public class SMTPF2Model extends SMTPF1Model {
 					}
 				}
 			}			
-			
 			// h_x_stronger
 			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
 				for (int l = 0; l < d; l++) { // must not be zero OR CAN BE???
@@ -140,100 +117,6 @@ public class SMTPF2Model extends SMTPF1Model {
 			System.err.println("Concert exception caught: " + e);
 		}		
 	}
-	
-	public void addValidInequalities() {
-		try {
-			super.addValidInequalities();
-//			 f imp y in nondest 
-			for (int j = 0; j < n; j++) {
-				for (int s = 0; s < d; s++) {
-					for (int t = 0; t < d; t++) {
-						for (int k = 0; k < n; k++) {
-							if (j != k && s != t) {
-								IloLinearNumExpr expr1 = cplex.linearNumExpr();
-								IloLinearNumExpr expr2 = cplex.linearNumExpr();
-								for (int i = 0; i < n; i++) {
-									if (i != j) { 
-										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-											expr1.addTerm(1.0, py[i][j][s]);
-											expr1.addTerm(1.0, py[j][i][t]);
-											expr1.addTerm(-1.0, h[i][j][s][t]);
-											expr1.addTerm(-1.0, h[j][i][s][t]);
-										}
-										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-											expr2.addTerm(1.0, y[j][i][s]);										
-										}
-									}
-								}
-								cplex.addLe(expr1, expr2);
-							}
-						}
-					}
-				}
-			}
-//			// vi4
-			for (int s = 0; s < d; s++) {
-				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < n; j++) {
-						if (j != i) {
-							IloLinearNumExpr expr1 = cplex.linearNumExpr();
-							IloLinearNumExpr expr2 = cplex.linearNumExpr();
-							for (int t = 0; t < d; t++) {
-								if (s != t) {
-									expr1.addTerm(1.0, py[i][j][t]);
-									expr1.addTerm(1.0, py[j][i][s]);
-									expr1.addTerm(-1.0, h[i][j][s][t]);
-									expr1.addTerm(-1.0, h[j][i][s][t]);
-								}
-							}
-							expr2.addTerm(1.0, pz[i][j]);
-							expr2.addTerm(-1.0, py[i][j][s]);
-							expr2.addTerm(1.0, py[j][i][s]);
-							cplex.addLe(expr2, expr1);
-						}
-					}
-				}
-			}	
-//			// vi10
-			for (int s = 0; s < d; s++) {
-				for (int t1 = 0; t1 < d; t1++) {
-					if (s != t1) {
-						for (int t2 = 0; t2 < d; t2++) {
-							if (s != t2 && t1 != t2) {
-								for (int i = 0; i < n; i++) {
-									for (int j = 0; j < n; j++) {
-										if (i != j) { // update
-											cplex.addLe(
-													cplex.sum(
-															py[i][j][t2],
-															py[j][i][s], 
-															cplex.negative(h[i][j][s][t2]), 
-															cplex.negative(h[j][i][s][t2])), 
-													cplex.sum(
-															cplex.sum(
-																	py[i][j][t1], 
-																	py[j][i][s], 
-																	cplex.negative(h[i][j][s][t1]), 
-																	cplex.negative(h[j][i][s][t1])), 
-															cplex.sum(
-																	py[i][j][t2], 
-																	py[j][i][t1], 
-																	cplex.negative(h[i][j][t1][t2]), 
-																	cplex.negative(h[j][i][t1][t2]))));
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		} catch (IloException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}	
-	
 	
 	public Double[][][][] getH() {
 		try {

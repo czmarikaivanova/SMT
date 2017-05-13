@@ -10,7 +10,7 @@ import ilog.concert.IloNumVar;
 import graph.Graph;
 import graph.Node;
 
-public class SMTFlowModel extends SMTModel {
+public class SMTFlowModel extends SMTX1 {
 
 	public SMTFlowModel(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
 		super(graph, willAddVIs, isLP, lazy);

@@ -17,15 +17,17 @@ import model.CliqueModel;
 import model.ILPModel;
 import model.MEBModel;
 import model.MultiFlow;
+import model.SMTF1VI;
 import model.SMTFlowModel;
-import model.SMTModel;
+import model.SMTX1;
 import model.SMTModelFlexiFlow;
-import model.SMTMultiFlowModel;
+import model.SMTX2;
 import model.SMTOnlyFlow;
-import model.SMTPF1Model;
-import model.SMTPF2Model;
-import model.SteinerModel;
-import model.SteinerMultiFlowModel;
+import model.SMTF1;
+import model.SMTF2;
+import model.SMTX1VI;
+import model.SteinerX;
+import model.SMTX2VI;
 import model.SteinerPF2Model;
 import model.SteinerPF2Relaxed;
 
@@ -41,11 +43,11 @@ public class App {
 	
 	public App(int vertexCount, int dstCount, boolean draw, String fname, int iter) {
 //		this.n = vertexCount;
-		this.n = 14;
+		this.n = 16;
 		this.d = 6;
 		this.draw = draw;
 //		this.iter = iter;
-		this.iter = 50;
+		this.iter = 10;
 		this.fname = fname;
 	}
 	
@@ -63,22 +65,23 @@ public class App {
 				graph.generateAMPLData();
 				
 	//			
-//				models.add(new SMTModel(graph, false, Constants.INTEGER, false));
-				
+				models.add(new SMTX1(graph, false, Constants.LP, false));
+				models.add(new SMTX1VI(graph, false, Constants.LP, false));
+				models.add(new SMTX2(graph, false, Constants.LP, false));
 //				models.add(new SMTModel(graph, false, Constants.LP, false));
 //				stronger = true;
 //				stronger2 = false;
-//				models.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
-				stronger = true;
-				stronger2 = true;
-				models.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
+//				models.add(new SMTX2(graph, false, Constants.INTEGER, false));
+//				stronger = true;
+//				stronger2 = true;
+//				models.add(new SMTX2(graph, false, Constants.LP, false));
 				//				stronger = true;
 //				stronger2 = true;
-//				models.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
+//				models.add(new SMTX2(graph, false, Constants.LP, false));
 	//
-				models.add(new SMTPF1Model(graph, false, Constants.LP, false));
-	//			
-				models.add(new SMTPF2Model(graph, false, Constants.LP, false));
+				models.add(new SMTF1(graph, false, Constants.LP, false));
+				models.add(new SMTF1VI(graph, false, Constants.LP, false));
+				models.add(new SMTF2(graph, false, Constants.LP, false));
 				
 //				models.add(new SMTModel(graph, false, Constants.INTEGER, false));				
 //				models.add(new SMTModel(graph, false, Constants.INTEGER, false));
@@ -86,7 +89,7 @@ public class App {
 	//			models.add(new SMTModelFlexiFlow(graph, true, Constants.LP, false));
 				
 				runModel(models);
-	//					ILPModel smtPf2LP = new SMTPF2Model(graph, false, Constants.LP, false);
+	//					ILPModel smtPf2LP = new SMTF2(graph, false, Constants.LP, false);
 	//					Algorithm bip = new BIPAlgorithm(true, true);
 	//					Algorithm bipmulti = new BIPAlgorithm(false, true);
 			}
@@ -113,9 +116,9 @@ public class App {
 			Double[][][] f = (Double[][][]) model.getXVar();
 //			checkConstraints(f, z);
 			System.err.println(" Y var for PF2 model: ");
-			if (model instanceof SMTPF2Model ) {
-//				checkFHzeroEqFzero(((SMTPF2Model)model).getH(), f);
-//				((SMTPF2Model)model).getYVar();
+			if (model instanceof SMTF2 ) {
+//				checkFHzeroEqFzero(((SMTF2)model).getH(), f);
+//				((SMTF2)model).getYVar();
 			}
  			draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
 			model.end();

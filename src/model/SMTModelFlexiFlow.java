@@ -22,7 +22,7 @@ import smt.Miscellaneous;
 import graph.Graph;
 import graph.Node;
 
-public class SMTModelFlexiFlow extends SMTModel {
+public class SMTModelFlexiFlow extends SMTX1 {
 
 	
 	
