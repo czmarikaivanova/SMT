@@ -154,7 +154,7 @@ images
 
 
 # App.java is changing all the time
-Main.java
+App.java
 
 # dist directory
 /dist/*

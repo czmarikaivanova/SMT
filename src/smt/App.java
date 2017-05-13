@@ -19,9 +19,10 @@ import model.MEBModel;
 import model.MultiFlow;
 import model.SMTFlowModel;
 import model.SMTModel;
+import model.SMTModelFlexiFlow;
 import model.SMTMultiFlowModel;
-import model.SMTMultiFlowModelVI;
 import model.SMTOnlyFlow;
+import model.SMTPF1Model;
 import model.SMTPF2Model;
 import model.SteinerModel;
 import model.SteinerMultiFlowModel;
@@ -29,161 +30,126 @@ import model.SteinerPF2Model;
 import model.SteinerPF2Relaxed;
 
 public class App {
-	
-    int vertexCount = 11;
-    int dstCount = 6;
+    public static boolean stronger;
+    public static boolean stronger2;
+	int n;
+    int d;
     Graph graph;
-    private boolean draw = false;
-    private boolean generate = true;
-    private boolean allowCrossing = true;
-    
+    private boolean draw;
+	int iter;    
+	String fname;  // generate from file
+	
+	public App(int vertexCount, int dstCount, boolean draw, String fname, int iter) {
+//		this.n = vertexCount;
+		this.n = 14;
+		this.d = 6;
+		this.draw = draw;
+//		this.iter = iter;
+		this.iter = 50;
+		this.fname = fname;
+	}
+	
 	public int run() {
-		int iter = 10;
-//		for (dstCount = 4; dstCount < 11; dstCount++) {
-//			for (int vertexCount = dstCount + 1; vertexCount < 21; vertexCount++) {
-				double avgLP1Cost;
-				double avgLP2Cost;	
-				double avgCost;
-				double avgAlgCost;
-				double sumLP1Cost = 0;
-				double sumLP2Cost = 0;
-				double sumCost = 0;
-				double sumAlgCost = 0;
-				for (int i = 0; i < iter; i++) {
-					ArrayList<Clique> cliqueList = new ArrayList<Clique>();
-					if (generate) {
-						graph = new Graph(vertexCount, dstCount);			
-					}
-					else {
-						graph = new Graph("saved_inst/fracMF.txt"); // from file, todo
-					}	
-					graph.saveInstance();
-					graph.generateAMPLData();
-//					ILPModel smt = new SMTModel(graph, false, Constants.LP, false);
-//					ILPModel smt_lazy = new SMTModel(graph, false, Constants.INTEGER, false);
-//					ILPModel smtlp = new SMTModel(graph, false, Constants.INTEGER, false);
-					ILPModel smtViLp1 = new SMTMultiFlowModel(graph, false, Constants.LP, false);
-					ILPModel smtViLp2 = new SMTMultiFlowModel(graph, true, Constants.LP, false);
-//					ILPModel smtPf2LP = new SMTPF2Model(graph, false, Constants.LP, false);
-					
-//					ILPModel steiner_int = new SteinerModel(graph, false, Constants.INTEGER, false);
-//					ILPModel steinerlp = new SteinerModel(graph, false, Constants.LP, false);
-//					ILPModel steinerpf2lp = new SteinerPF2Model(graph, false, Constants.LP, false);
-//					ILPModel steinerpf2 = new SteinerPF2Model(graph, false, Constants.LP, false);
-//					ILPModel steinerpf2rel = new SteinerPF2Relaxed(graph, false, Constants.LP, false);
-//					ILPModel steinermf = new SteinerMultiFlowModel(graph, false, Constants.INTEGER, false);
-//					ILPModel steinermflp = new SteinerMultiFlowModel(graph, false, Constants.LP, false);
-					
-//					Algorithm bip = new BIPAlgorithm(true, true);
-//					Algorithm bipmulti = new BIPAlgorithm(false, true);
-					
-					
-//
-//					double c_smtlp= runModel(smtlp,  true);
-//					double c_smtvilp= runModel(smtViLp1,  true);
-//					double ca1 = runAlg(bip);
-//					double ca2 = runAlg(bipmulti);
-					
-//					
-//					double c_steiner_int = runModel(steiner_int, true);
-//					double c_steinerlp = runModel(steinerlp, true);
-//					double c_steinerpf2lp = runModel(steinerpf2lp, true);
-//					double c_steinermf = runModel(steinermf, true);
-//					double c_steinerpf2 = runModel(steinerpf2, true);
-//					double c_steinerpf2rel = runModel(steinerpf2rel, true);
-//					double c_steinermf = runModel(steinermf, true);
-//					double c_steinerpf2 = runModel(steinerpf2, true);
-//					double c_steinermflp = runModel(steinermflp, true);
-
-					double LP0Cost = runModel(smtlp, false);
-					double LP1Cost = runModel(smtViLp1, false);
-					double LP2Cost = runModel(smtViLp2, false);
-					double cost = runModel(smt, false);
-//					double cost_lazy = runModel(smt_lazy, false);
-//					double cost2 = runModel(smtViLp2, false);
-					double costPFLP = runModel(smtPf2LP, false);
-//					double algCost = runAlg(bipmulti);				
-
-//					logObjective(c_steinerpf2rel, graph.getInstId(), false);
-//					logObjective(c_steiner_int, graph.getInstId(), false);
-//					logObjective(c_steinerlp, graph.getInstId(), false);
-//					logObjective(c_steinerpf2lp, graph.getInstId(), false);
-//					logObjective(c_steinermflp, -1, true);
-//					logObjective(c_steinerlp, -1, false);
-//					logObjective(c_steinermflp,-1, true);
-//					logObjective(c_steinerpf2, graph.getInstId(), false);
-					
-//					logObjective(c_smt, graph.getInstId(), false);
-//					logObjective(c_smtvi, -1, true);
-//					logObjective(o_smt, -1, true);
-////					
-//					logObjective(c_steinermf, -1, true);
-//					logObjective(c_steinerpf2, -1, true);
-
-					logObjective(cost, graph.getInstId(), false);
-					
-					logObjective(costPFLP, -1, false);
-					logObjective(LP1Cost, -1, false);
-					logObjective(LP2Cost, -1, false);
-					logObjective(LP0Cost, -1, true);
-					//					logObjective(cost_lazy, -1, true);
-////					logObjective(algCost, -1, true);
-//					sumLP1Cost += LP1Cost;
-//					sumLP2Cost += LP2Cost;
-//					sumCost += cost;
-//					sumAlgCost += algCost;
-//				}		
-//				avgLP1Cost = sumLP1Cost / iter;
-//				avgLP2Cost = sumLP2Cost / iter;
-//				avgCost = sumCost / iter;
-//				avgAlgCost = sumAlgCost / iter;
-//				logStat(avgLP1Cost, vertexCount == 20, "lp1");
-//				logStat(avgLP2Cost, vertexCount == 20, "lp2");
-//				logStat(avgCost, vertexCount == 20, "cost");
-//				logStat(avgAlgCost, vertexCount == 20, "alg");
-//			}
-//		}
+				
+			for  (int i = 0; i < iter; i++) {
+				ArrayList<ILPModel> models = new ArrayList<ILPModel>();
+				if (fname == null) {
+					graph = new Graph(n, d);	// generate a new graph		
 				}
+				else {
+					graph = new Graph(fname); // from file,
+				}	
+				graph.saveInstance();
+				graph.generateAMPLData();
+				
+	//			
+//				models.add(new SMTModel(graph, false, Constants.INTEGER, false));
+				
+//				models.add(new SMTModel(graph, false, Constants.LP, false));
+//				stronger = true;
+//				stronger2 = false;
+//				models.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
+				stronger = true;
+				stronger2 = true;
+				models.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
+				//				stronger = true;
+//				stronger2 = true;
+//				models.add(new SMTMultiFlowModel(graph, false, Constants.LP, false));
+	//
+				models.add(new SMTPF1Model(graph, false, Constants.LP, false));
+	//			
+				models.add(new SMTPF2Model(graph, false, Constants.LP, false));
+				
+//				models.add(new SMTModel(graph, false, Constants.INTEGER, false));				
+//				models.add(new SMTModel(graph, false, Constants.INTEGER, false));
+	//
+	//			models.add(new SMTModelFlexiFlow(graph, true, Constants.LP, false));
+				
+				runModel(models);
+	//					ILPModel smtPf2LP = new SMTPF2Model(graph, false, Constants.LP, false);
+	//					Algorithm bip = new BIPAlgorithm(true, true);
+	//					Algorithm bipmulti = new BIPAlgorithm(false, true);
+			}
+//		}
 		return 0;
 	}
 	
 	private double runAlg(Algorithm alg) {
 		Graph tree = alg.solve(graph);
 		draw(tree, graph.getInstId(), alg.toString(), false);
-		return tree.evaluate(dstCount);
+		return tree.evaluate(d);
 	}
 	
-	private double runModel(ILPModel model, boolean newline) {
-		ArrayList<Integer> crossList = new ArrayList<Integer>();
-		model.solve();
-		double lpCost1 = model.getObjectiveValue();
-		Double[][] z = (Double[][]) model.getZVar();
-//		if (hasCrossing(z)) {
-//			crossList.add(graph.getInstId());
-//		}
-		draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
-//		CliqueModel cliqueModel = new CliqueModel(graph, z);
-//		cliqueModel.getExtGraph().generateAMPLData();  // create AMPL model for clique in the extended graph
-//		Clique clique;
-//		do {
-//			cliqueModel.solveAndLogTime();
-//			Boolean[] clVar = cliqueModel.getCliqueVar();
-//			clique = cliqueModel.getExtGraph().getSelectedExtendedNodes(clVar, cliqueModel.getObjectiveValue()); 
-//			cliqueList.add(clique);  // add new clique to the list of cliques
-//			cliqueModel.addClConstraint(clique);
-//		} while (clique.size() > 1);
-//		cliqueModel.end();
-//		listCliques(cliqueList);
-//		
-//		model = new SMTModel(graph, allowCrossing);
-//		model.addCrossCliqueConstraints(cliqueList);
-//		model.solveAndLogTime();
-		model.end();
-		System.err.println("Instances with crossing: ");
-		for (Integer c: crossList) {
-			System.err.println(c + "");	
-		}	
-		return lpCost1;
+	private void runModel(ArrayList<ILPModel> models) {
+		for (ILPModel model: models) {
+			long startT = System.currentTimeMillis();
+			model.solve(true, Constants.MAX_SOL_TIME);
+			long endT = System.currentTimeMillis();
+
+			double lpCost1 = model.getObjectiveValue();
+			logObjective(new File("logs/cost_log.txt"), lpCost1, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
+			logObjective(new File("logs/runtime_log.txt"), (endT - startT)/1000, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
+			Double[][] z = (Double[][]) model.getZVar();
+			Double[][][] f = (Double[][][]) model.getXVar();
+//			checkConstraints(f, z);
+			System.err.println(" Y var for PF2 model: ");
+			if (model instanceof SMTPF2Model ) {
+//				checkFHzeroEqFzero(((SMTPF2Model)model).getH(), f);
+//				((SMTPF2Model)model).getYVar();
+			}
+ 			draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
+			model.end();
+		}
+	}
+	
+	private void checkConstraints(Double[][][] fvar, Double[][] zvar) {
+		for (int t = 1; t < d; t++) {
+			for (int i = 0; i < n; i++) {
+				if (i != t) {
+					if (fvar[t][i][t] != 0.0) {
+						System.err.println("f_tit  is not nULL!!! i = " + i + " t = " +t  + " value: " + fvar[t][i][t]);
+					}
+					if (!fvar[i][t][t].equals(zvar[i][t])) {
+						System.err.println("f_itt != x_it i = " + i + " t = " + t + "values: " + fvar[i][t][t] + " " + zvar[i][t] );
+					}
+				}
+			}
+			
+		}
+	}
+	
+	private void checkFHzeroEqFzero(Double[][][][] h, Double[][][] f) {
+		for (int s = 0; s < d; s++) {
+			for (int t = 0; t < d; t++) {
+				if (s != t && s != 0) {
+					Double hv = Miscellaneous.round(h[0][s][s][t], 2);
+					Double fv = Miscellaneous.round(f[0][s][t], 2);
+					if (!hv.equals(fv)) {
+						System.err.println("H[0][s][s][t] at zero different from F[0][s][t]: s=" + s +" t=" + t+ " value: " + hv);
+					}
+				}
+			}
+		}
 	}
 	
 	private void compareVars(Double[][][][] xv1, Double[][][][] xv2) {
@@ -228,40 +194,9 @@ public class App {
 		}
 	}	
 	
-	private void listCliques(ArrayList<Clique> cliqueList) {
-		System.out.println("--------------CLIQUES--------------");
-		for (Clique clique: cliqueList) {
-			System.out.print("(");
-			System.out.print(clique.toString());
-			System.out.println(" ) weight: " + clique.getWeight());
-		}
-	}
-	
-    private boolean hasCrossing(Double[][] z) {
-		for (int i = 0; i < z.length; i++) {
-			for (int j = 0; j < z[i].length; j++) {
-				if ((z[i][j] != null) && (z[i][j] > 0)) {
-					for (int k = i + 1; k <z.length; k++) {
-						for (int l = k + 1; l < z[k].length; l++) {
-							if (z[k][l] > 0) {
-								if (Miscellaneous.edgesProperlyIntersect(graph.getNode(i).getPoint(), 
-															graph.getNode(j).getPoint(), 
-															graph.getNode(k).getPoint(), 
-															graph.getNode(l).getPoint())) {
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-    
 	private void draw(Object solution, int instId, String methodName, boolean useArrows) {
 		if (draw) {
-			Visualizer vis = new Visualizer(solution, graph, useArrows);
+			Visualizer vis = new Visualizer(solution, graph, useArrows, false, methodName + " ID: " + instId);
 			//Visualizer vis = new Visualizer(new File("instance.txt"), z, null);			
 	        JFrame frame = new JFrame(methodName + " ID: " + instId);
 	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -272,54 +207,14 @@ public class App {
 		}
     }		
 	
-	private void logObjective(double obj, int id, boolean newline) {
+	private void logObjective(File file, double obj, int id, boolean newline) {
         try	{
-        	File datafile = new File("logs/cost_log.txt");
-        	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
-        	fw.write((id > 0 ? id + ": ": " ") +  Miscellaneous.round(obj, 2) + (newline ? "\n" : "\t "));
+        	FileWriter fw = new FileWriter(file,true); //the true will append the new data
+        	fw.write((id > 0 ? id + ": ": " ") +  Miscellaneous.round(obj, 4) + (newline ? "\n" : "\t "));
         	fw.close();
         } catch(IOException ioe) {
             System.err.println("IOException: " + ioe.getMessage());
         }
-	}
-	
-	private void logStat(double obj, boolean newline, String filename) {
-        try	{
-        	File datafile = new File("logs/stat_" + filename + ".txt");
-        	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
-        	fw.write(Miscellaneous.round(obj, 2) + (newline ? "\n" : "\t"));
-        	fw.close();
-        } catch(IOException ioe) {
-            System.err.println("IOException: " + ioe.getMessage());
-        }
-	}
-	
-	
-	private void logObjectives(double lpCost1, double lpCost2, double ipCost1, double ipCost2, ArrayList<Clique> cliqueList, ILPModel model) {
-        try	{
-        	File datafile = new File("logs/log.txt");
-        	FileWriter fw = new FileWriter(datafile,true); //the true will append the new data
-            fw.write(Miscellaneous.round(lpCost2 - lpCost1,2) + "\t" + 
-            		 Miscellaneous.round(lpCost1,2) + "\t" + 
-            		 Miscellaneous.round(lpCost2,2) + "\t "+ 
-            		 Miscellaneous.round(ipCost1, 2) + "\t" + 
-            		 Miscellaneous.round(ipCost2,2) + "\t | " + model.toString() + "|  Cliques: ");
-            for (Clique c: cliqueList) {
-            	fw.write(c.toString() + " ");
-            }
-            fw.write("\n");
-            fw.close();
-        } catch(IOException ioe) {
-            System.err.println("IOException: " + ioe.getMessage());
-        }
-	}
-	
-	private void logHead(File datafile, FileWriter fw, ILPModel model) {
-		try {
-			fw.write(model.toString() + ": " + graph.getVertexCount() + "\n");
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
 	}
 	
 }

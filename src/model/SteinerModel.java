@@ -10,9 +10,9 @@ import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
-import ilog.cplex.IloCplex;
 import org.javatuples.Quartet;
 
+import smt.App;
 import smt.Constants;
 
 public class SteinerModel extends ILPModel {	
@@ -77,7 +77,6 @@ public class SteinerModel extends ILPModel {
 				}	
 			}
 			cplex.addLe(expr, n-1);				
-	
 			// OneDirDest
 			for (int j = 0; j < d; j++) {					
 				for (int s = 0; s < d; s++) {
@@ -92,7 +91,6 @@ public class SteinerModel extends ILPModel {
 					}
 				}	
 			}		
-			
 			// OneDirNonDest_A
 			for (int j = d; j < n; j++) {
 				for (int s = 0; s < d; s++) {
@@ -100,7 +98,7 @@ public class SteinerModel extends ILPModel {
 						if (j != k) {
 							IloLinearNumExpr expr2 = cplex.linearNumExpr();
 							for (int i = 0; i < n; i++) {
-								if (i != j) {
+								if (i != j && i != k) {
 									expr2.addTerm(1.0, x[i][j][s]);
 								}
 							}
@@ -109,7 +107,6 @@ public class SteinerModel extends ILPModel {
 					}
 				}
 			}
-			
 			// OneDirNonDest_B	
 			for (int j = d; j < n; j++) {
 				for (int s = 0; s < d; s++) {
@@ -124,7 +121,6 @@ public class SteinerModel extends ILPModel {
 					}
 				}
 			}
-			
 			// NonDestNoLEaf
 			for (int j = d; j < n; j++) {
 				for (int s = 0; s < d; s++) {
@@ -143,7 +139,6 @@ public class SteinerModel extends ILPModel {
 					cplex.addLe(expr4, expr5);
 				}
 			}
-	
 			// OneDir
 			for (int i = 0; i < n; i++) {
 				for (int j = i+1; j < n; j++) {
@@ -155,7 +150,6 @@ public class SteinerModel extends ILPModel {
 					}
 				}
 			}
-	
 			// NoCycles
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < d; j++) {
@@ -175,13 +169,10 @@ public class SteinerModel extends ILPModel {
 				}	
 			}
 			
-		//	cplex.addEq(z[0][1], 0);
-			//cplex.addEq(z[0][1], 1);
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
 	}
-
 	
 	public Double[][][] getXVar() {
 		try {
@@ -189,15 +180,16 @@ public class SteinerModel extends ILPModel {
 			for (int i = 0 ; i < x.length; i++) {
 				for (int j = 0; j < x.length; j++) {
 					if (i != j) {
-						for (int k = 0; k < x.length; k++) {
-//							System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(x[i][j][k]) + " --");						
+						for (int k = 0; k < d; k++) {
+//							if (k == 0 || k == 1)   {
+//								System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(x[i][j][k]) + " --");						
+//							}
 							xval[i][j][k] = cplex.getValue(x[i][j][k]);
 						}
 					}
 				}
 //				System.out.println();
 			}
-			System.out.println("Objective: " + cplex.getObjValue());
 			return xval;		
 		} catch (IloException e) {			
 			e.printStackTrace();
@@ -247,6 +239,46 @@ public class SteinerModel extends ILPModel {
     	return Constants.SMT_STRING + "(" + n + "," + d + ")";
 	}
 	
+//	private IloNumVar[][][][] initF() {
+//		try {
+//			f = new IloNumVar[n][n][d][];		
+//			for (int i = 0; i < n; i++) {
+//				for (int j = 0; j < n; j++) {
+//					for (int k = 0; k < d; k++) {
+//						f[i][j][k] = cplex.numVarArray(d,0,1);	
+//					}	
+//				}					
+//			}
+//			return f;
+//		} catch (IloException e) {
+//			e.printStackTrace();
+//			return null;
+//		}	
+//	}
+	
+//	public Double[][][][] getFVal() {
+//		try {
+//			Double[][][][] fVal =new Double[n][n][d][d];
+//			for (int i = 0; i < n; i++) {
+//				for (int j = 0; j < n; j++) {
+//					if (i != j) {
+//						for (int s = 0; s < d; s++) {
+//							for (int t = 0; t < d; t++) {
+//								if (s != t) {
+//									fVal[i][j][s][t] = cplex.getValue(f[i][j][s][t]);
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//			return fVal;
+//		} catch (IloException e) {
+//			e.printStackTrace();
+//			return null;
+//		}
+//	}
+
 }
 	
 	

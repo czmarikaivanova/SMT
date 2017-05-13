@@ -5,17 +5,7 @@ import graph.Graph;
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import org.javatuples.Quartet;
-import smt.Constants;
-import smt.Miscellaneous;
 
 public abstract class ILPModel {
 	protected IloCplex cplex;
@@ -35,6 +25,7 @@ public abstract class ILPModel {
 		this.lazy = lazy;
 		try {
 			cplex = new IloCplex();
+//			cplex.setOut(null);
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
@@ -55,15 +46,22 @@ public abstract class ILPModel {
 	public abstract Double[][] getZVar();
 	public abstract Double[][][] getXVar();
 	
+	protected void addValidInequalities() {}
+	
 	protected void createModel() {
 		initVars();
 		createObjFunction();
 		createConstraints();
+		if (willAddVIs) {
+			addValidInequalities();
+		}
 	}
 	
-	public boolean solve() {
+	public boolean solve(boolean useTimeLimit, int seconds) {
 		try {
-			cplex.solve();
+			if (useTimeLimit) {
+				cplex.setParam(IloCplex.DoubleParam.TiLim, seconds);
+			}
 			return cplex.solve();
 		} catch (IloException e) {
 			e.printStackTrace();
@@ -71,10 +69,6 @@ public abstract class ILPModel {
 		}
 	}
 	
-//	public IloCplex getModel() {
-//		return cplex;
-//	}
-
 	public void end() {
 		cplex.end();
 	}
@@ -89,5 +83,14 @@ public abstract class ILPModel {
 	}
 	public abstract String toString();
 
-
+	public double getCplexTime() {
+		try {
+			return cplex.getCplexTime();
+		} catch (IloException e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
+	
+	
 }
