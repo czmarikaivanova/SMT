@@ -1,5 +1,8 @@
 package model;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
@@ -21,25 +24,36 @@ import graph.Node;
 
 public class SMTModelFlexiFlow extends SMTModel {
 
+	
+	
 	public SMTModelFlexiFlow(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
 		super(graph, willAddVIs, isLP, lazy);
 	}
 	
-protected IloNumVar[][][][] f;
+	protected IloNumVar[][][][] f;
+	File stLogFile;
 
 	public boolean solve(boolean useTimeLimit, int seconds) {
 		try {
+			stLogFile = new File("logs/stpairs.txt");
+
+			FileWriter fw;
+			fw = new FileWriter(new File("logs/stpairs.txt"),true);
 			cplex.setParam(IloCplex.DoubleParam.TiLim, seconds);
 			PriorityQueue<STPair> pairQueue = new PriorityQueue<STPair>();
 			boolean solved = false;
 			boolean ret;
 			IloCplex singleFlowCplex = new IloCplex();
+			STPair prevAdded = null;
 			do {
+				ArrayList<STPair> satPairs = new ArrayList<STPair>();
+				int satNeighCnt = 0;
+				int satOthCnt = 0;
 				pairQueue.clear();
 				int correct = 0;
 				int wrong = 0;
-				System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
-				System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
+//				System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
+//				System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
 				double startT = this.getCplexTime();
 				ret = cplex.solve();
 				double stopT = this.getCplexTime();
@@ -57,13 +71,29 @@ protected IloNumVar[][][][] f;
 //							getFVal();
 							stFlowModel.solve(false, 3600);
 							double stVal = stFlowModel.getObjectiveValue();
+							STPair stPair = new STPair(s, t, stVal);
 							if (stVal > -0.99) {
+
+				        		fw.write(stPair.toString() + "\n");
 								wrong++;
-								pairQueue.add(new STPair(s, t, stVal));
+								pairQueue.add(stPair);
 								solved = false;
 //									break;
 							}
 							else {
+								if (!satPairs.contains(stPair)) {
+									satPairs.add(stPair);
+									if (prevAdded != null && !prevAdded.equals(stPair)) {
+										if (stPair.getS() == prevAdded.getS() || stPair.getS() == prevAdded.getT() || stPair.getT() == prevAdded.getS() || stPair.getT() == prevAdded.getT()) {
+											satNeighCnt++;
+											System.out.println(prevAdded.toString() + " " + stPair.toString());
+										}
+										else {
+											satOthCnt++;
+										}
+									}
+								}
+								fw.write("\t\t" + stPair.toString() + "\n");  
 								correct++;
 							}
 						}
@@ -72,20 +102,30 @@ protected IloNumVar[][][][] f;
 				}
 				System.err.println("Correct: " + correct + "\n");
 				System.err.println("Wrong: " + wrong + "\n");
+				System.err.println("Neighbours added: " + satNeighCnt);
+				System.err.println("Others added: " + satOthCnt);
+				System.err.println("sat size: " + satPairs.size());
 				if (wrong > (wrong + correct)/10 ) {
-					pairQueue = leaveMatching(pairQueue);					
+//					pairQueue = leaveMatching(pairQueue);					
 				}
 				if (pairQueue.size() > 0 && pairQueue.peek().getDiff() < -0.95) {
 					solved = true;
 				}
-				else {
-					addFlowConstraints(pairQueue,pairQueue.size());
-//					addFlowConstraints(pairQueue,2);
+				else if (pairQueue.size() > 0) {
+//					addFlowConstraints(pairQueue,pairQueue.size());
+					prevAdded = pairQueue.peek();
+					fw.write("-------------------\n");
+					fw.write(pairQueue.peek().toString() + "\n");
+					fw.write("-------------------------\n");
+					addFlowConstraints(pairQueue,1);
 				}
 				pairQueue.clear();
 			} while (!solved);
 			return ret;
 		} catch (IloException e) {
+			e.printStackTrace();
+			return false;
+		}catch (IOException e) {
 			e.printStackTrace();
 			return false;
 		}
@@ -99,7 +139,6 @@ protected IloNumVar[][][][] f;
 						f[i][j][s][t] = cplex.numVar(0, 1);
 						f[i][j][t][s] = cplex.numVar(0, 1);
 					} catch (IloException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}	
 			}					
@@ -272,4 +311,5 @@ protected IloNumVar[][][][] f;
 		return Constants.SMT_FLEXI_STRING;
 	}
 	
+
 }

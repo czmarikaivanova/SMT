@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import org.javatuples.Quartet;
 
+import smt.App;
+
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
@@ -121,6 +123,22 @@ public class SteinerMultiFlowModel extends SteinerModel {
 					}
 				}
 			}					
+			
+//			if (App.stronger2) {
+//				for (int i = 0; i < n; i++) {
+//					for (int j = 0; j < n; j++) {
+//						if (i != j) {
+//							for (int s = 0; s < d; s++) {
+//								for (int t = 0; t < d; t++) {
+//									if (s != t) {
+//										cplex.addEq(cplex.sum(f[i][j][0][t], f[j][i][0][s], f[i][j][t][s]), cplex.sum(f[i][j][0][s], f[j][i][0][t], f[i][j][s][t]));
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
 			
 			// crossing
 			if (!allowCrossing) {

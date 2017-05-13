@@ -1,5 +1,6 @@
 package model;
 
+import smt.App;
 import smt.Constants;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
@@ -74,6 +75,50 @@ public class SMTMultiFlowModel extends SteinerMultiFlowModel {
 					}
 				}					
 			}
+			
+			if (App.stronger) {
+				for (int i = 0; i < n; i++) {
+					for (int j = 0; j < n; j++) {
+						if( i != j) {
+							for (int s = 1; s < d; s++) {
+								for (int t = 1; t < d; t++) {
+									if (s != t) {
+										
+//											cplex.addEq(cplex.sum(f[i][j][0][t], f[j][i][0][s], f[i][j][t][s]), cplex.sum(f[i][j][0][s], f[j][i][0][t], f[i][j][s][t]));
+											for (int u = 0; u < d; u++) {
+												if (App.stronger2) {
+													cplex.addGe(f[i][j][s][t], cplex.sum(f[i][j][u][t], cplex.negative(f[i][j][u][s])));
+												}
+												cplex.addEq(cplex.sum(f[i][j][u][t], f[j][i][u][s], f[i][j][t][s]), cplex.sum(f[i][j][u][s], f[j][i][u][t], f[i][j][s][t]));
+
+											}																												
+										
+//										cplex.addGe(f[i][j][s][t], cplex.sum(f[j][i][0][s], cplex.negative(f[j][i][0][t])));
+//										if (i < j) {
+//											cplex.addLe(cplex.sum(f[i][j][0][s], f[j][i][0][t], f[i][j][s][t]),z[i][j]);
+//											cplex.addLe(cplex.sum(f[j][i][0][s], f[i][j][0][t], f[j][i][s][t]),z[i][j]);
+//										}
+
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+				// steiner_flow_cons
+				for (int i = d; i < n; i++) {
+					IloLinearNumExpr expr1 = cplex.linearNumExpr();
+					IloLinearNumExpr expr2 = cplex.linearNumExpr();
+					for (int j = 0; j < n; j++) {
+						if (i != j) {
+							expr1.addTerm(1.0, x[j][i][0]);
+							expr2.addTerm(1.0, x[i][j][0]);
+						}
+					}
+					cplex.addLe(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
+				}
+
 			// remove it is a VI down there for more j
 //			for (int j = d; j < n; j ++) {
 //				for (int s = 0; s < d; s++) {

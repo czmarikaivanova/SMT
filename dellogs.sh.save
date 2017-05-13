@@ -1,0 +1,3 @@
+#!/bin/bash
+# delete all files in ~/workspace-eclipse/SMT/amplfiles and ~/workspace-eclipse/SMT/instances
+

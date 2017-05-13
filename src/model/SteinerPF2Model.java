@@ -69,7 +69,27 @@ public class SteinerPF2Model extends ILPModel {
 	@Override
 	protected void createConstraints() {
 		try {
-	
+			//no_flow_back
+			
+			for (int i = 0; i < n; i++) {
+				cplex.addEq(pz[i][0], 0.0);
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						cplex.addEq(py[i][j][0], 0.0);
+					}
+				}
+			}
+			
+			// Size
+//			IloLinearNumExpr expr = cplex.linearNumExpr();				
+//			for (int i = 0; i < n; i++) {					
+//				for (int j = 0; j < n; j++) {
+//					if (i != j)
+//					expr.addTerm(1.0, pz[i][j]);
+//				}	
+//			}
+//			cplex.addLe(expr, n-1);	
+			
 			// flow1
 			for (int t = 1; t < d; t++) { // must not be zero
 				IloLinearNumExpr expr1 = cplex.linearNumExpr();

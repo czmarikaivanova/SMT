@@ -12,6 +12,7 @@ import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import org.javatuples.Quartet;
 
+import smt.App;
 import smt.Constants;
 
 public class SteinerModel extends ILPModel {	
@@ -97,7 +98,7 @@ public class SteinerModel extends ILPModel {
 						if (j != k) {
 							IloLinearNumExpr expr2 = cplex.linearNumExpr();
 							for (int i = 0; i < n; i++) {
-								if (i != j) {
+								if (i != j && i != k) {
 									expr2.addTerm(1.0, x[i][j][s]);
 								}
 							}
