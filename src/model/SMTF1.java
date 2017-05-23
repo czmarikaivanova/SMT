@@ -9,8 +9,8 @@ import graph.Graph;
 
 public class SMTF1 extends ILPModel {
 
-	public SMTF1(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
-		super(graph, willAddVIs, isLP, lazy);
+	public SMTF1(Graph graph , boolean isLP, boolean lazy) {
+		super(graph, isLP, lazy);
 //		System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
 //		System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
 	}
@@ -71,17 +71,37 @@ public class SMTF1 extends ILPModel {
 	@Override
 	public void createConstraints() {
 		try {
+//			 obvious
+			for (int i = 0; i < n; i++) {
+				for (int t = 1; t < d; t++) {
+					if (i != t) {
+						cplex.addEq(py[i][t][t], pz[i][t]);  // 3l
+						cplex.addEq(py[t][i][t], 0.0);  // 3k
+					}
+				}
+			}	
 			//no_flow_back
-			
 			for (int i = 0; i < n; i++) {
 				cplex.addEq(pz[i][0], 0.0);
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
-						cplex.addEq(py[i][j][0], 0.0);
+//						cplex.addEq(py[i][j][0], 0.0);  // f  -- probably implied by x (see flow conservation plus f_x_rel
+						cplex.addEq(pz[i][0], 0.0);		// x
 					}
 				}
 			}
-			
+			// steiner_flow_cons
+			for (int i = d; i < n; i++) {
+				IloLinearNumExpr expr1 = cplex.linearNumExpr();
+				IloLinearNumExpr expr2 = cplex.linearNumExpr();
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						expr1.addTerm(1.0, pz[j][i]);
+						expr2.addTerm(1.0, pz[i][j]);
+					}
+				}
+				cplex.addLe(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
+			}
 			// flow1
 			for (int t = 1; t < d; t++) { // must not be zero
 				IloLinearNumExpr expr1 = cplex.linearNumExpr();
@@ -122,18 +142,7 @@ public class SMTF1 extends ILPModel {
 					}
 				}
 			}
-			// steiner_flow_cons
-			for (int i = d; i < n; i++) {
-				IloLinearNumExpr expr1 = cplex.linearNumExpr();
-				IloLinearNumExpr expr2 = cplex.linearNumExpr();
-				for (int j = 0; j < n; j++) {
-					if (i != j) {
-						expr1.addTerm(1.0, pz[j][i]);
-						expr2.addTerm(1.0, pz[i][j]);
-					}
-				}
-				cplex.addLe(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
-			}
+
 			// yvar
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
@@ -166,71 +175,11 @@ public class SMTF1 extends ILPModel {
 				}
 				cplex.addLe(expr, 1.0);  
 			}
-			
-			for (int i = 0; i < n; i++) {
-				for (int t = 1; t < d; t++) {
-					if (i != t) {
-						cplex.addEq(py[i][t][t], pz[i][t]);  // 3l
-						cplex.addEq(py[t][i][t], 0.0);  // 3k
-					}
-				}
-//				if (i >= 1 && i < d)  {
-//					IloLinearNumExpr expr = cplex.linearNumExpr();
-//					for (int j = 0; j < n; j++) {
-//						if (i != j) {
-//							expr.addTerm(1.0, pz[j][i]);
-//						}
-//					}
-//					cplex.addEq(expr, 1.0);  // (A)
-//				}
-
-			}			
-			
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
 	}
-	
-	public void addValidInequalities() {
-		try {
-			super.addValidInequalities();
 
-			
-//			// y_sum=1
-			for (int s = 0; s < d; s++) {
-				IloLinearNumExpr expr1 = cplex.linearNumExpr();
-				for (int j = 0; j < n; j++) {
-					if (j != s) {
-						expr1.addTerm(1.0, y[s][j][s]);						
-					}
-				}
-				cplex.addEq(expr1, 1.0);
-			}
-
-//			 x to nondest => y from there 
-			for (int j = d; j < n; j++) {
-				for (int s = 0; s < d; s++) {
-					IloLinearNumExpr expr1 = cplex.linearNumExpr();
-					IloLinearNumExpr expr2 = cplex.linearNumExpr();
-					for (int i = 0; i < n; i++) {
-						if (i != j) {
-							expr1.addTerm(1.0, y[j][i][s]);
-							expr2.addTerm(1.0, pz[i][j]);
-							expr2.addTerm(-1.0, py[i][j][s]);
-							expr2.addTerm(1.0, py[j][i][s]);
-						}
-					}
-					cplex.addGe(expr1, expr2);
-				}
-			}			
-		} catch (IloException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}	
-	
-			
-	
 	public Double[][][] getPY() {
 		try {
 			Double[][][] xval = new Double[n][n][d];
@@ -279,6 +228,7 @@ public class SMTF1 extends ILPModel {
 	@Override
 	public Double[][][] getXVar() {
 		try {
+			System.err.println("FFFFFF:");
 			Double[][][] xval = new Double[n][n][d];
 			for (int i = 0 ; i < n; i++) {
 				for (int j = 0; j < n; j++) {
@@ -288,6 +238,7 @@ public class SMTF1 extends ILPModel {
 							if (k == 2 && cplex.getValue(py[i][j][k]) > 0  ) {
 								System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(py[i][j][k]) + " --");	
 							}
+							System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(py[i][j][k]) + " --");
 							xval[i][j][k] = cplex.getValue(py[i][j][k]);
 						}
 					}

@@ -17,8 +17,8 @@ import smt.Constants;
 
 public class SteinerX extends ILPModel {	
 	
-	public SteinerX(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
-		super(graph, willAddVIs, isLP, lazy);
+	public SteinerX(Graph graph , boolean isLP, boolean lazy) {
+		super(graph, isLP, lazy);
 	}
 	
 	protected IloNumVar[][][] x;
@@ -69,14 +69,14 @@ public class SteinerX extends ILPModel {
 	
 	public void createConstraints() {
 		try {
-			// Size
-			IloLinearNumExpr expr = cplex.linearNumExpr();				
-			for (int i = 0; i < n; i++) {					
-				for (int j = i+1; j < n; j++) {
-					expr.addTerm(1.0, z[i][j]);
-				}	
-			}
-			cplex.addLe(expr, n-1);				
+			// Size - seems not needed. Not strengthening, not 
+//				IloLinearNumExpr expr = cplex.linearNumExpr();				
+//				for (int i = 0; i < n; i++) {					
+//					for (int j = i+1; j < n; j++) {
+//						expr.addTerm(1.0, z[i][j]);
+//					}	
+//				}
+//				cplex.addLe(expr, n-1);		
 			// OneDirDest
 			for (int j = 0; j < d; j++) {					
 				for (int s = 0; s < d; s++) {

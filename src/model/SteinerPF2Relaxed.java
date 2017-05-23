@@ -15,8 +15,8 @@ import org.javatuples.Quartet;
 
 public class SteinerPF2Relaxed extends ILPModel {
 
-	public SteinerPF2Relaxed(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
-		super(graph, willAddVIs, isLP, lazy);
+	public SteinerPF2Relaxed(Graph graph , boolean isLP, boolean lazy) {
+		super(graph, isLP, lazy);
 	}
 	
 	protected int n; 

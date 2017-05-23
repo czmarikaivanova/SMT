@@ -26,8 +26,8 @@ public class SMTModelFlexiFlow extends SMTX1 {
 
 	
 	
-	public SMTModelFlexiFlow(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
-		super(graph, willAddVIs, isLP, lazy);
+	public SMTModelFlexiFlow(Graph graph, boolean isLP, boolean lazy) {
+		super(graph, isLP, lazy);
 	}
 	
 	protected IloNumVar[][][][] f;
@@ -215,8 +215,7 @@ public class SMTModelFlexiFlow extends SMTX1 {
 				cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b))); // flow conservation - dest
 				cplex.addEq(1,cplex.sum(expr3a, cplex.negative(expr3b)));    // flow conservation - source
 				
-
-					if (willAddVIs) {
+// VALID INEQUALITIES START HERE!
 										
 							// vi10
 //								for (int t1 = 0; t1 < d; t1++) {
@@ -276,7 +275,6 @@ public class SMTModelFlexiFlow extends SMTX1 {
 											}
 								}									
 						}
-			}
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}	

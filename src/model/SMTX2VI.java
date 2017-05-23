@@ -15,8 +15,8 @@ import graph.Node;
 
 public class SMTX2VI extends SMTX2 {
 
-	public SMTX2VI(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
-		super(graph, willAddVIs, isLP, lazy);
+	public SMTX2VI(Graph graph, boolean isLP, boolean lazy) {
+		super(graph, isLP, lazy);
 	}
 	
 	// vars and objective from SMTX2
@@ -24,7 +24,7 @@ public class SMTX2VI extends SMTX2 {
 	public void createConstraints() {
 		try {
 			super.createConstraints();
-			// f imp y in nondest 
+			// f imp y k 
 			for (int j = 0; j < n; j++) {
 				for (int s = 0; s < d; s++) {
 					for (int t = 0; t < d; t++) {
@@ -48,7 +48,7 @@ public class SMTX2VI extends SMTX2 {
 					}
 				}
 			}	
-			// vi4
+			// vi4 (x imp sum f in ampl)
 			for (int s = 0; s < d; s++) {
 				for (int i = 0; i < n; i++) {
 					for (int j = 0; j < n; j++) {
@@ -65,7 +65,7 @@ public class SMTX2VI extends SMTX2 {
 				}
 			}	
 						
-			// vi10
+			// vi10 (vi11 in ampl)
 			for (int s = 0; s < d; s++) {
 				for (int t1 = 0; t1 < d; t1++) {
 					if (s != t1) {
@@ -83,15 +83,13 @@ public class SMTX2VI extends SMTX2 {
 					}
 				}
 			}	
-//			if (App.stronger2) {
-//				for (int i = 0; i < n; i++) {
-//					for (int j = 0; j < n; j++) {
-//						if (i != j) {
-//							for (int s = 0; s < d; s++) {
-//								for (int t = 0; t < d; t++) {
-//									if (s != t) {
-//										cplex.addEq(cplex.sum(f[i][j][0][t], f[j][i][0][s], f[i][j][t][s]), cplex.sum(f[i][j][0][s], f[j][i][0][t], f[i][j][s][t]));
-//									}
+//			for (int i = 0; i < n; i++) {
+//				for (int j = 0; j < n; j++) {
+//					if (i != j) {
+//						for (int s = 0; s < d; s++) {
+//							for (int t = 0; t < d; t++) {
+//								if (s != t) {
+//									cplex.addEq(cplex.sum(f[i][j][0][t], f[j][i][0][s], f[i][j][t][s]), cplex.sum(f[i][j][0][s], f[j][i][0][t], f[i][j][s][t]));
 //								}
 //							}
 //						}

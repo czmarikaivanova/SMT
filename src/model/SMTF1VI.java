@@ -9,54 +9,17 @@ import graph.Graph;
 
 public class SMTF1VI extends SMTF1 {
 
-	public SMTF1VI(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
-		super(graph, willAddVIs, isLP, lazy);
+	public SMTF1VI(Graph graph, boolean isLP, boolean lazy) {
+		super(graph, isLP, lazy);
 	}
 
 	@Override
 	public void createConstraints() {
 		try {
 			super.createConstraints();
-			//no_flow_back
-			for (int i = 0; i < n; i++) {
-				cplex.addEq(pz[i][0], 0.0);
-				for (int j = 0; j < n; j++) {
-					if (i != j) {
-						cplex.addEq(py[i][j][0], 0.0);
-					}
-				}
-			}
-			// h_x_weaker
-			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
-				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < n; j++) {
-						if (j != i) {
-							cplex.addLe(py[i][j][k], pz[i][j]);
-						}
-					}
-				}
-			}
-			// steiner_flow_cons
-			for (int i = d; i < n; i++) {
-				IloLinearNumExpr expr1 = cplex.linearNumExpr();
-				IloLinearNumExpr expr2 = cplex.linearNumExpr();
-				for (int j = 0; j < n; j++) {
-					if (i != j) {
-						expr1.addTerm(1.0, pz[j][i]);
-						expr2.addTerm(1.0, pz[i][j]);
-					}
-				}
-				cplex.addLe(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
-			}
-			// obvious
-			for (int i = 0; i < n; i++) {
-				for (int t = 1; t < d; t++) {
-					if (i != t) {
-						cplex.addEq(py[i][t][t], pz[i][t]);  // 3l
-						cplex.addEq(py[t][i][t], 0.0);  // 3k
-					}
-				}
-			}	
+			//no_flow_back - must be included in the basic model
+			// steiner_flow_cons - must be included
+			// obvious - must be included
 //			// y_sum=1
 			for (int s = 0; s < d; s++) {
 				IloLinearNumExpr expr1 = cplex.linearNumExpr();

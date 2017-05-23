@@ -13,7 +13,7 @@ import graph.Node;
 public class SMTFlowModel extends SMTX1 {
 
 	public SMTFlowModel(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
-		super(graph, willAddVIs, isLP, lazy);
+		super(graph, isLP, lazy);
 	}
 	
 	protected IloNumVar[][][] f;

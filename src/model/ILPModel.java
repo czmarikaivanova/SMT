@@ -12,15 +12,13 @@ public abstract class ILPModel {
 	protected IloNumVar[][] z;
 	protected Graph graph;
 	protected boolean allowCrossing = true;
-	protected boolean willAddVIs;
 	protected boolean isLP;
 	protected int n;
 	protected int d;
 	protected boolean lazy;
 	
-	public ILPModel(Graph graph, boolean willAddVIs, boolean isLP, boolean lazy) {
+	public ILPModel(Graph graph, boolean isLP, boolean lazy) {
 		this.graph = graph;
-		this.willAddVIs = willAddVIs;
 		this.isLP = isLP;
 		this.lazy = lazy;
 		try {
@@ -46,15 +44,10 @@ public abstract class ILPModel {
 	public abstract Double[][] getZVar();
 	public abstract Double[][][] getXVar();
 	
-	protected void addValidInequalities() {}
-	
 	protected void createModel() {
 		initVars();
 		createObjFunction();
 		createConstraints();
-		if (willAddVIs) {
-			addValidInequalities();
-		}
 	}
 	
 	public boolean solve(boolean useTimeLimit, int seconds) {

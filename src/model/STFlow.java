@@ -19,7 +19,6 @@ public class STFlow extends ILPModel {
 	
 	public STFlow(Graph graph, Double[][][] xvar, int s, int t, IloCplex cplex) {
 		this.graph = graph;
-		this.willAddVIs = false;
 		this.isLP = Constants.LP;
 		this.lazy = false;
 		try {

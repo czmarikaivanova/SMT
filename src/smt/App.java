@@ -16,13 +16,12 @@ import algorithm.MSTAlgorithm;
 import model.CliqueModel;
 import model.ILPModel;
 import model.MEBModel;
-import model.MultiFlow;
 import model.SMTF1VI;
+import model.SMTF2VI;
 import model.SMTFlowModel;
 import model.SMTX1;
 import model.SMTModelFlexiFlow;
 import model.SMTX2;
-import model.SMTOnlyFlow;
 import model.SMTF1;
 import model.SMTF2;
 import model.SMTX1VI;
@@ -41,18 +40,16 @@ public class App {
 	int iter;    
 	String fname;  // generate from file
 	
-	public App(int vertexCount, int dstCount, boolean draw, String fname, int iter) {
-//		this.n = vertexCount;
-		this.n = 16;
-		this.d = 6;
-		this.draw = draw;
-//		this.iter = iter;
-		this.iter = 10;
+	public App(String fname) {
+//		this.n = 12;
+		this.d = 8;
+		this.draw = false;
+		this.iter = 50;
 		this.fname = fname;
 	}
 	
 	public int run() {
-				
+		for (int n = 10; n < 19; n++) {
 			for  (int i = 0; i < iter; i++) {
 				ArrayList<ILPModel> models = new ArrayList<ILPModel>();
 				if (fname == null) {
@@ -64,27 +61,16 @@ public class App {
 				graph.saveInstance();
 				graph.generateAMPLData();
 				
-	//			
-				models.add(new SMTX1(graph, false, Constants.LP, false));
-				models.add(new SMTX1VI(graph, false, Constants.LP, false));
-				models.add(new SMTX2(graph, false, Constants.LP, false));
-//				models.add(new SMTModel(graph, false, Constants.LP, false));
-//				stronger = true;
-//				stronger2 = false;
-//				models.add(new SMTX2(graph, false, Constants.INTEGER, false));
-//				stronger = true;
-//				stronger2 = true;
-//				models.add(new SMTX2(graph, false, Constants.LP, false));
-				//				stronger = true;
-//				stronger2 = true;
-//				models.add(new SMTX2(graph, false, Constants.LP, false));
-	//
-				models.add(new SMTF1(graph, false, Constants.LP, false));
-				models.add(new SMTF1VI(graph, false, Constants.LP, false));
-				models.add(new SMTF2(graph, false, Constants.LP, false));
-				
-//				models.add(new SMTModel(graph, false, Constants.INTEGER, false));				
-//				models.add(new SMTModel(graph, false, Constants.INTEGER, false));
+				models.add(new SMTX1(graph, Constants.LP, false));
+				models.add(new SMTF1(graph, Constants.LP, false));
+				models.add(new SMTX1VI(graph, Constants.LP, false));
+				models.add(new SMTF1VI(graph, Constants.LP, false));
+				models.add(new SMTX2(graph, Constants.LP, false));
+				models.add(new SMTF2(graph, Constants.LP, false));
+				models.add(new SMTX2VI(graph, Constants.LP, false));
+				models.add(new SMTF2VI(graph, Constants.LP, false));
+//				models.add(new SMTX1(graph, Constants.INTEGER, false));
+				models.add(new SMTF1(graph, Constants.INTEGER, false));
 	//
 	//			models.add(new SMTModelFlexiFlow(graph, true, Constants.LP, false));
 				
@@ -93,7 +79,7 @@ public class App {
 	//					Algorithm bip = new BIPAlgorithm(true, true);
 	//					Algorithm bipmulti = new BIPAlgorithm(false, true);
 			}
-//		}
+		}
 		return 0;
 	}
 	
@@ -113,9 +99,9 @@ public class App {
 			logObjective(new File("logs/cost_log.txt"), lpCost1, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
 			logObjective(new File("logs/runtime_log.txt"), (endT - startT)/1000, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
 			Double[][] z = (Double[][]) model.getZVar();
-			Double[][][] f = (Double[][][]) model.getXVar();
+//			Double[][][] f = (Double[][][]) model.getXVar();
 //			checkConstraints(f, z);
-			System.err.println(" Y var for PF2 model: ");
+//			System.err.println(" Y var for PF2 model: ");
 			if (model instanceof SMTF2 ) {
 //				checkFHzeroEqFzero(((SMTF2)model).getH(), f);
 //				((SMTF2)model).getYVar();
