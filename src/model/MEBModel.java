@@ -6,8 +6,6 @@ import org.javatuples.Quartet;
 
 import smt.Constants;
 
-import graph.Clique;
-import graph.ExtendedNode;
 import graph.Graph;
 import graph.Node;
 import ilog.concert.IloException;
@@ -160,25 +158,7 @@ public class MEBModel extends ILPModel {
 			System.err.println("Concert exception caught: " + e);
 		}	
 	}
-	
-	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
-		try {
-			for (Clique clique: cliqueList) {
-				IloNumExpr[] varArray = new IloNumExpr[clique.size() * 2];
-				for (int k = 0; k < clique.size(); k++) {
-					int i = clique.get(k).getOrigU().getId();
-					int j = clique.get(k).getOrigV().getId();
-					varArray[k] = z[i][j];
-					varArray[clique.size() + k] = z[j][i];
-				}
-				cplex.addLe(cplex.sum(varArray), 1.0);
-			}
-		} catch (IloException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}	
-	
+
 	
 	public double[] getPVar() {
 		try {

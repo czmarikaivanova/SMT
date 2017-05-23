@@ -1,8 +1,5 @@
 package smt;
 
-import graph.Clique;
-import graph.ExtendedGraph;
-import graph.ExtendedNode;
 import graph.Graph;
 import java.io.File;
 import java.io.FileWriter;
@@ -13,12 +10,10 @@ import org.javatuples.Pair;
 import algorithm.Algorithm;
 import algorithm.BIPAlgorithm;
 import algorithm.MSTAlgorithm;
-import model.CliqueModel;
 import model.ILPModel;
 import model.MEBModel;
 import model.SMTF1VI;
 import model.SMTF2VI;
-import model.SMTFlowModel;
 import model.SMTX1;
 import model.SMTModelFlexiFlow;
 import model.SMTX2;
@@ -27,8 +22,6 @@ import model.SMTF2;
 import model.SMTX1VI;
 import model.SteinerX;
 import model.SMTX2VI;
-import model.SteinerPF2Model;
-import model.SteinerPF2Relaxed;
 
 public class App {
     public static boolean stronger;

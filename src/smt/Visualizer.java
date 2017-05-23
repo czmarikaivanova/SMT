@@ -1,7 +1,6 @@
 package smt;
 
 
-import graph.Clique;
 import graph.Edge;
 import graph.Graph;
 import graph.Node;

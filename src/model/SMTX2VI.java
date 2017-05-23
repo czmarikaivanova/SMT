@@ -9,7 +9,6 @@ import smt.App;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
-import graph.Clique;
 import graph.Graph;
 import graph.Node;
 
@@ -106,11 +105,6 @@ public class SMTX2VI extends SMTX2 {
     	return "Steiner_MULTI_FLOW ";
 	}
 
-	@Override
-	public void addCrossCliqueConstraints(ArrayList<Clique> cliqueList) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public Double[][] getZVar() {
