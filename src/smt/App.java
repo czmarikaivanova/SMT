@@ -40,12 +40,13 @@ public class App {
 	int iter;    
 	String fname;  // generate from file
 	
-	public App(String fname) {
+	public App() {
 //		this.n = 12;
 		this.d = 8;
 		this.draw = false;
 		this.iter = 50;
-		this.fname = fname;
+//		this.fname =  "saved_inst/smt-x2-stronger-f1-vi.txt";
+		this.fname =  null;
 	}
 	
 	public int run() {
