@@ -154,11 +154,11 @@ public class STFlow extends ILPModel {
 	private void addCapacityConstraints(Double[][][] xvar) {
 		try {
 			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
+				for (int j = i+1; j < n; j++) {
 					if (j != i && s != t) {
 
 							cplex.addLe(f[i][j][s][t], xvar[i][j][s]);
-//							cplex.addLe(f[j][i][t][s], xvar[j][i][t]);
+							cplex.addLe(f[j][i][s][t], xvar[j][i][s]);
 					}
 				}
 			}

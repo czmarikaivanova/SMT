@@ -34,16 +34,16 @@ public class App {
 	String fname;  // generate from file
 	
 	public App() {
-//		this.n = 12;
+//		this.n = 16;
 		this.d = 8;
 		this.draw = false;
 		this.iter = 50;
-//		this.fname =  "saved_inst/smt-x2-stronger-f1-vi.txt";
+//		this.fname =  "saved_inst/weirdFF.txt";
 		this.fname =  null;
 	}
 	
 	public int run() {
-		for (int n = 10; n < 19; n++) {
+		for (int n = 16; n < 19; n++) {
 			for  (int i = 0; i < iter; i++) {
 				ArrayList<ILPModel> models = new ArrayList<ILPModel>();
 				if (fname == null) {
@@ -62,11 +62,11 @@ public class App {
 				models.add(new SMTX2(graph, Constants.LP, false));
 				models.add(new SMTF2(graph, Constants.LP, false));
 				models.add(new SMTX2VI(graph, Constants.LP, false));
-				models.add(new SMTF2VI(graph, Constants.LP, false));
+//				models.add(new SMTF2VI(graph, Constants.LP, false));
 //				models.add(new SMTX1(graph, Constants.INTEGER, false));
 				models.add(new SMTF1(graph, Constants.INTEGER, false));
 	//
-	//			models.add(new SMTModelFlexiFlow(graph, true, Constants.LP, false));
+//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false));
 				
 				runModel(models);
 	//					ILPModel smtPf2LP = new SMTF2(graph, false, Constants.LP, false);

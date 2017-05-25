@@ -47,7 +47,7 @@ public class SMTX2VI extends SMTX2 {
 					}
 				}
 			}	
-			// vi4 (x imp sum f in ampl)
+			// vi4 (x imp sum f in ampl) COMMENTED JUST FOR CG EXPERIMENT - remove comment later!!
 			for (int s = 0; s < d; s++) {
 				for (int i = 0; i < n; i++) {
 					for (int j = 0; j < n; j++) {
@@ -63,8 +63,8 @@ public class SMTX2VI extends SMTX2 {
 					}
 				}
 			}	
-						
-			// vi10 (vi11 in ampl)
+//						
+//			// vi10 (vi11 in ampl)
 			for (int s = 0; s < d; s++) {
 				for (int t1 = 0; t1 < d; t1++) {
 					if (s != t1) {
@@ -82,6 +82,8 @@ public class SMTX2VI extends SMTX2 {
 					}
 				}
 			}	
+			
+//			--------------------------
 //			for (int i = 0; i < n; i++) {
 //				for (int j = 0; j < n; j++) {
 //					if (i != j) {
