@@ -8,8 +8,8 @@ import graph.Graph;
 
 public class SMTX1VI extends SMTX1 {
 
-	public SMTX1VI(Graph graph, boolean isLP, boolean lazy) {
-		super(graph, isLP, lazy);
+	public SMTX1VI(Graph graph, boolean isLP, boolean excludeC) {
+		super(graph, isLP, excludeC);
 	}
 	
 	// objective function and vars from super

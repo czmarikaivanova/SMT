@@ -15,8 +15,8 @@ import smt.Constants;
 
 public class SteinerX extends ILPModel {	
 	
-	public SteinerX(Graph graph , boolean isLP) {
-		super(graph, isLP);
+	public SteinerX(Graph graph , boolean isLP, boolean excludeC) {
+		super(graph, isLP, excludeC);
 	}
 	
 	protected IloNumVar[][][] x;

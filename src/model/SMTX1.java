@@ -7,8 +7,8 @@ import ilog.concert.IloRange;
 import graph.Graph;
 
 public class SMTX1 extends SteinerX {
-	public SMTX1 (Graph graph, boolean isLP) {
-		super(graph, isLP);
+	public SMTX1 (Graph graph, boolean isLP, boolean excludeC) {
+		super(graph, isLP, excludeC);
 	}
 	
 	protected IloNumVar[][][] y;		

@@ -9,8 +9,8 @@ import graph.Graph;
 
 public class SMTF1 extends ILPModel {
 
-	public SMTF1(Graph graph , boolean isLP) {
-		super(graph, isLP);
+	public SMTF1(Graph graph , boolean isLP, boolean excludeC) {
+		super(graph, isLP, excludeC);
 //		System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
 //		System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
 	}

@@ -21,8 +21,8 @@ import graph.Node;
 
 public class SMTModelFlexiFlow extends SMTX1VI {
 
-	public SMTModelFlexiFlow(Graph graph, boolean isLP, boolean lazy) {
-		super(graph, isLP, lazy);
+	public SMTModelFlexiFlow(Graph graph, boolean isLP, boolean excludeC) {
+		super(graph, isLP, excludeC);
 	}
 	
 	protected IloNumVar[][][][] f;
