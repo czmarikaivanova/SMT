@@ -123,22 +123,22 @@ public class SMTX2 extends SMTX1VI {
 				
 //
 //				sym h implication
-				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < n; j++) {
-						if( i != j) {
-							for (int s = 1; s < d; s++) {
-								for (int t = 1; t < d; t++) {
-									if (s != t) {
-										for (int u = 0; u < d; u++) {
-											cplex.addGe(f[i][j][s][t], cplex.sum(f[i][j][u][t], cplex.negative(f[i][j][u][s])));
-											cplex.addEq(cplex.sum(f[i][j][u][t], f[j][i][u][s], f[i][j][t][s]), cplex.sum(f[i][j][u][s], f[j][i][u][t], f[i][j][s][t]));
-										}																												
-									}
-								}
-							}
-						}
-					}
-				}
+//				for (int i = 0; i < n; i++) {
+//					for (int j = 0; j < n; j++) {
+//						if( i != j) {
+//							for (int s = 1; s < d; s++) {
+//								for (int t = 1; t < d; t++) {
+//									if (s != t) {
+//										for (int u = 0; u < d; u++) {
+//											cplex.addGe(f[i][j][s][t], cplex.sum(f[i][j][u][t], cplex.negative(f[i][j][u][s])));
+//											cplex.addEq(cplex.sum(f[i][j][u][t], f[j][i][u][s], f[i][j][t][s]), cplex.sum(f[i][j][u][s], f[j][i][u][t], f[i][j][s][t]));
+//										}																												
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
 
 
 

@@ -32,18 +32,20 @@ public class App {
     private boolean draw;
 	int iter;    
 	String fname;  // generate from file
+	public static boolean INCLUDE = false;
+	
 	
 	public App() {
-//		this.n = 16;
-		this.d = 8;
-		this.draw = false;
-		this.iter = 50;
-//		this.fname =  "saved_inst/weirdFF.txt";
+		this.n = 16;
+		this.d = 7;
+//		this.draw = true;
+		this.iter = 100;
+//		this.fname =  "saved_inst/noDestNoLeafStrengthen.txt";
 		this.fname =  null;
 	}
 	
 	public int run() {
-		for (int n = 16; n < 19; n++) {
+		
 			for  (int i = 0; i < iter; i++) {
 				ArrayList<ILPModel> models = new ArrayList<ILPModel>();
 				if (fname == null) {
@@ -51,21 +53,27 @@ public class App {
 				}
 				else {
 					graph = new Graph(fname); // from file,
+					n = graph.getVertexCount();
+					d = graph.getDstCount();
 				}	
+				
 				graph.saveInstance();
 				graph.generateAMPLData();
-				
-				models.add(new SMTX1(graph, Constants.LP, false));
-				models.add(new SMTF1(graph, Constants.LP, false));
-				models.add(new SMTX1VI(graph, Constants.LP, false));
-				models.add(new SMTF1VI(graph, Constants.LP, false));
-				models.add(new SMTX2(graph, Constants.LP, false));
-				models.add(new SMTF2(graph, Constants.LP, false));
+//				
+//				models.add(new SMTX1(graph, Constants.LP, false));
+//				models.add(new SMTF1(graph, Constants.LP, false));
+//				models.add(new SMTX1VI(graph, Constants.LP, false));
+//				models.add(new SMTX1VI(graph, Constants.LP, true));
+//				models.add(new SMTF1VI(graph, Constants.INTEGER, true));
+//				models.add(new SMTX2(graph, Constants.LP, false));
+//				models.add(new SMTX2(graph, Constants.LP, true));
+//				models.add(new SMTF2(graph, Constants.LP, false));
 				models.add(new SMTX2VI(graph, Constants.LP, false));
+				models.add(new SMTX2VI(graph, Constants.LP, true));
 //				models.add(new SMTF2VI(graph, Constants.LP, false));
 //				models.add(new SMTX1(graph, Constants.INTEGER, false));
-				models.add(new SMTF1(graph, Constants.INTEGER, false));
-	//
+//				models.add(new SMTF1VI(graph, Constants.INTEGER, false));
+	
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false));
 				
 				runModel(models);
@@ -73,7 +81,7 @@ public class App {
 	//					Algorithm bip = new BIPAlgorithm(true, true);
 	//					Algorithm bipmulti = new BIPAlgorithm(false, true);
 			}
-		}
+//		}
 		return 0;
 	}
 	
@@ -90,8 +98,8 @@ public class App {
 			long endT = System.currentTimeMillis();
 
 			double lpCost1 = model.getObjectiveValue();
-			logObjective(new File("logs/cost_log.txt"), lpCost1, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
-			logObjective(new File("logs/runtime_log.txt"), (endT - startT)/1000, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
+			logObjective(new File("logs/cost_logFF.txt"), lpCost1, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
+			logObjective(new File("logs/runtime_logFF.txt"), (endT - startT)/1000, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
 			Double[][] z = (Double[][]) model.getZVar();
 //			Double[][][] f = (Double[][][]) model.getXVar();
 //			checkConstraints(f, z);
@@ -102,6 +110,32 @@ public class App {
 			}
  			draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
 			model.end();
+		}
+	}
+	
+	private void checkFXRELTIGHT(Double[][][] fvar, Double[][] zvar) {
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				if (i != j) {
+					boolean tight = false;
+					int tightt = -1;
+					for (int t = 0; t < d; t++) {
+						if (Math.abs(fvar[i][j][t] - zvar[i][j]) < 0.001) {
+							tight = true;
+							tightt = t;
+						}
+					}
+					if (!tight) {
+						System.err.println("No tight!");
+						System.err.println("i="+i);
+						System.err.println("j="+j);
+						System.err.println("min slack: " + tightt);
+						System.err.println(graph.getInstId());
+						System.exit(0);
+					}
+				
+				}
+			}
 		}
 	}
 	

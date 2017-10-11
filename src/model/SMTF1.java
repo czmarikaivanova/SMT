@@ -9,8 +9,8 @@ import graph.Graph;
 
 public class SMTF1 extends ILPModel {
 
-	public SMTF1(Graph graph , boolean isLP, boolean lazy) {
-		super(graph, isLP, lazy);
+	public SMTF1(Graph graph , boolean isLP) {
+		super(graph, isLP);
 //		System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
 //		System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
 	}
@@ -91,6 +91,8 @@ public class SMTF1 extends ILPModel {
 				}
 			}
 			// steiner_flow_cons
+			if (lazy) {
+				System.err.println("INCLUDING NONDEST FLOW****");
 			for (int i = d; i < n; i++) {
 				IloLinearNumExpr expr1 = cplex.linearNumExpr();
 				IloLinearNumExpr expr2 = cplex.linearNumExpr();
@@ -101,6 +103,10 @@ public class SMTF1 extends ILPModel {
 					}
 				}
 				cplex.addLe(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
+			}
+			}
+			else {
+				System.err.println("NO NONDEST FLOW");
 			}
 			// flow1
 			for (int t = 1; t < d; t++) { // must not be zero

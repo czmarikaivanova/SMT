@@ -16,10 +16,9 @@ public abstract class ILPModel {
 	protected int d;
 	protected boolean lazy;
 	
-	public ILPModel(Graph graph, boolean isLP, boolean lazy) {
+	public ILPModel(Graph graph, boolean isLP) {
 		this.graph = graph;
 		this.isLP = isLP;
-		this.lazy = lazy;
 		try {
 			cplex = new IloCplex();
 //			cplex.setOut(null);

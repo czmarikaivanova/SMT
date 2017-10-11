@@ -6,8 +6,8 @@ import graph.Graph;
 
 public class SMTF2VI extends SMTF2 {
 
-	public SMTF2VI(Graph graph , boolean isLP, boolean lazy) {
-		super(graph, isLP, lazy);
+	public SMTF2VI(Graph graph , boolean isLP) {
+		super(graph, isLP);
 	}
 	public void createConstraints() {
 		try {

@@ -24,47 +24,60 @@ public class SMTX2VI extends SMTX2 {
 		try {
 			super.createConstraints();
 			// f imp y k 
-			for (int j = 0; j < n; j++) {
-				for (int s = 0; s < d; s++) {
-					for (int t = 0; t < d; t++) {
-						for (int k = 0; k < n; k++) {
-							if (j != k && s != t) {
-								IloLinearNumExpr expr1 = cplex.linearNumExpr();
-								IloLinearNumExpr expr2 = cplex.linearNumExpr();
-								for (int i = 0; i < n; i++) {
-									if (i != j) { 
-										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-											expr1.addTerm(1.0, f[j][i][s][t]);
-										}
-										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-											expr2.addTerm(1.0, y[j][i][s]);										
-										}
-									}
-								}
-								cplex.addLe(expr1, expr2);
-							}
-						}
-					}
-				}
-			}	
-			// vi4 (x imp sum f in ampl) COMMENTED JUST FOR CG EXPERIMENT - remove comment later!!
-			for (int s = 0; s < d; s++) {
-				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < n; j++) {
-						IloLinearNumExpr expr1 = cplex.linearNumExpr();
-						for (int t = 0; t < d; t++) {
-							if (s != t) {
-								expr1.addTerm(1.0, f[i][j][s][t]);
-							}
-						}
-//						if (j > i) {
-							cplex.addLe(x[i][j][s], expr1);
+//			if (lazy) {
+//			System.out.println("Lazy");
+//			for (int j = 0; j < n; j++) {
+//				for (int s = 0; s < d; s++) {
+//					for (int t = 0; t < d; t++) {
+//						for (int k = 0; k < n; k++) {
+//							if (j != k && s != t) {
+//								IloLinearNumExpr expr1 = cplex.linearNumExpr();
+//								IloLinearNumExpr expr2 = cplex.linearNumExpr();
+//								for (int i = 0; i < n; i++) {
+//									if (i != j) { 
+//										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
+//											expr1.addTerm(1.0, f[j][i][s][t]);
+//										}
+//										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
+//											expr2.addTerm(1.0, y[j][i][s]);										
+//										}
+//									}
+//								}
+//								cplex.addLe(expr1, expr2);
+//							}
 //						}
-					}
-				}
-			}	
-//						
+//					}
+//				}
+//			}	
+//			}
+//			else {
+//				System.out.println("NO LAZY");
+//			}	
+			// vi4 (x imp sum f in ampl) 
+//			if (lazy) {
+//			System.out.println("Lazy");
+//			for (int s = 0; s < d; s++) {
+//				for (int i = 0; i < n; i++) {
+//					for (int j = 0; j < n; j++) {
+//						IloLinearNumExpr expr1 = cplex.linearNumExpr();
+//						for (int t = 0; t < d; t++) {
+//							if (s != t) {
+//								expr1.addTerm(1.0, f[i][j][s][t]);
+//							}
+//						}
+////						if (j > i) {
+//							cplex.addLe(x[i][j][s], expr1);
+////						}
+//					}
+//				}
+//			}	
+//			}
+//			else {
+//				System.out.println("NO LAZY");
+//			}	
 //			// vi10 (vi11 in ampl)
+//			if (lazy) {
+//			System.out.println("Lazy");
 			for (int s = 0; s < d; s++) {
 				for (int t1 = 0; t1 < d; t1++) {
 					if (s != t1) {
@@ -81,8 +94,12 @@ public class SMTX2VI extends SMTX2 {
 						}
 					}
 				}
-			}	
-			
+			}
+//			}
+//			else {
+//				System.out.println("NO LAZY");
+//			}
+//			
 //			--------------------------
 //			for (int i = 0; i < n; i++) {
 //				for (int j = 0; j < n; j++) {

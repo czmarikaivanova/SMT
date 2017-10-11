@@ -19,7 +19,7 @@ import smt.Miscellaneous;
 import graph.Graph;
 import graph.Node;
 
-public class SMTModelFlexiFlow extends SMTX1 {
+public class SMTModelFlexiFlow extends SMTX1VI {
 
 	public SMTModelFlexiFlow(Graph graph, boolean isLP, boolean lazy) {
 		super(graph, isLP, lazy);
@@ -194,7 +194,7 @@ public class SMTModelFlexiFlow extends SMTX1 {
 					if (i != s) {
 						expr3a.addTerm(1.0, f[s][i][s][t]);									
 						expr3b.addTerm(1.0, f[i][s][s][t]);				
-						exprYsum.addTerm(1.0, y[s][i][s]);		// y_sum=1
+//						exprYsum.addTerm(1.0, y[s][i][s]);		// y_sum=1
 					}				
 					IloLinearNumExpr expr1a = cplex.linearNumExpr();
 					IloLinearNumExpr expr1b = cplex.linearNumExpr();	
@@ -225,29 +225,10 @@ public class SMTModelFlexiFlow extends SMTX1 {
 				
 // VALID INEQUALITIES START HERE!
 										
-					cplex.addEq(exprYsum, 1.0);
+//					cplex.addEq(exprYsum, 1.0);''
 								
 	
-//								// f imp y in nondest 
-								for (int j = 0; j < n; j ++) {
-											for (int k = 0; k < n; k++) {
-												if (j != k && s != t) {
-													IloLinearNumExpr expr1 = cplex.linearNumExpr();
-													IloLinearNumExpr expr2 = cplex.linearNumExpr();
-													for (int i = 0; i < n; i++) {
-														if (i != j) { 
-															if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-																expr1.addTerm(1.0, f[j][i][s][t]);
-															}
-															if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-																expr2.addTerm(1.0, y[j][i][s]);										
-															}
-														}
-													}
-													cplex.addLe(expr1, expr2);
-												}
-											}
-								}			
+		
 //								sym h implication
 //								for (int i = 0; i < n; i++) {
 //									for (int j = 0; j < n; j++) {

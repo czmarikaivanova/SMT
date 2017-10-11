@@ -135,8 +135,6 @@ public class STFlow extends ILPModel {
 				
 			
 			// f sym
-//			for (int s = 0; s < d; s++) {
-//				for (int t = 0; t < d; t++) {
 					for (int i = 0; i < n; i++) {
 						for (int j = 0; j < n; j++) {
 							if (j != i && s != t) {
@@ -144,8 +142,9 @@ public class STFlow extends ILPModel {
 							}
 						}
 					}
-//				}
-//			}					
+
+		
+		
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
@@ -162,6 +161,8 @@ public class STFlow extends ILPModel {
 					}
 				}
 			}
+			
+		
 		} catch (IloException e) {
 			e.printStackTrace();
 		}

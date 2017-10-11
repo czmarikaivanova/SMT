@@ -9,8 +9,8 @@ import graph.Graph;
 
 public class SMTF1VI extends SMTF1 {
 
-	public SMTF1VI(Graph graph, boolean isLP, boolean lazy) {
-		super(graph, isLP, lazy);
+	public SMTF1VI(Graph graph, boolean isLP) {
+		super(graph, isLP);
 	}
 
 	@Override
@@ -98,6 +98,7 @@ public class SMTF1VI extends SMTF1 {
 		return getPZ();
 	}
 
+	// here getxvar returns the polzins y variables, i.e. our three index f variable
 	@Override
 	public Double[][][] getXVar() {
 		try {
@@ -107,9 +108,9 @@ public class SMTF1VI extends SMTF1 {
 					if (i != j) {
 						for (int k = 0; k < d; k++) {
 //							if (j == 2 &&  cplex.getValue(py[i][j][k]) > 0 || k == 5 && cplex.getValue(py[i][j][k])> 0) {
-							if (k == 2 && cplex.getValue(py[i][j][k]) > 0  ) {
+//							if (k == 2 && cplex.getValue(py[i][j][k]) > 0  ) {
 								System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(py[i][j][k]) + " --");	
-							}
+//							}
 							xval[i][j][k] = cplex.getValue(py[i][j][k]);
 						}
 					}
@@ -133,7 +134,7 @@ public class SMTF1VI extends SMTF1 {
 						for (int k = 0; k < d; k++) {
 //							if (j == 2 &&  cplex.getValue(py[i][j][k]) > 0 || k == 5 && cplex.getValue(py[i][j][k])> 0) {
 //							if (k == 2 && cplex.getValue(py[i][j][k]) > 0  ) {
-//								System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(py[i][j][k]) + " --");	
+								System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(py[i][j][k]) + " --");	
 //							}
 							yval[i][j][k] = cplex.getValue(y[i][j][k]);
 							System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(y[i][j][k]) + " --");

@@ -7,8 +7,8 @@ import ilog.concert.IloRange;
 import graph.Graph;
 
 public class SMTX1 extends SteinerX {
-	public SMTX1 (Graph graph, boolean isLP, boolean lazy) {
-		super(graph, isLP, lazy);
+	public SMTX1 (Graph graph, boolean isLP) {
+		super(graph, isLP);
 	}
 	
 	protected IloNumVar[][][] y;		
@@ -66,31 +66,18 @@ public class SMTX1 extends SteinerX {
 									expr7.addTerm(1.0, y[i][k][s]);
 								}
 							}
-							if (lazy) {
-								cplex.addLazyConstraint((IloRange) cplex.le(x[i][j][s], expr7));								
-							}
-							else {
+//							if (lazy) {
+//								cplex.addLazyConstraint((IloRange) cplex.le(x[i][j][s], expr7));								
+//							}
+//							else {
 								cplex.addLe(x[i][j][s], expr7);								
-							}
+//							}
 						}			
 					}
 				}					
 			}
-			
-			// NonDestNoLEaf
-			for (int j = d; j < n; j++) {
-				for (int s = 0; s < d; s++) {
-					IloLinearNumExpr expr4 = cplex.linearNumExpr();
-					IloLinearNumExpr expr5 = cplex.linearNumExpr();
-					for (int i = 0; i < n; i++) {
-						if (i != j) {
-							expr4.addTerm(1.0, x[i][j][s]);
-							expr5.addTerm(1.0, x[j][i][s]);
-						}
-					}
-					cplex.addLe(expr4, expr5);
-				}
-			}
+
+
 		} catch (IloException e) {
 			e.printStackTrace();
 		}		
