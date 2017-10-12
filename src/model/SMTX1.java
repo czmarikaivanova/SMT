@@ -7,8 +7,8 @@ import ilog.concert.IloRange;
 import graph.Graph;
 
 public class SMTX1 extends SteinerX {
-	public SMTX1 (Graph graph, boolean isLP, boolean excludeC) {
-		super(graph, isLP, excludeC);
+	public SMTX1 (Graph graph, boolean isLP, boolean includeC) {
+		super(graph, isLP, includeC);
 	}
 	
 	protected IloNumVar[][][] y;		
@@ -66,12 +66,7 @@ public class SMTX1 extends SteinerX {
 									expr7.addTerm(1.0, y[i][k][s]);
 								}
 							}
-//							if (lazy) {
-//								cplex.addLazyConstraint((IloRange) cplex.le(x[i][j][s], expr7));								
-//							}
-//							else {
 								cplex.addLe(x[i][j][s], expr7);								
-//							}
 						}			
 					}
 				}					

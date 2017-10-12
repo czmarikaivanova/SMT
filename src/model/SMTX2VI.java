@@ -14,8 +14,8 @@ import graph.Node;
 
 public class SMTX2VI extends SMTX2 {
 
-	public SMTX2VI(Graph graph, boolean isLP, boolean excludeC) {
-		super(graph, isLP, excludeC);
+	public SMTX2VI(Graph graph, boolean isLP, boolean includeC) {
+		super(graph, isLP, includeC);
 	}
 	
 	// vars and objective from SMTX2
