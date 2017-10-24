@@ -37,10 +37,10 @@ public class App {
 	
 	public App() {
 		this.n = 16;
-		this.d = 7;
+		this.d = 8;
 //		this.draw = true;
-		this.iter = 100;
-//		this.fname =  "saved_inst/noDestNoLeafStrengthen.txt";
+		this.iter = 500;
+//		this.fname =  "saved_inst/noDestNoLeafStrengthen2.txt";
 		this.fname =  null;
 	}
 	
@@ -60,7 +60,7 @@ public class App {
 				graph.saveInstance();
 				graph.generateAMPLData();
 //				
-//				models.add(new SMTX1(graph, Constants.LP, false));
+//				models.add(new SMTX1(graph, Constants.LP, true));
 //				models.add(new SMTF1(graph, Constants.LP, false));
 //				models.add(new SMTX1VI(graph, Constants.LP, false));
 //				models.add(new SMTX1VI(graph, Constants.LP, true));
