@@ -35,15 +35,17 @@ public class SteinerX extends ILPModel {
 
 				}					
 			}
-			z = new IloNumVar[n][];				
-			for (int j = 0; j < n; j++) {		
-				if (isLP) {
-					z[j] = cplex.numVarArray(n, 0, 1);					
-				}
-				else {
-					z[j] = cplex.boolVarArray(n);
-				}
-			}									
+			z = new IloNumVar[n][n];
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < i; j++) {		
+					if (isLP) {
+						z[j][i] = cplex.numVar(0, 1);					
+					}
+					else {
+						z[j][i] = cplex.boolVar();
+					}
+				}							
+			}
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
@@ -139,6 +141,14 @@ public class SteinerX extends ILPModel {
 					}
 				}
 			}
+			
+//			for (int i = 0; i < n; i++) {
+//				for (int j = 0; j < n; j ++) {
+//					if (i != j) {
+//						
+//					}
+//				}
+//			}
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
@@ -151,10 +161,8 @@ public class SteinerX extends ILPModel {
 				for (int j = 0; j < x.length; j++) {
 					if (i != j) {
 						for (int k = 0; k < d; k++) {
-//							if (k == 0 || k == 1)   {
-//								System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(x[i][j][k]) + " --");						
-//							}
 							xval[i][j][k] = cplex.getValue(x[i][j][k]);
+//							System.out.print(xval[i][j][k] + " ");
 						}
 					}
 				}

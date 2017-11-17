@@ -38,9 +38,9 @@ public class App {
 	public App() {
 		this.n = 16;
 		this.d = 8;
-//		this.draw = true;
-		this.iter = 500;
-//		this.fname =  "saved_inst/noDestNoLeafStrengthen2.txt";
+		this.draw = false;
+		this.iter = 20;
+//		this.fname =  "saved_inst/f1vi-stronger-x2-12-5_4.txt";
 		this.fname =  null;
 	}
 	
@@ -60,21 +60,19 @@ public class App {
 				graph.saveInstance();
 				graph.generateAMPLData();
 //				
-//				models.add(new SMTX1(graph, Constants.LP, true));
-//				models.add(new SMTF1(graph, Constants.LP, false));
-//				models.add(new SMTX1VI(graph, Constants.LP, false));
+				models.add(new SMTX1(graph, Constants.LP, true));
+//				models.add(new SMTF1(graph, Constants.LP, true));
 //				models.add(new SMTX1VI(graph, Constants.LP, true));
-//				models.add(new SMTF1VI(graph, Constants.INTEGER, true));
-//				models.add(new SMTX2(graph, Constants.LP, false));
+//				models.add(new SMTF1VI(graph, Constants.LP, true));
 //				models.add(new SMTX2(graph, Constants.LP, true));
-//				models.add(new SMTF2(graph, Constants.LP, false));
-				models.add(new SMTX2VI(graph, Constants.LP, false));
-				models.add(new SMTX2VI(graph, Constants.LP, true));
-//				models.add(new SMTF2VI(graph, Constants.LP, false));
-//				models.add(new SMTX1(graph, Constants.INTEGER, false));
-//				models.add(new SMTF1VI(graph, Constants.INTEGER, false));
+//				models.add(new SMTF2(graph, Constants.LP, true));
+//				models.add(new SMTX2VI(graph, Constants.LP, true));
+//				models.add(new SMTF2VI(graph, Constants.LP, true));
+//				models.add(new SMTX1(graph, Constants.INTEGER, true));
+//				models.add(new SMTF1(graph, Constants.INTEGER, true));
 	
-//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false));
+//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true));
+//				models.add(new SMTX2(graph, Constants.LP, true));
 				
 				runModel(models);
 	//					ILPModel smtPf2LP = new SMTF2(graph, false, Constants.LP, false);

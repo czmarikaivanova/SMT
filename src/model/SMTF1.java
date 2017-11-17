@@ -90,24 +90,7 @@ public class SMTF1 extends ILPModel {
 					}
 				}
 			}
-			// steiner_flow_cons
-			if (includeC) {
-				System.err.println("INCLUDING NONDEST FLOW****");
-			for (int i = d; i < n; i++) {
-				IloLinearNumExpr expr1 = cplex.linearNumExpr();
-				IloLinearNumExpr expr2 = cplex.linearNumExpr();
-				for (int j = 0; j < n; j++) {
-					if (i != j) {
-						expr1.addTerm(1.0, pz[j][i]);
-						expr2.addTerm(1.0, pz[i][j]);
-					}
-				}
-				cplex.addLe(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
-			}
-			}
-			else {
-				System.err.println("NO NONDEST FLOW");
-			}
+
 			// flow1
 			for (int t = 1; t < d; t++) { // must not be zero
 				IloLinearNumExpr expr1 = cplex.linearNumExpr();
@@ -150,6 +133,8 @@ public class SMTF1 extends ILPModel {
 			}
 
 			// yvar
+//			if (includeC) {
+//				System.out.println("Include C") ;
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
@@ -165,7 +150,27 @@ public class SMTF1 extends ILPModel {
 					}
 				}					
 			}
-
+//			}
+			// yvar -- alt -- not working. WHY??
+//			else {
+//				System.out.println("Include C2") ;
+//			for (int i = 0; i < n; i++) {
+//				for (int j = 0; j < n; j++) {
+//					if (i != j) {
+//						for (int s = 0; s < d; s++) {
+//							IloLinearNumExpr expr7 = cplex.linearNumExpr();
+//							for (int k = 0; k < n; k++) {
+//								if ((graph.getRequir(j,k) >= graph.getRequir(i,j)) && (j != k)) {
+//									expr7.addTerm(1.0, y[j][k][s]);
+//								}
+//							}
+//							cplex.addLe(py[i][j][s], expr7);								
+//						}			
+//					}
+//				}					
+//			}			
+//
+//			}
 			// (B) - necessary, see instance in ..\pictures
 			for (int i = d; i < n; i++) {
 				IloLinearNumExpr expr = cplex.linearNumExpr();

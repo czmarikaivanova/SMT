@@ -18,7 +18,27 @@ public class SMTF1VI extends SMTF1 {
 		try {
 			super.createConstraints();
 			//no_flow_back - must be included in the basic model
-			// steiner_flow_cons - must be included
+			// steiner_flow_cons - must be included. WHY???
+			
+			// steiner_flow_cons
+//			if (includeC) {
+//				System.err.println("Include C");
+			for (int i = d; i < n; i++) {
+				IloLinearNumExpr expr1 = cplex.linearNumExpr();
+				IloLinearNumExpr expr2 = cplex.linearNumExpr();
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						expr1.addTerm(1.0, pz[j][i]);
+						expr2.addTerm(1.0, pz[i][j]);
+					}
+				}
+				cplex.addLe(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
+			}
+//			}
+//			else {
+//				System.err.println("NO NONDEST FLOW");
+//			}			
+			
 			// obvious - must be included
 //			// y_sum=1
 			for (int s = 0; s < d; s++) {
@@ -37,7 +57,9 @@ public class SMTF1VI extends SMTF1 {
 					IloLinearNumExpr expr2 = cplex.linearNumExpr();
 					for (int i = 0; i < n; i++) {
 						if (i != j) {
-							expr1.addTerm(1.0, y[j][i][s]);
+							if (i != s) {
+								expr1.addTerm(1.0, y[j][i][s]);
+							}
 							expr2.addTerm(1.0, pz[i][j]);
 							expr2.addTerm(-1.0, py[i][j][s]);
 							expr2.addTerm(1.0, py[j][i][s]);
@@ -45,8 +67,35 @@ public class SMTF1VI extends SMTF1 {
 					}
 					cplex.addGe(expr1, expr2);
 				}
-			}	
+			}
 			
+			// f imp y  --- not working
+//			if (includeC) {
+//			System.err.println("Include C");
+//			for (int j = 0; j < n; j++) {
+//				for (int t = 0; t < d; t++) {
+//					for (int k = 0; k < n; k++) {
+//						if (j != k) {
+//							IloLinearNumExpr expr1 = cplex.linearNumExpr();
+//							IloLinearNumExpr expr2 = cplex.linearNumExpr();
+//							for (int i = 0; i < n; i++) {
+//								if (j != i && graph.getRequir(i, j) >= graph.getRequir(j, k)) {
+//									expr1.addTerm(1.0, py[j][i][t]);
+//									expr2.addTerm(1.0, y[i][j][t]);
+//								}
+//							}
+//							cplex.addLe(expr1, expr2);
+//						}
+//					}
+//				}
+//			}
+//			}
+//			else {
+//				System.err.println("Exclude C");
+//			}	
+//			}	
+				
+
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		

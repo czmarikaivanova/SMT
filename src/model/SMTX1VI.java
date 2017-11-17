@@ -33,6 +33,7 @@ public class SMTX1VI extends SMTX1 {
 //				}
 			
 //			 x to nondest => y from there (1k)
+
 //			if (includeC) {
 //				System.out.println("Include C");
 			for (int j = d; j < n; j++) {
@@ -41,7 +42,9 @@ public class SMTX1VI extends SMTX1 {
 					IloLinearNumExpr expr2 = cplex.linearNumExpr();
 					for (int i = 0; i < n; i++) {
 						if (i != j) {
-							expr1.addTerm(1.0, y[j][i][s]);
+							if (i != s) {
+								expr1.addTerm(1.0, y[j][i][s]);
+							}
 							expr2.addTerm(1.0, x[i][j][s]);
 						}
 					}

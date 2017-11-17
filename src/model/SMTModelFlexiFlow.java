@@ -66,8 +66,11 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 //							getFVal();
 							stFlowModel.solve(false, 3600);   // solve the max flow problem
 							double stVal = stFlowModel.getObjectiveValue();
+							if (stVal == 0) {
+								System.out.println("Objective is zero!");
+							}
 							STPair stPair = new STPair(s, t, stVal);
-							if (stVal > -0.99) {
+							if (stVal > -0.999999) {
 
 				        		fw.write(stPair.toString() + "\n");
 								wrong++;
@@ -100,19 +103,20 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 				System.err.println("Neighbours added: " + satNeighCnt);
 				System.err.println("Others added: " + satOthCnt);
 				System.err.println("sat size: " + satPairs.size());
-				if (wrong > (wrong + correct)/10 ) {
-					pairQueue = leaveMatching(pairQueue);					
-				}
-				if (pairQueue.size() > 0 && pairQueue.peek().getDiff() < -0.99999) {
-					solved = true;
-				}
-				else if (pairQueue.size() > 0) {
+//				if (wrong > (wrong + correct)/10 ) {
+//					pairQueue = leaveMatching(pairQueue);					
+//				}
+//				if (pairQueue.size() > 0 && pairQueue.peek().getDiff() < -0.99999999) {
+//					solved = true;
+//				}
+//				else 
+				if (pairQueue.size() > 0) {
 //					addFlowConstraints(pairQueue,pairQueue.size());
 					prevAdded = pairQueue.peek();
 					fw.write("-------------------\n");
 					fw.write(pairQueue.peek().toString() + "\n");
 					fw.write("-------------------------\n");
-					addFlowConstraints(pairQueue,1);
+					addFlowConstraints(pairQueue,5);
 				}
 				pairQueue.clear();
 			} while (!solved);
@@ -172,7 +176,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 	public void addFlowConstraints(PriorityQueue<STPair> queue, int maxPCnt) {
 		try {
 			int cnt = 0;
-			while (queue.size() > 0 && cnt < maxPCnt) {
+			while (queue.size() > 0 /* && cnt < maxPCnt */) {
 				cnt ++;
 				STPair pair = queue.poll();
 				System.out.println(pair.toString());
@@ -199,10 +203,10 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 					IloLinearNumExpr expr1a = cplex.linearNumExpr();
 					IloLinearNumExpr expr1b = cplex.linearNumExpr();	
 					for (int j = 0; j < n; j++) {
-						if (i >= d && i != j) {
-							expr1.addTerm(1.0, y[i][j][s]); // x imp y
-							expr2.addTerm(1.0, x[j][i][s]);
-						}
+//						if (i >= d && i != j) {
+//							expr1.addTerm(1.0, y[i][j][s]); // x imp y
+//							expr2.addTerm(1.0, x[j][i][s]);
+//						}
 						if (j != i && s != t) {
 							cplex.addLe(f[i][j][s][t], x[i][j][s]);			//capacity
 							cplex.addEq(f[i][j][s][t], f[j][i][t][s]);		// f sym
@@ -221,7 +225,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 					cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b))); // flow conservation - normal
 				}
 				cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b))); // flow conservation - dest
-				cplex.addEq(1,cplex.sum(expr3a, cplex.negative(expr3b)));    // flow conservation - source
+//				cplex.addEq(1,cplex.sum(expr3a, cplex.negative(expr3b)));    // flow conservation - source
 				
 // VALID INEQUALITIES START HERE!
 										

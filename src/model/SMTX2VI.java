@@ -26,6 +26,7 @@ public class SMTX2VI extends SMTX2 {
 			// f imp y k  (2i)
 //			if (includeC) {
 //			System.out.println("Include C");
+			
 			for (int j = 0; j < n; j++) {
 				for (int s = 0; s < d; s++) {
 					for (int t = 0; t < d; t++) {
@@ -37,8 +38,6 @@ public class SMTX2VI extends SMTX2 {
 									if (i != j) { 
 										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
 											expr1.addTerm(1.0, f[j][i][s][t]);
-										}
-										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
 											expr2.addTerm(1.0, y[j][i][s]);										
 										}
 									}
@@ -49,32 +48,32 @@ public class SMTX2VI extends SMTX2 {
 					}
 				}
 			}	
+////			}
+////			else {
+////				System.out.println("Exclude C");
+////			}	
+//			// vi4 (x imp sum f in ampl) (2h) -- seems implied
+//			if (includeC) {
+//			System.out.println("Include C");
+//			for (int s = 0; s < d; s++) {
+//				for (int i = 0; i < n; i++) {
+//					for (int j = 0; j < n; j++) {
+//						IloLinearNumExpr expr1 = cplex.linearNumExpr();
+//						for (int t = 0; t < d; t++) {
+//							if (s != t) {
+//								expr1.addTerm(1.0, f[i][j][s][t]);
+//							}
+//						}
+////						if (j > i) {
+//							cplex.addLe(x[i][j][s], expr1);
+////						}
+//					}
+//				}
+//			}	
 //			}
 //			else {
 //				System.out.println("Exclude C");
 //			}	
-			// vi4 (x imp sum f in ampl) (2h)
-			if (includeC) {
-			System.out.println("Include C");
-			for (int s = 0; s < d; s++) {
-				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < n; j++) {
-						IloLinearNumExpr expr1 = cplex.linearNumExpr();
-						for (int t = 0; t < d; t++) {
-							if (s != t) {
-								expr1.addTerm(1.0, f[i][j][s][t]);
-							}
-						}
-//						if (j > i) {
-							cplex.addLe(x[i][j][s], expr1);
-//						}
-					}
-				}
-			}	
-			}
-			else {
-				System.out.println("Exclude C");
-			}	
 //			// vi10 (vi11 in ampl) (2g)
 //			if (includeC) {
 //			System.out.println("include C");
@@ -100,29 +99,9 @@ public class SMTX2VI extends SMTX2 {
 //				System.out.println("eclude C");
 //			}
 //
-////			sym h implication
-//			if (includeC) {
-//				System.out.println("Include C");
-			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					if( i != j) {
-						for (int s = 1; s < d; s++) {
-							for (int t = 1; t < d; t++) {
-								if (s != t) {
-									for (int u = 0; u < d; u++) {
-//										cplex.addGe(f[i][j][s][t], cplex.sum(f[i][j][u][t], cplex.negative(f[i][j][u][s])));  // this is just (2g)
-										cplex.addEq(cplex.sum(f[i][j][u][t], f[j][i][u][s], f[i][j][t][s]), cplex.sum(f[i][j][u][s], f[j][i][u][t], f[i][j][s][t]));
-									}																												
-								}
-							}
-						}
-					}
-				}
-			}
-//			}
-//			else {
-//				System.out.println("Exclude C");
-//			}
+			// REMOVE THIS COMMENT !!! up
+			
+
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
