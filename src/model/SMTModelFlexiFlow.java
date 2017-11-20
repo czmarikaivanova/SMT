@@ -76,7 +76,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 								wrong++;
 								pairQueue.add(stPair);
 								solved = false;
-//									break;
+									break;
 							}
 							else {
 								if (!satPairs.contains(stPair)) {
@@ -96,7 +96,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 							}
 						}
 					}
-//					if (!solved) break;
+					if (!solved) break;
 				}
 				System.err.println("Correct: " + correct + "\n");
 				System.err.println("Wrong: " + wrong + "\n");

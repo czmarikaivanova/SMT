@@ -7,9 +7,9 @@ import ilog.concert.IloNumVar;
 import ilog.concert.IloRange;
 import graph.Graph;
 
-public class SMTF2 extends SMTF1VI {
+public class SMTF2B extends SMTF1VI {
 
-	public SMTF2(Graph graph, boolean isLP, boolean includeC) {
+	public SMTF2B(Graph graph, boolean isLP, boolean includeC) {
 		super(graph, isLP, includeC);
 //		System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
 //		System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
@@ -21,11 +21,13 @@ public class SMTF2 extends SMTF1VI {
 	protected void initVars() {
 		try {
 			super.initVars();
-			h = new IloNumVar[n][n][d][];	
+			h = new IloNumVar[n][n][d][d];	
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					for (int k = 0; k < d; k++) {
-						h[i][j][k] = cplex.numVarArray(d,0,1);	
+						for (int l = 0; l < k; l++) {
+							h[i][j][l][k] = cplex.numVar(0,1);
+						}
 					}
 				}					
 			}
@@ -41,13 +43,13 @@ public class SMTF2 extends SMTF1VI {
 			super.createConstraints();
 			// flow3
 			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
-				for (int l = 0; l < d; l++) {
+				for (int l = 0; l < k; l++) {
 					if (k != l) {
 						IloLinearNumExpr expr1 = cplex.linearNumExpr();
 						IloLinearNumExpr expr2 = cplex.linearNumExpr();
 						for (int j = 1; j < n; j++) { // must not be zero
-							expr1.addTerm(1.0, h[j][0][k][l]);									
-							expr2.addTerm(1.0, h[0][j][k][l]);
+							expr1.addTerm(1.0, h[j][0][l][k]);									
+							expr2.addTerm(1.0, h[0][j][l][k]);
 						}
 						cplex.addGe(cplex.sum(expr1, cplex.negative(expr2)), -1.0);
 					}
@@ -56,14 +58,14 @@ public class SMTF2 extends SMTF1VI {
 			// flow4
 			for (int i = 1; i < n; i++) { // must not be zero
 				for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
-					for (int l = 0; l < d; l++) { // must not be zero OR CAN BE???
+					for (int l = 0; l < k; l++) { // must not be zero OR CAN BE???
 						if (k != l) {
 							IloLinearNumExpr expr1 = cplex.linearNumExpr();
 							IloLinearNumExpr expr2 = cplex.linearNumExpr();
 							for (int j = 0; j < n; j++) {
 								if (i != j) {
-									expr1.addTerm(1.0, h[j][i][k][l]);									
-									expr2.addTerm(1.0, h[i][j][k][l]);
+									expr1.addTerm(1.0, h[j][i][l][k]);									
+									expr2.addTerm(1.0, h[i][j][l][k]);
 								}								
 							}
 							cplex.addGe(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
@@ -73,12 +75,12 @@ public class SMTF2 extends SMTF1VI {
 			}
 			// h_py1
 			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
-				for (int l = 0; l < d; l++) { // must not be zero OR CAN BE???
+				for (int l = 0; l < k; l++) { // must not be zero OR CAN BE???
 					if (k != l) {
 						for (int i = 0; i < n; i++) {
 							for (int j = 0; j < n; j++) {
 								if (j != i) {
-									cplex.addLe(h[i][j][k][l], py[i][j][k]);
+									cplex.addLe(h[i][j][l][k], py[i][j][l]);
 								}
 							}
 						}
@@ -87,12 +89,12 @@ public class SMTF2 extends SMTF1VI {
 			}
 			// h_py2
 			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
-				for (int l = 0; l < d; l++) { // must not be zero OR CAN BE???
+				for (int l = 0; l < k; l++) { // must not be zero OR CAN BE???
 					if (k != l) {
 						for (int i = 0; i < n; i++) {
 							for (int j = 0; j < n; j++) {
 								if (j != i) {
-									cplex.addLe(h[i][j][k][l], py[i][j][l]);
+									cplex.addLe(h[i][j][l][k], py[i][j][k]);
 								}
 							}
 						}
@@ -101,35 +103,18 @@ public class SMTF2 extends SMTF1VI {
 			}			
 			// h_x_stronger
 			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
-				for (int l = 0; l < d; l++) { // must not be zero OR CAN BE???
-					if (k != l) {
-						for (int i = 0; i < n; i++) {
-							for (int j = 0; j < n; j++) {
-								if (j != i) {
-									cplex.addLe(cplex.sum(py[i][j][k], py[i][j][l], cplex.negative(h[i][j][k][l])), pz[i][j]);
-								}
-							}
-						}
-					}
-				}
-			}
-			
-			// h sym
-			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
 				for (int l = 0; l < k; l++) { // must not be zero OR CAN BE???
 					if (k != l) {
 						for (int i = 0; i < n; i++) {
 							for (int j = 0; j < n; j++) {
 								if (j != i) {
-									cplex.addLe(h[i][j][k][l], h[i][j][l][k]);
+									cplex.addLe(cplex.sum(py[i][j][l], py[i][j][k], cplex.negative(h[i][j][l][k])), pz[i][j]);
 								}
 							}
 						}
 					}
 				}
 			}
-			
-			
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
@@ -142,9 +127,9 @@ public class SMTF2 extends SMTF1VI {
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
 						for (int k = 0; k < d; k++) {
-							for (int l = 0; l < d; l++) {
+							for (int l = 0; l < k; l++) {
 								if (l != k) {
-									hval[i][j][k][l] = cplex.getValue(h[i][j][k][l]);
+									hval[i][j][l][k] = cplex.getValue(h[i][j][l][k]);
 								}
 							}
 						}

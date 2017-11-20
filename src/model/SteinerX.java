@@ -69,14 +69,6 @@ public class SteinerX extends ILPModel {
 	
 	public void createConstraints() {
 		try {
-			// Size - seems not needed. Not strengthening, not 
-//				IloLinearNumExpr expr = cplex.linearNumExpr();				
-//				for (int i = 0; i < n; i++) {					
-//					for (int j = i+1; j < n; j++) {
-//						expr.addTerm(1.0, z[i][j]);
-//					}	
-//				}
-//				cplex.addLe(expr, n-1);		
 			// OneDirDest
 			for (int j = 0; j < d; j++) {					
 				for (int s = 0; s < d; s++) {
@@ -121,7 +113,6 @@ public class SteinerX extends ILPModel {
 					}
 				}
 			}
-
 			// OneDir
 			for (int i = 0; i < n; i++) {
 				for (int j = i+1; j < n; j++) {
@@ -141,14 +132,6 @@ public class SteinerX extends ILPModel {
 					}
 				}
 			}
-			
-//			for (int i = 0; i < n; i++) {
-//				for (int j = 0; j < n; j ++) {
-//					if (i != j) {
-//						
-//					}
-//				}
-//			}
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		

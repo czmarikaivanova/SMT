@@ -10,9 +10,9 @@ import ilog.concert.IloNumVar;
 import graph.Graph;
 import graph.Node;
 
-public class SMTX2 extends SMTX1VI {
+public class SMTX2B extends SMTX1VI {
 
-	public SMTX2(Graph graph, boolean isLP, boolean includeC) {
+	public SMTX2B(Graph graph, boolean isLP, boolean includeC) {
 		super(graph, isLP, includeC);
 	}
 	
@@ -21,11 +21,13 @@ public class SMTX2 extends SMTX1VI {
 	protected void initVars() {
 		try {
 			super.initVars();
-			f = new IloNumVar[n][n][d][];		
+			f = new IloNumVar[n][n][d][d];		
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					for (int k = 0; k < d; k++) {
-						f[i][j][k] = cplex.numVarArray(d,0,1);	
+						for (int l = 0; l < k; l++) {
+							f[i][j][l][k] = cplex.numVar(0,1);
+						}
 					}	
 				}					
 			}
@@ -40,8 +42,8 @@ public class SMTX2 extends SMTX1VI {
 		try{
 			super.createConstraints();
 			// Flow conservation - normal
-			for (int s = 0; s < d; s++) {					
-				for (int t = 0; t < d; t++) {
+			for (int t = 0; t < d; t++) {
+				for (int s = 0; s < t; s++) {					
 					for (int i = 0; i < n; i++) {						
 						if (t != i && s != i && s != t) {
 							IloLinearNumExpr expr1a = cplex.linearNumExpr();
@@ -63,8 +65,8 @@ public class SMTX2 extends SMTX1VI {
 			}		
 			
 			// Flow conservation - dest
-			for (int s = 0; s < d; s++) {
-				for (int t = 0; t < d; t++) {
+			for (int t = 0; t < d; t++) {
+				for (int s = 0; s < t; s++) {
 					if (s != t) {
 						IloLinearNumExpr expr2a = cplex.linearNumExpr();
 						IloLinearNumExpr expr2b = cplex.linearNumExpr();	
@@ -79,9 +81,9 @@ public class SMTX2 extends SMTX1VI {
 				}
 			}				
 			
-			// capacity
-			for (int s = 0; s < d; s++) {
-				for (int t = 0; t < d; t++) {
+			// capacity A
+			for (int t = 0; t < d; t++) {
+				for (int s = 0; s < t; s++) {
 					for (int i = 0; i < n; i++) {
 						for (int j = 0; j < n; j++) {
 							if (j != i && s != t) {
@@ -92,32 +94,46 @@ public class SMTX2 extends SMTX1VI {
 				}
 			}					
 			
-			
-			// f sym
-			for (int s = 0; s < d; s++) {
-				for (int t = 0; t < d; t++) {
+			// capacity B
+			for (int t = 0; t < d; t++) {
+				for (int s = 0; s < t; s++) {
 					for (int i = 0; i < n; i++) {
 						for (int j = 0; j < n; j++) {
 							if (j != i && s != t) {
-								cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
+								cplex.addLe(f[i][j][s][t], x[j][i][t]);
 							}
 						}
 					}
 				}
-			}					
+			}				
+			
+			// f sym
+//			for (int s = 0; s < d; s++) {
+//				for (int t = 0; t < d; t++) {
+//					for (int i = 0; i < n; i++) {
+//						for (int j = 0; j < n; j++) {
+//							if (j != i && s != t) {
+//								cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
+//							}
+//						}
+//					}
+//				}
+//			}					
 				
 //		sym h implication
-			if (includeC)
+			if (includeC) 
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				if( i != j) {
-					for (int s = 1; s < d; s++) {
-						for (int t = 1; t < d; t++) {
+					for (int t = 1; t < d; t++) {
+						for (int s = 1; s < t; s++) {
 							if (s != t) {
-								for (int u = 0; u < d; u++) {							
-//									cplex.addGe(f[i][j][s][t], cplex.sum(f[i][j][u][t], cplex.negative(f[i][j][u][s])));  // this is just (2g)
-									//remove the comment of the folloi
-									cplex.addEq(cplex.sum(f[i][j][u][t], f[j][i][u][s], f[i][j][t][s]), cplex.sum(f[i][j][u][s], f[j][i][u][t], f[i][j][s][t]));
+								for (int u = 0; u < t; u++) {
+									if (u < s ) {
+//										cplex.addGe(f[i][j][s][t], cplex.sum(f[i][j][u][t], cplex.negative(f[i][j][u][s])));  // this is just (2g)
+										//remove the comment of the folloi
+										cplex.addEq(cplex.sum(f[i][j][u][t], f[j][i][u][s], f[j][i][s][t]), cplex.sum(f[i][j][u][s], f[j][i][u][t], f[i][j][s][t]));
+									}
 								}																												
 							}
 						}

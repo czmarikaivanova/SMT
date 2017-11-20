@@ -13,13 +13,17 @@ import algorithm.MSTAlgorithm;
 import model.ILPModel;
 import model.MEBModel;
 import model.SMTF1VI;
+import model.SMTF2B;
 import model.SMTF2VI;
+import model.SMTF2VIB;
 import model.SMTX1;
 import model.SMTModelFlexiFlow;
 import model.SMTX2;
 import model.SMTF1;
 import model.SMTF2;
 import model.SMTX1VI;
+import model.SMTX2B;
+import model.SMTX2VIB;
 import model.SteinerX;
 import model.SMTX2VI;
 
@@ -36,12 +40,11 @@ public class App {
 	
 	
 	public App() {
-		this.n = 16;
-		this.d = 8;
-		this.draw = false;
-		this.iter = 20;
-//		this.fname =  "saved_inst/f1vi-stronger-x2-12-5_4.txt";
-		this.fname =  null;
+//		this.n = 7;
+//		this.d = 4;
+		this.iter = 1;
+		this.fname =  "saved_inst/cgerror.txt";
+//		this.fname =  null;
 	}
 	
 	public int run() {
@@ -60,18 +63,21 @@ public class App {
 				graph.saveInstance();
 				graph.generateAMPLData();
 //				
-				models.add(new SMTX1(graph, Constants.LP, true));
-//				models.add(new SMTF1(graph, Constants.LP, true));
+//				models.add(new SMTX1(graph, Constants.INTEGER, true));
 //				models.add(new SMTX1VI(graph, Constants.LP, true));
 //				models.add(new SMTF1VI(graph, Constants.LP, true));
-//				models.add(new SMTX2(graph, Constants.LP, true));
+				models.add(new SMTX2(graph, Constants.LP, true));
+//				models.add(new SMTX2B(graph, Constants.LP, false));
 //				models.add(new SMTF2(graph, Constants.LP, true));
+//				models.add(new SMTF2B(graph, Constants.LP, true));
 //				models.add(new SMTX2VI(graph, Constants.LP, true));
+//				models.add(new SMTX2VIB(graph, Constants.LP, true));
 //				models.add(new SMTF2VI(graph, Constants.LP, true));
+//				models.add(new SMTF2VIB(graph, Constants.LP, true));
 //				models.add(new SMTX1(graph, Constants.INTEGER, true));
 //				models.add(new SMTF1(graph, Constants.INTEGER, true));
 	
-//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true));
+				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true));
 //				models.add(new SMTX2(graph, Constants.LP, true));
 				
 				runModel(models);
