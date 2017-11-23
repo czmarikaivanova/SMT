@@ -40,15 +40,14 @@ public class App {
 	
 	
 	public App() {
-//		this.n = 7;
-//		this.d = 4;
-		this.iter = 1;
-		this.fname =  "saved_inst/cgerror.txt";
-//		this.fname =  null;
+		this.n = 18;
+		this.d = 9;
+		this.iter = 10;
+//		this.fname =  "saved_inst/infinitecg.txt";
+		this.fname =  null;
 	}
 	
 	public int run() {
-		
 			for  (int i = 0; i < iter; i++) {
 				ArrayList<ILPModel> models = new ArrayList<ILPModel>();
 				if (fname == null) {
@@ -66,8 +65,9 @@ public class App {
 //				models.add(new SMTX1(graph, Constants.INTEGER, true));
 //				models.add(new SMTX1VI(graph, Constants.LP, true));
 //				models.add(new SMTF1VI(graph, Constants.LP, true));
+//				models.add(new SMTX2(graph, Constants.LP, false));
 				models.add(new SMTX2(graph, Constants.LP, true));
-//				models.add(new SMTX2B(graph, Constants.LP, false));
+//				models.add(new SMTX2B(graph, Constants.LP, true));
 //				models.add(new SMTF2(graph, Constants.LP, true));
 //				models.add(new SMTF2B(graph, Constants.LP, true));
 //				models.add(new SMTX2VI(graph, Constants.LP, true));

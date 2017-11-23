@@ -26,121 +26,141 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 	}
 	
 	protected IloNumVar[][][][] f;
-	File stLogFile;
+	File stLogFile = new File("logs/cglog.txt");
+	FileWriter fw;
+	double tolerance = -1.9999;
 
 	public boolean solve(boolean useTimeLimit, int seconds) {
 		try {
-			stLogFile = new File("logs/stpairs.txt");
-
-			FileWriter fw;
-			fw = new FileWriter(new File("logs/stpairs.txt"),true);
+			int satisfiedCnt = 0;   // # of s-t pairs satisfying the flow constraints
+			int volatedCnt = 0;     // # of s-t pairs violating the flow constraints
+			double currObj = 0;   // current objective value
+			double currTime = 0;  // runtime of the current calculation
+			int constraintCnt = 0; 	   // # of constraints in the model;
+			int variableCnt = 0; 	   // # of variables in the model
 			cplex.setParam(IloCplex.DoubleParam.TiLim, seconds);
 			PriorityQueue<STPair> pairQueue = new PriorityQueue<STPair>();
-			boolean solved = false;
+			boolean solved = false; // true if all constraints are satisfied and the calculation can terminate
 			boolean ret;
+			int iter = 0;      // # of iterations (how many times we had to calculate the model with some added flow constraints) 
 			IloCplex singleFlowCplex = new IloCplex();
-			STPair prevAdded = null;
+			initLog();
+			double totalStartTime = this.getCplexTime();
 			do {
-				ArrayList<STPair> satPairs = new ArrayList<STPair>();
-				int satNeighCnt = 0;
-				int satOthCnt = 0;
+				iter++;
 				pairQueue.clear();
-				int correct = 0;
-				int wrong = 0;
-//				System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
-//				System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
+				constraintCnt =  cplex.getNrows();
+				variableCnt = cplex.getNcols();
 				double startT = this.getCplexTime();
 				ret = cplex.solve();
 				double stopT = this.getCplexTime();
-				System.err.println("OBJECTIVE: "+ cplex.getObjValue());
-				double time = stopT - startT;
-				System.err.println("TIME: "+ time);
-				//				this.getZVar();
+				currTime = Miscellaneous.round(stopT - startT, 2);
+				currObj = Miscellaneous.round(cplex.getObjValue(), 2);
 				solved = true;
 				STFlow stFlowModel;
 				Double[][][] xVar = getXVar();
 				for (int s = 0; s < d; s++) {
-					for (int t = 0; t < d; t++) {
+					for (int t = s + 1; t < d; t++) {
 						if (s != t) {
 							stFlowModel = new STFlow(graph, xVar, s, t, singleFlowCplex);
-//							getFVal();
 							stFlowModel.solve(false, 3600);   // solve the max flow problem
 							double stVal = stFlowModel.getObjectiveValue();
-							if (stVal == 0) {
-								System.out.println("Objective is zero!");
-							}
 							STPair stPair = new STPair(s, t, stVal);
-							if (stVal > -0.999999) {
-
-				        		fw.write(stPair.toString() + "\n");
-								wrong++;
+							if (stVal > tolerance) { // flow conservation not satisfied for {s,t}
+								volatedCnt++;
 								pairQueue.add(stPair);
 								solved = false;
-									break;
+//								break;
 							}
 							else {
-								if (!satPairs.contains(stPair)) {
-									satPairs.add(stPair);
-									if (prevAdded != null && !prevAdded.equals(stPair)) {
-										if (stPair.getS() == prevAdded.getS() || stPair.getS() == prevAdded.getT() || stPair.getT() == prevAdded.getS() || stPair.getT() == prevAdded.getT()) {
-											satNeighCnt++;
-											System.out.println(prevAdded.toString() + " " + stPair.toString());
-										}
-										else {
-											satOthCnt++;
-										}
-									}
-								}
-								fw.write("\t\t" + stPair.toString() + "\n");  
-								correct++;
+								satisfiedCnt++;
 							}
 						}
 					}
-					if (!solved) break;
+//					if (pairQueue.size() > 5) break;
+//					if (!solved) break;
 				}
-				System.err.println("Correct: " + correct + "\n");
-				System.err.println("Wrong: " + wrong + "\n");
-				System.err.println("Neighbours added: " + satNeighCnt);
-				System.err.println("Others added: " + satOthCnt);
-				System.err.println("sat size: " + satPairs.size());
-//				if (wrong > (wrong + correct)/10 ) {
+//				System.err.println("sat size: " + satPairs.size());
+//				if (wrong > (wrong + correct)/4 ) {
 //					pairQueue = leaveMatching(pairQueue);					
 //				}
 //				if (pairQueue.size() > 0 && pairQueue.peek().getDiff() < -0.99999999) {
 //					solved = true;
 //				}
 //				else 
-				if (pairQueue.size() > 0) {
+				iterationLog(fw, iter, currObj, currTime, satisfiedCnt, volatedCnt, pairQueue.size(), constraintCnt, variableCnt);
+				if (!solved && pairQueue.size() > 0) {
 //					addFlowConstraints(pairQueue,pairQueue.size());
-					prevAdded = pairQueue.peek();
-					fw.write("-------------------\n");
-					fw.write(pairQueue.peek().toString() + "\n");
-					fw.write("-------------------------\n");
-					addFlowConstraints(pairQueue,5);
+//					prevAdded = pairQueue.peek();
+//					fw.write("-------------------\n");
+//					fw.write(pairQueue.peek().toString() + "\n");
+//					fw.write("-------------------------\n");
+					addFlowConstraints(pairQueue, pairQueue.size());
+//					addFlowConstraints(pairQueue, 1);
 				}
+				// TODO: argument pairQueue.size() is not accurate, because some pairs can be omitted in add Flow constraints() method
+
 				pairQueue.clear();
 			} while (!solved);
+			double totalExitTime = this.getCplexTime();
+			exitLog(fw, currObj, totalExitTime - totalStartTime);
 			return ret;
 		} catch (IloException e) {
 			e.printStackTrace();
 			return false;
-		}catch (IOException e) {
-			e.printStackTrace();
-			return false;
 		}
+//		}catch (IOException e) {
+//			e.printStackTrace();
+//			return false;
+//		}
 	}
 	
-	
+	private void exitLog(FileWriter fw, double totalObj, double totalTime) {
+		try {
+			fw = new FileWriter(stLogFile, true);
+			fw.write("TOTAL OBJECTIVE: " + totalObj + "\n");
+			fw.write("TOTAL TIME: " + totalTime + "\n");
+			fw.write(Constants.DELIMITER + Constants.DELIMITER + Constants.DELIMITER + "\n");
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void iterationLog(FileWriter fw, int iter, double currObj, double currTime, int satisfiedCnt, int volatedCnt, int addedCnt,
+			int constraintCnt, int variableCnt) {
+		try {
+			fw = new FileWriter(stLogFile, true);
+			fw.write(iter + "\t" + currObj + "\t" + currTime + "\t" + satisfiedCnt + "\t" + volatedCnt + "\t" + addedCnt + "\t" + constraintCnt + "\t " + variableCnt + "\n");
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	// write a header of the log
+	private void initLog() {
+		try {
+			fw = new FileWriter(stLogFile, true);
+			fw.write("ID: " + graph.getInstId() + " STRATEGY: " + this.toString() + " TOLERANCE: " + tolerance + "\n");
+			fw.write("iter \t currObj \t currTime \t satCnt \t violCnt \t addedCnt \t conCnt \t varCnt \n");
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
 	private void initFlexiVars(int s, int t) {
 		for (int i = 0; i < n; i++) {
 			for (int j = i + 1; j < n; j++) {
 					try {
-						f[i][j][s][t] = cplex.numVar(0, 1);
-						f[i][j][t][s] = cplex.numVar(0, 1);
-						f[j][i][s][t] = cplex.numVar(0, 1);
-						f[j][i][t][s] = cplex.numVar(0, 1);
+						if (f[i][j][s][t] == null)	f[i][j][s][t] = cplex.numVar(0, 1);
+						if (f[i][j][t][s] == null) f[i][j][t][s] = cplex.numVar(0, 1);
+						if (f[j][i][s][t] == null) f[j][i][s][t] = cplex.numVar(0, 1);
+						if (f[j][i][t][s] == null) f[j][i][t][s] = cplex.numVar(0, 1);
 					} catch (IloException e) {
-						
 						e.printStackTrace();
 					}	
 			}					
@@ -148,24 +168,42 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 	}
 	
 	protected void initVars() {
-//		try {
+		try {
 			super.initVars();
-			f = new IloNumVar[n][n][d][d];		
-//			for (int i = 0; i < n; i++) {
-//				for (int j = 0; j < n; j++) {
-//					for (int k = 0; k < d; k++) {
-//						f[i][j][k] = cplex.numVarArray(d,0,1);	
-//					}	
-//				}					
-//			}
-//		} catch (IloException e) {
-//			e.printStackTrace();
-//		}
+			f = new IloNumVar[n][n][d][];		
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					for (int k = 0; k < d; k++) {
+						f[i][j][k] = cplex.numVarArray(d,0,1);	
+					}	
+				}					
+			}
+		} catch (IloException e) {
+			e.printStackTrace();
+		}
 	}	
 
 	
 	public void createConstraints() {
-			super.createConstraints();					
+		try{
+			super.createConstraints();		
+			
+			// f sym + cap
+			for (int s = 0; s < d; s++) {
+				for (int t = 0; t < d; t++) {
+					for (int i = 0; i < n; i++) {
+						for (int j = 0; j < n; j++) {
+							if (j != i && s != t) {
+								cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
+//								cplex.addLe(f[i][j][s][t], x[i][j][s]);
+							}
+						}
+					}
+				}
+			}					
+		} catch (IloException e) {
+			e.printStackTrace();
+		}		
 	}
 	
 	/**
@@ -176,56 +214,67 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 	public void addFlowConstraints(PriorityQueue<STPair> queue, int maxPCnt) {
 		try {
 			int cnt = 0;
-			while (queue.size() > 0 /* && cnt < maxPCnt */) {
+			while (queue.size() > 0  && cnt < maxPCnt ) {
 				cnt ++;
 				STPair pair = queue.poll();
 				System.out.println(pair.toString());
 				int s = pair.getS();
 				int t = pair.getT();
-				initFlexiVars(s, t);
+//				initFlexiVars(s, t);
+				// Flow conservation - normal
+
 				IloLinearNumExpr expr2a = cplex.linearNumExpr();
 				IloLinearNumExpr expr2b = cplex.linearNumExpr();	
-				IloLinearNumExpr expr3a = cplex.linearNumExpr();
-				IloLinearNumExpr expr3b = cplex.linearNumExpr();	
-				IloLinearNumExpr exprYsum = cplex.linearNumExpr();
-				for (int i = 0; i < n; i++) {
-					IloLinearNumExpr expr1 = cplex.linearNumExpr();
-					IloLinearNumExpr expr2 = cplex.linearNumExpr();
-					if (i != t) {
-						expr2a.addTerm(1.0, f[t][i][s][t]);									
-						expr2b.addTerm(1.0, f[i][t][s][t]);									
-					}	
-					if (i != s) {
-						expr3a.addTerm(1.0, f[s][i][s][t]);									
-						expr3b.addTerm(1.0, f[i][s][s][t]);				
-//						exprYsum.addTerm(1.0, y[s][i][s]);		// y_sum=1
-					}				
-					IloLinearNumExpr expr1a = cplex.linearNumExpr();
-					IloLinearNumExpr expr1b = cplex.linearNumExpr();	
-					for (int j = 0; j < n; j++) {
-//						if (i >= d && i != j) {
-//							expr1.addTerm(1.0, y[i][j][s]); // x imp y
-//							expr2.addTerm(1.0, x[j][i][s]);
-//						}
-						if (j != i && s != t) {
-							cplex.addLe(f[i][j][s][t], x[i][j][s]);			//capacity
-							cplex.addEq(f[i][j][s][t], f[j][i][t][s]);		// f sym
-						}
-						if (t != i && s != i && s != t) {
-							if (i != j && j != s) {
-								expr1a.addTerm(1.0, f[i][j][s][t]);									
-							}								
-							if (i != j && j != t) {								
-								expr1b.addTerm(1.0, f[j][i][s][t]);
+				IloLinearNumExpr expr2c = cplex.linearNumExpr();	
+				IloLinearNumExpr expr2d = cplex.linearNumExpr();	
+				
+						for (int i = 0; i < n; i++) {		
+							if (i != t) {
+								expr2a.addTerm(1.0, f[t][i][s][t]);									// Flow conservation - dest				
+								expr2b.addTerm(1.0, f[i][t][s][t]);									// Flow conservation - dest
+							}
+							if (i != s) {
+								expr2c.addTerm(1.0, f[s][i][t][s]);									// Flow conservation - dest
+								expr2d.addTerm(1.0, f[i][s][t][s]);									// Flow conservation - dest
 							}	
+							IloLinearNumExpr expr1a = cplex.linearNumExpr();
+							IloLinearNumExpr expr1b = cplex.linearNumExpr();	
+							IloLinearNumExpr expr1c = cplex.linearNumExpr();
+							IloLinearNumExpr expr1d = cplex.linearNumExpr();
+
+							for (int j = 0; j < n; j++) {
+								if (j != i) {
+									cplex.addLe(f[i][j][s][t], x[i][j][s]);				// capacity
+									cplex.addLe(f[i][j][t][s], x[i][j][t]);				// capacity
+
+									if (t != i && s != i) {
+										if (j != s) {
+											expr1a.addTerm(1.0, f[i][j][s][t]);									
+											expr1c.addTerm(1.0, f[j][i][t][s]);									
+										}								
+										if (j != t) {								
+											expr1b.addTerm(1.0, f[j][i][s][t]);
+											expr1d.addTerm(1.0, f[i][j][t][s]);
+										}			
+									}
+								}
+							}						
+							cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));
+							cplex.addEq(0,cplex.sum(expr1c, cplex.negative(expr1d)));
 						}
-					}
-					cplex.addGe(expr1, expr2);
-					cplex.addGe(expr1, expr2);
-					cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b))); // flow conservation - normal
-				}
-				cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b))); // flow conservation - dest
-//				cplex.addEq(1,cplex.sum(expr3a, cplex.negative(expr3b)));    // flow conservation - source
+						cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b)));
+						cplex.addEq(-1,cplex.sum(expr2c, cplex.negative(expr2d)));
+				
+				
+				
+				// f sym
+//						for (int i = 0; i < n; i++) {
+//							for (int j = 0; j < n; j++) {
+//								if (j != i) {
+//									cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
+//								}
+//							}
+//						}
 				
 // VALID INEQUALITIES START HERE!
 										

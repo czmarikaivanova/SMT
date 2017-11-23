@@ -51,6 +51,8 @@ public abstract class ILPModel {
 	public boolean solve(boolean useTimeLimit, int seconds) {
 		try {
 			if (useTimeLimit) {
+				System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
+				System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
 				cplex.setParam(IloCplex.DoubleParam.TiLim, seconds);
 			}
 			return cplex.solve();
