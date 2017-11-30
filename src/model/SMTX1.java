@@ -77,4 +77,23 @@ public class SMTX1 extends SteinerX {
 			e.printStackTrace();
 		}		
 	}
+	
+	public Double[][][] getYVar() {
+		try {
+			Double[][][] yval = new Double[y.length][y.length][y.length];
+			for (int i = 0 ; i < y.length; i++) {
+				for (int j = 0; j < y.length; j++) {
+					if (i != j) {
+						for (int k = 0; k < d; k++) {
+							yval[i][j][k] = cplex.getValue(y[i][j][k]);
+						}
+					}
+				}
+			}
+			return yval;		
+		} catch (IloException e) {			
+			e.printStackTrace();
+			return null;
+		}		
+	}		
 }

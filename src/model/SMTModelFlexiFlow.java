@@ -20,6 +20,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 	protected IloNumVar[][][][] f;
 	File stLogFile = new File("logs/cglog.txt");
 	FileWriter fw;
+	FileWriter xmlFw;
 	CGStrategy cgStrategy;
 	
 	public SMTModelFlexiFlow(Graph graph, boolean isLP, boolean excludeC, CGStrategy cgStrategy ) {
@@ -35,6 +36,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 			int variableCnt = 0; 	   // # of variables in the model
 			cplex.setParam(IloCplex.DoubleParam.TiLim, seconds);
 			PriorityQueue<STPair> pairQueue = new PriorityQueue<STPair>();
+			PriorityQueue<STPair> violatedPairsQueue = new PriorityQueue<STPair>();
 			boolean solved = true; // true if all constraints are satisfied and the calculation can terminate
 			boolean ret;
 			int iter = 0;      // # of iterations (how many times we had to calculate the model with some added flow constraints) 
@@ -44,6 +46,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 			do {
 				iter++;
 				pairQueue.clear();
+				violatedPairsQueue.clear();
 				constraintCnt =  cplex.getNrows();
 				variableCnt = cplex.getNcols();
 				double startT = this.getCplexTime();
@@ -52,8 +55,8 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 				currTime = Miscellaneous.round(stopT - startT, 2);
 				currObj = Miscellaneous.round(cplex.getObjValue(), 2);
 				solved = true;
-				solved = cgStrategy.runSTMaxFlows(pairQueue, getXVar());
-				iterationLog(fw, iter, currObj, currTime, cgStrategy.getSatisfiedCnt(), cgStrategy.getViolatedCnt(), pairQueue.size(), constraintCnt, variableCnt);
+				solved = cgStrategy.runSTMaxFlows(violatedPairsQueue, pairQueue, getXVar(), getYVar());
+				iterationLog(fw, iter, currObj, currTime, cgStrategy.getSatisfiedCnt(), violatedPairsQueue, pairQueue, constraintCnt, variableCnt);
 				if (!solved && pairQueue.size() > 0) {
 					addFlowConstraints(pairQueue, fw);
 				}
@@ -74,17 +77,28 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 			fw.write("TOTAL TIME: " + totalTime + "\n");
 			fw.write(Constants.DELIMITER + Constants.DELIMITER + Constants.DELIMITER + "\n");
 			fw.close();
+			xmlFw.write("</run>");
+			xmlFw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void iterationLog(FileWriter fw, int iter, double currObj, double currTime, int satisfiedCnt, int volatedCnt, int addedCnt,
+	private void iterationLog(FileWriter fw, int iter, double currObj, double currTime, int satisfiedCnt, PriorityQueue<STPair> violatedPairQueue, PriorityQueue<STPair> addedPairQueue,
 			int constraintCnt, int variableCnt) {
+		int violatedCnt = violatedPairQueue.size();
+		int addedCnt = addedPairQueue.size();
 		try {
 			fw = new FileWriter(stLogFile, true);
-			fw.write(iter + "\t" + currObj + "\t" + currTime + "\t" + satisfiedCnt + "\t" + volatedCnt + "\t" + addedCnt + "\t" + constraintCnt + "\t " + variableCnt + "\n");
+			fw.write(iter + "\t" + currObj + "\t" + currTime + "\t" + satisfiedCnt + "\t" + violatedCnt + "\t" + addedCnt + "\t" + constraintCnt + "\t " + variableCnt + "\n");
 			fw.close();
+			
+			xmlFw.write("\t<iteration i=\"" +iter +"\" sc=\"" + satisfiedCnt + "\" vc=\"" + violatedCnt + "\" ac= \"" + addedCnt + "\">\n");
+			for (STPair p: violatedPairQueue) {
+				String isAdded = (addedPairQueue.contains(p) ? "true" : "false");
+				xmlFw.write("\t\t<violated s=\"" + p.getS() + "\" t=\"" + p.getT() + "\" val=\"" + Miscellaneous.round(p.getDiff(),2) + "\"  added=\"" + isAdded + "\" />\n");
+			}
+			xmlFw.write("\t</iteration>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -98,6 +112,11 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 			fw.write("ID: " + graph.getInstId() + " STRATEGY: " + cgStrategy.toString() + " TOLERANCE: " + cgStrategy.getTolerance() + "\n");
 			fw.write("iter \t currObj \t currTime \t satCnt \t violCnt \t addedCnt \t conCnt \t varCnt \n");
 			fw.close();
+			File xmlFile = new File("cglogs/" + cgStrategy.toString() + "_T=" + cgStrategy.getTolerance() + "_" + new File("cglogs/").list().length + ".xml");
+			xmlFw = new FileWriter(xmlFile, true);
+			xmlFw.write("<?xml version = \"1.0\"?>\n");
+			xmlFw.write("<run strategy =\"" + cgStrategy.toString() + "\" tolerance = \"" + cgStrategy.getTolerance() + "\">\n");
+			xmlFw.write(graph.getXMLString());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -152,7 +171,31 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 						}
 					}
 				}
-			}					
+			}	
+			
+			if (includeC) {
+			for (int j = 0; j < n; j++) {
+				for (int s = 0; s < d; s++) {
+					for (int t = 0; t < d; t++) {
+						for (int k = 0; k < n; k++) {
+							if (j != k && s != t) {
+								IloLinearNumExpr expr1 = cplex.linearNumExpr();
+								IloLinearNumExpr expr2 = cplex.linearNumExpr();
+								for (int i = 0; i < n; i++) {
+									if (i != j) { 
+										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
+											expr1.addTerm(1.0, f[j][i][s][t]);
+											expr2.addTerm(1.0, y[j][i][s]);										
+										}
+									}
+								}
+								cplex.addLe(expr1, expr2);
+							}
+						}
+					}
+				}
+			}	
+			}
 		} catch (IloException e) {
 			e.printStackTrace();
 		}		

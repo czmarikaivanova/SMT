@@ -1,6 +1,8 @@
 package smt;
 
 import graph.Graph;
+import graph.Node;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,6 +13,7 @@ import org.javatuples.Pair;
 import cgstrategy.CGStrategy;
 import cgstrategy.CG_AddFirstK;
 import cgstrategy.CG_AddMatching;
+import cgstrategy.CG_BestK;
 import algorithm.Algorithm;
 import algorithm.BIPAlgorithm;
 import algorithm.MSTAlgorithm;
@@ -44,10 +47,10 @@ public class App {
 	
 	
 	public App() {
-		this.n = 24;
-		this.d = 12;
-		this.iter = 50;
-//		this.fname =  "saved_inst/infinitecg.txt";
+		this.n = 22;
+		this.d = 11;
+		this.iter = 10;
+//		this.fname =  "saved_inst/intnonopt.txt";
 		this.fname =  null;
 	}
 	
@@ -67,7 +70,7 @@ public class App {
 				graph.generateAMPLData();
 //				
 //				models.add(new SMTX1(graph, Constants.INTEGER, true));
-				models.add(new SMTX1VI(graph, Constants.LP, true));
+//				models.add(new SMTX1VI(graph, Constants.LP, true));
 //				models.add(new SMTF1VI(graph, Constants.LP, true));
 //				models.add(new SMTX2(graph, Constants.LP, false));
 //				models.add(new SMTX2(graph, Constants.LP, true));
@@ -82,10 +85,11 @@ public class App {
 //				models.add(new SMTF1(graph, Constants.INTEGER, true));
 	
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CGStrategy(-1.9, graph)));
-//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddFirstK(-1.9, graph, 5)));
+				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-1.9, graph, 5)));
+				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_BestK(-1.9, graph, 5)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddFirstK(-1.9, graph, 1)));
 				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.9, graph, 5)));
-				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.8, graph, 5)));
+//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.8, graph, 5)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.99999, graph, 5)));
 //				models.add(new SMTX2(graph, Constants.LP, true));
 				
@@ -126,6 +130,8 @@ public class App {
 		}
 	}
 	
+
+
 	private void checkFXRELTIGHT(Double[][][] fvar, Double[][] zvar) {
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {

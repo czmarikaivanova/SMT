@@ -8,44 +8,48 @@ import graph.Graph;
 
 public class CG_AddFirstK extends CGStrategy {
 
-	private int k;
+	private boolean includeFY;
 	
-	public CG_AddFirstK(double tolerance, Graph graph, int k) {
+	public CG_AddFirstK(double tolerance, Graph graph, int k, boolean includeFY) {
 		super(tolerance, graph);
 		this.k = k;
+		this.includeFY = includeFY;
 	}
 	
-	public boolean runSTMaxFlows(PriorityQueue<STPair> pairQueue, Double[][][] xVar) {
+	public boolean runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue, PriorityQueue<STPair> addedPairQueue, Double[][][] xVar, Double[][][] yVar) {
 		restartCounters();
 		boolean solved = true;
 		STFlow stFlowModel;
 		for (int s = 0; s < d; s++) {
 			for (int t = s + 1; t < d; t++) {
 				if (s != t) {
-					stFlowModel = new STFlow(graph, xVar, s, t, singleFlowCplex);
+					stFlowModel = new STFlow(graph, xVar, yVar, s, t, singleFlowCplex, includeFY);
 					stFlowModel.solve(false, 3600);   // solve the max flow problem
 					double stVal = stFlowModel.getObjectiveValue();
 					STPair stPair = new STPair(s, t, stVal);
 					if (stVal > tolerance) { // flow conservation not satisfied for {s,t}
 						violatedCnt++;
-						pairQueue.add(stPair);
+						if (violatedPairsQueue.size() <  k) {
+							addedPairQueue.add(stPair);
+						}
+						violatedPairsQueue.add(stPair);
 						solved = false;
-						break;
+//						break;
 					}
 					else {
 						satisfiedCnt++;
 					}
 				}
 			}
-			if (pairQueue.size() > k) {
-				break;
-			}
+//			if (addedPairQueue.size() > k) {
+//				break;
+//			}
 		}
 		return solved;
 	}
 
 	public String toString() {
-		return " AddFirstK, k = " + k;
+		return "AddFirstK";
 	}
 	
 }

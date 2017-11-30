@@ -414,4 +414,21 @@ public class Graph implements Cloneable  {
 //        }
         return gr;
     }
+
+
+    /**
+     * 
+     * @return  graph's xml representation
+     */
+	public String getXMLString() {
+		String xmlstr = "";
+		xmlstr += "<graph>\n";
+		for (Node n: nodes) {
+			if (n.isDestination()) {
+				xmlstr += "\t<dest id=\"" + n.getId() +"\" x=\"" + n.getPoint().x + "\" y=\"" +n.getPoint().y +"\"></dest>\n";
+			}
+		}
+		xmlstr += "</graph>\n";
+		return xmlstr;
+	}
 }

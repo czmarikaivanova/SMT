@@ -15,9 +15,8 @@ public class STFlow extends ILPModel {
 	private int s;
 	private int t;
 	private IloNumVar[][][][] f;
-	private Double[][][] xvar;
 	
-	public STFlow(Graph graph, Double[][][] xvar, int s, int t, IloCplex cplex) {
+	public STFlow(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex, boolean includeFYConstr) {
 		this.graph = graph;
 		this.isLP = Constants.LP;
 		try {
@@ -28,13 +27,15 @@ public class STFlow extends ILPModel {
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
-		this.xvar = xvar;
 		n = graph.getVertexCount();
 		d = graph.getDstCount();
 		this.s = s;
 		this.t = t;
 		createModel();	
 		addCapacityConstraints(xvar);
+		if (includeFYConstr) {
+			addFimpYConstraints(yvar);
+		}
 //		try {
 //			cplex.exportModel("stFlowModel.lp");
 			cplex.setOut(null);
@@ -65,7 +66,6 @@ public class STFlow extends ILPModel {
 
 	protected void createObjFunction() {
 		try {
-			
 			IloLinearNumExpr obj1 = cplex.linearNumExpr();
 			IloLinearNumExpr obj2 = cplex.linearNumExpr();	
 			IloLinearNumExpr obj3 = cplex.linearNumExpr();
@@ -166,6 +166,39 @@ public class STFlow extends ILPModel {
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void addFimpYConstraints(Double[][][] yvar) {
+		try {
+			for (int j = 0; j < n; j++) {
+				for (int k = 0; k < n; k++) {
+					if (j != k && s != t) {
+						IloLinearNumExpr expr1 = cplex.linearNumExpr();
+						IloLinearNumExpr expr2 = cplex.linearNumExpr();
+						double ysum1 = 0;
+						double ysum2 = 0;
+						for (int i = 0; i < n; i++) {
+							if (i != j) {
+								if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
+									if (yvar[j][i][s] > 0 ) { 
+//										System.out.println("Y: " + yvar[j][i][s]);
+//										System.out.println("Y: " + yvar[j][i][s]);
+									}
+									ysum1 += yvar[j][i][s];
+									ysum2 += yvar[j][i][t];
+									expr1.addTerm(1.0, f[j][i][s][t]);
+									expr2.addTerm(1.0, f[j][i][t][s]);
+								}
+							}
+						}
+						cplex.addLe(expr1, ysum1);
+						cplex.addLe(expr2, ysum2);
+					}
+				}
+			}	
+		} catch (IloException e) {
+			e.printStackTrace();
+		}		
 	}
 	
 	@Override

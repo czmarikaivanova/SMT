@@ -148,6 +148,7 @@ instances
 amplfiles
 logs
 images
+cglogs
 
 # image files
 *.png

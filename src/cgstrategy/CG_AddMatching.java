@@ -22,11 +22,11 @@ public class CG_AddMatching extends CGStrategy {
 		this.minViolatedCnt = minViolatedCnt;
 	}
 
-	public boolean runSTMaxFlows(PriorityQueue<STPair> pairQueue, Double[][][] xVar) {
+	public boolean runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue,PriorityQueue<STPair> addedPairsQueue, Double[][][] xVar, Double[][][] yVar) {
 		restartCounters();
-		boolean ret = super.runSTMaxFlows(pairQueue, xVar);
+		boolean ret = super.runSTMaxFlows(violatedPairsQueue, addedPairsQueue, xVar, yVar);
 		if (violatedCnt > minViolatedCnt) {
-			leaveMatching(pairQueue);
+			leaveMatching(addedPairsQueue);
 		}
 		return ret;
 	}
@@ -57,6 +57,6 @@ public class CG_AddMatching extends CGStrategy {
 //		System.out.println(outArray.toString());
 	}
 	public String toString() {
-		return " AddMatching, minVC = " + minViolatedCnt;
+		return "AddMatching";
 	}
 }

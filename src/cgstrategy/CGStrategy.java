@@ -15,12 +15,14 @@ public class CGStrategy {
 	protected int satisfiedCnt;
 	protected Graph graph;
 	protected int d;
+	protected int k;
 	
 	public CGStrategy(double tolerance, Graph graph) {
 		super();
 		this.tolerance = tolerance;
 		this.graph = graph;
 		d = graph.getDstCount();
+		k = 0; // assume k not aplicable
 		try {
 			singleFlowCplex = new IloCplex();
 		} catch (IloException e) {
@@ -30,23 +32,24 @@ public class CGStrategy {
 
 	/**
 	 * run max flow for each s-t pair 
-	 * @param pairQueue
+	 * @param addedPairsQueue
 	 * @param xVar - capacity. Calculated by a SMT model that calls this procedure. This variable is used for modelling the constraints f_{ij}^{st}\leq x_{ij}^s
 	 * @return true if all flow conservation constraint and symmetry are satisfied for each s-t pair
 	 */
-	public boolean runSTMaxFlows(PriorityQueue<STPair> pairQueue, Double[][][] xVar) {
+	public boolean runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue, PriorityQueue<STPair> addedPairsQueue, Double[][][] xVar, Double[][][] yVar) {
 		boolean solved = true;
 		STFlow stFlowModel;
 		for (int s = 0; s < d; s++) {
 			for (int t = s + 1; t < d; t++) {
 				if (s != t) {
-					stFlowModel = new STFlow(graph, xVar, s, t, singleFlowCplex);
+					stFlowModel = new STFlow(graph, xVar, yVar, s, t, singleFlowCplex, false);
 					stFlowModel.solve(false, 3600);   // solve the max flow problem
 					double stVal = stFlowModel.getObjectiveValue();
 					STPair stPair = new STPair(s, t, stVal);
 					if (stVal > tolerance) { // flow conservation not satisfied for {s,t}
 						violatedCnt++;
-						pairQueue.add(stPair);
+						violatedPairsQueue.add(stPair);
+						addedPairsQueue.add(stPair);
 						solved = false;
 //						break;
 					}
@@ -84,6 +87,10 @@ public class CGStrategy {
 	
 	public double getTolerance() {
 		return tolerance;
+	}
+	
+	protected int getK() {
+		return k;
 	}
 	
 	public String toString() {
