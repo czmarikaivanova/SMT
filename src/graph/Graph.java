@@ -9,9 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-
-import org.javatuples.Quartet;
-
 import smt.Constants;
 import smt.Miscellaneous;
 
@@ -22,7 +19,7 @@ public class Graph implements Cloneable  {
 	private int instId;
 	protected Node[] nodes;
 	private float[][] requir;	
-	private ArrayList<Quartet<Node, Node, Node, Node>> crossList;
+//	private ArrayList<Quartet<Node, Node, Node, Node>> crossList;
 	private float cost;
 	
 	public Graph(int vertexCount, int dstCount) {
@@ -240,9 +237,9 @@ public class Graph implements Cloneable  {
 		return requir[i.getId()][j.getId()];
 	}
 
-	public ArrayList<Quartet<Node, Node, Node, Node>> getCrossList() {
-		return crossList;
-	}	
+//	public ArrayList<Quartet<Node, Node, Node, Node>> getCrossList() {
+//		return crossList;
+//	}	
 	
     //T(r1/r2)
     private int calcSubTrees(Edge e, int nod) {

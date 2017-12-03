@@ -60,7 +60,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 				if (!solved && pairQueue.size() > 0) {
 					addFlowConstraints(pairQueue, fw);
 				}
-			} while (!solved);
+			} while (!solved /*&& iter < 4*/);
 			double totalExitTime = this.getCplexTime();
 			exitLog(fw, currObj, totalExitTime - totalStartTime);
 			return ret;
@@ -112,7 +112,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 			fw.write("ID: " + graph.getInstId() + " STRATEGY: " + cgStrategy.toString() + " TOLERANCE: " + cgStrategy.getTolerance() + "\n");
 			fw.write("iter \t currObj \t currTime \t satCnt \t violCnt \t addedCnt \t conCnt \t varCnt \n");
 			fw.close();
-			File xmlFile = new File("cglogs/" + cgStrategy.toString() + "_T=" + cgStrategy.getTolerance() + "_" + new File("cglogs/").list().length + ".xml");
+			File xmlFile = new File("cglogs/" + new File("cglogs/").list().length + "_" +cgStrategy.toString() + "_T=" + cgStrategy.getTolerance() + "_" + ".xml");
 			xmlFw = new FileWriter(xmlFile, true);
 			xmlFw.write("<?xml version = \"1.0\"?>\n");
 			xmlFw.write("<run strategy =\"" + cgStrategy.toString() + "\" tolerance = \"" + cgStrategy.getTolerance() + "\">\n");

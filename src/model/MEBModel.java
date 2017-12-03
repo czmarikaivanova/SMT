@@ -2,7 +2,7 @@ package model;
 
 import java.util.ArrayList;
 
-import org.javatuples.Quartet;
+//import org.javatuples.Quartet;
 
 import smt.Constants;
 
@@ -145,13 +145,13 @@ public class MEBModel extends ILPModel {
 			
 			if (!allowCrossing) {
 				// crossing 2
-				for (Quartet<Node, Node, Node, Node> crossPair: graph.getCrossList()) {
-					int i = crossPair.getValue0().getId();
-					int j = crossPair.getValue1().getId();
-					int k = crossPair.getValue2().getId();
-					int l = crossPair.getValue3().getId();				
-					cplex.addLe(cplex.sum(z[i][j], z[k][l], z[l][k], z[j][i]), 1.0);
-				}			
+//				for (Quartet<Node, Node, Node, Node> crossPair: graph.getCrossList()) {
+//					int i = crossPair.getValue0().getId();
+//					int j = crossPair.getValue1().getId();
+//					int k = crossPair.getValue2().getId();
+//					int l = crossPair.getValue3().getId();				
+//					cplex.addLe(cplex.sum(z[i][j], z[k][l], z[l][k], z[j][i]), 1.0);
+//				}			
 			}
 			
 		} catch (IloException e) {

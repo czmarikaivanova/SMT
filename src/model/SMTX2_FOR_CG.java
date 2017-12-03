@@ -1,7 +1,5 @@
 package model;
 
-import org.javatuples.Quartet;
-
 import smt.App;
 import smt.Constants;
 import ilog.concert.IloException;

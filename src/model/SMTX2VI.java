@@ -1,11 +1,7 @@
 package model;
 
 import java.util.ArrayList;
-
-import org.javatuples.Quartet;
-
 import smt.App;
-
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;

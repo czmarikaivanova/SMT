@@ -1,6 +1,5 @@
 package model;
 
-import org.javatuples.Quartet;
 
 import smt.App;
 import smt.Constants;
@@ -95,7 +94,6 @@ public class SMTX2 extends SMTX1VI {
 			
 			
 			// f sym
-			if (includeC)
 			for (int s = 0; s < d; s++) {
 				for (int t = 0; t < d; t++) {
 					for (int i = 0; i < n; i++) {
@@ -126,9 +124,31 @@ public class SMTX2 extends SMTX1VI {
 				}
 			}
 		}
-				
+		
+		// f_it^st = x_it^s  -- MAKES IT FASTER
+		for (int s = 0; s < d; s++) {
+			for (int t = 0; t < d; t++) {
+				for (int i = 0; i < n; i++) {
+						if (i != t && s != t) {
+							cplex.addEq(f[i][t][s][t], x[i][t][s]);
+						}
+				}
+			}
+		}	
 
-
+		// F-F = X-X
+//		if (includeC)
+//		for (int s = 0; s < d; s++) {
+//			for (int t = 0; t < d; t++) {
+//				for (int i = 0; i < n; i++) {
+//					for (int j = 0; j < n; j++) {
+//						if (i != j && s != t) {
+//							cplex.addEq(cplex.sum(x[i][j][s], cplex.negative(f[i][j][s][t])), cplex.sum(x[i][j][t], cplex.negative(f[i][j][t][s])));
+//						}
+//					}
+//				}
+//			}
+//		}	
 
 
 		} catch (IloException e) {
