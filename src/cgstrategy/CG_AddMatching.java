@@ -3,7 +3,7 @@ package cgstrategy;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-import model.STFlow;
+import model.MaxSTFlow;
 import model.STPair;
 import graph.Graph;
 

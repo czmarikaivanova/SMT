@@ -5,7 +5,7 @@ import java.util.PriorityQueue;
 import graph.Graph;
 import ilog.concert.IloException;
 import ilog.cplex.IloCplex;
-import model.STFlow;
+import model.MaxSTFlow;
 import model.STPair;
 
 public class CGStrategy {
@@ -40,11 +40,11 @@ public class CGStrategy {
 	 */
 	public boolean runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue, PriorityQueue<STPair> addedPairsQueue, Double[][][] xVar, Double[][][] yVar) {
 		boolean solved = true;
-		STFlow stFlowModel;
+		MaxSTFlow stFlowModel;
 		for (int s = 0; s < d; s++) {
 			for (int t = s + 1; t < d; t++) {
 				if (s != t) {
-					stFlowModel = new STFlow(graph, xVar, yVar, s, t, singleFlowCplex, includefimp);
+					stFlowModel = new MaxSTFlow(graph, xVar, yVar, s, t, singleFlowCplex, includefimp);
 					stFlowModel.solve(false, 3600);   // solve the max flow problem
 					double stVal = stFlowModel.getObjectiveValue();
 					STPair stPair = new STPair(s, t, stVal);

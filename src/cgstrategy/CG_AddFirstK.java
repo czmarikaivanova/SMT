@@ -2,7 +2,7 @@ package cgstrategy;
 
 import java.util.PriorityQueue;
 
-import model.STFlow;
+import model.MaxSTFlow;
 import model.STPair;
 import graph.Graph;
 
@@ -18,11 +18,11 @@ public class CG_AddFirstK extends CGStrategy {
 	public boolean runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue, PriorityQueue<STPair> addedPairQueue, Double[][][] xVar, Double[][][] yVar) {
 		restartCounters();
 		boolean solved = true;
-		STFlow stFlowModel;
+		MaxSTFlow stFlowModel;
 		for (int s = 0; s < d; s++) {
 			for (int t = s + 1; t < d; t++) {
 				if (s != t) {
-					stFlowModel = new STFlow(graph, xVar, yVar, s, t, singleFlowCplex, includeFY);
+					stFlowModel = new MaxSTFlow(graph, xVar, yVar, s, t, singleFlowCplex, includeFY);
 					stFlowModel.solve(false, 3600);   // solve the max flow problem
 					double stVal = stFlowModel.getObjectiveValue();
 					STPair stPair = new STPair(s, t, stVal);
