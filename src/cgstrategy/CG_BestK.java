@@ -7,8 +7,8 @@ import graph.Graph;
 
 public class CG_BestK extends CGStrategy {
 
-	public CG_BestK(double tolerance, Graph graph, int k) {
-		super(tolerance, graph);
+	public CG_BestK(double tolerance, Graph graph, int k, boolean includefimp) {
+		super(tolerance, graph, includefimp);
 		this.k = k;
 	}
 	

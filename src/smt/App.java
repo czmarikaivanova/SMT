@@ -44,8 +44,8 @@ public class App {
 	
 	
 	public App() {
-		this.n = 22;
-		this.d = 11;
+		this.n = 20;
+		this.d = 10;
 		this.iter = 200;
 //		this.fname =  "saved_inst/nofinish.txt";
 		this.fname =  null;
@@ -70,12 +70,13 @@ public class App {
 //				models.add(new SMTX1(graph, Constants.LP, true));
 //				models.add(new SMTX1VI(graph, Constants.LP, true));
 //				models.add(new SMTF1VI(graph, Constants.LP, true));
-				models.add(new SMTX2(graph, Constants.LP, false));
-//				models.add(new SMTX2(graph, Constants.LP, true));
-//				models.add(new SMTX2B(graph, Constants.LP, true));
+//				models.add(new SMTX2(graph, Constants.LP, false));
+				models.add(new SMTX2(graph, Constants.LP, true));
+
+				//				models.add(new SMTX2B(graph, Constants.LP, true));
 //				models.add(new SMTF2(graph, Constants.LP, true));
 //				models.add(new SMTF2B(graph, Constants.LP, true));
-//				models.add(new SMTX2VI(graph, Constants.LP, true));
+				models.add(new SMTX2VI(graph, Constants.LP, true));
 //				models.add(new SMTX2VIB(graph, Constants.LP, true));
 //				models.add(new SMTF2VI(graph, Constants.LP, true));
 //				models.add(new SMTF2VIB(graph, Constants.LP, true));
@@ -86,7 +87,8 @@ public class App {
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-1.9, graph, 5)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_BestK(-1.9, graph, 1)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddFirstK(-1.9, graph, 1)));
-//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.9, graph, 5)));
+				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-1.9, graph, 5, false)));
+				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.9, graph, 5, true)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.8, graph, 5)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.99999, graph, 5)));
 //				models.add(new SMTX2(graph, Constants.LP, true));
@@ -116,13 +118,14 @@ public class App {
 			logObjective(new File("logs/cost_log.txt"), lpCost1, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
 			logObjective(new File("logs/runtime_log.txt"), (endT - startT)/1000, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
 			Double[][] z = (Double[][]) model.getZVar();
-			Double[][][] xvar = model.getXVar();
-			Double[][][][] fvar = ((SMTX2) model).getFVar();
-			checkXXFF(fvar, xvar);
+
 //			Double[][][] f = (Double[][][]) model.getXVar();
 //			checkConstraints(f, z);
 //			System.err.println(" Y var for PF2 model: ");
-			if (model instanceof SMTF2 ) {
+			if (model instanceof SMTX2 ) {
+				Double[][][] xvar = model.getXVar();
+				Double[][][][] fvar = ((SMTX2) model).getFVar();
+				checkXXFF(fvar, xvar);
 //				checkFHzeroEqFzero(((SMTF2)model).getH(), f);
 //				((SMTF2)model).getYVar();
 			}
@@ -140,7 +143,7 @@ public class App {
 					for (int s = 0; s < d; s++) {
 						for (int t = 0; t < d; t++) {
 							if (s != t) {
-								double absdiff = Math.abs((xvar[i][j][t] - xvar[i][j][s]) - (fvar[j][i][s][t] - fvar[i][j][s][t]));
+								double absdiff = Math.abs((xvar[i][j][s] - fvar[i][j][s][t]) - (xvar[i][j][t] - fvar[i][j][t][s]));
 								if (absdiff > 0.001) {
 									System.err.println("INSTANCE: " + graph.getInstId() + " DIFF: " + absdiff);
 									System.err.print(" i = " + i);

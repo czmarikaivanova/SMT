@@ -17,8 +17,8 @@ public class CG_AddMatching extends CGStrategy {
 	 * @param graph
 	 * @param minViolatedCnt minimum # of violated s-t pairs necessary for applying the matching strategy. If there are less pairs, add all constraints.
 	 */
-	public CG_AddMatching(double tolerance, Graph graph, int minViolatedCnt) {
-		super(tolerance, graph);
+	public CG_AddMatching(double tolerance, Graph graph, int minViolatedCnt, boolean includefimp) {
+		super(tolerance, graph, includefimp);
 		this.minViolatedCnt = minViolatedCnt;
 	}
 

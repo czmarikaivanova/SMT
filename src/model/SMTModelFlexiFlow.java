@@ -23,8 +23,8 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 	FileWriter xmlFw;
 	CGStrategy cgStrategy;
 	
-	public SMTModelFlexiFlow(Graph graph, boolean isLP, boolean excludeC, CGStrategy cgStrategy ) {
-		super(graph, isLP, excludeC);
+	public SMTModelFlexiFlow(Graph graph, boolean isLP, boolean includeC, CGStrategy cgStrategy ) {
+		super(graph, isLP, includeC);
 		this.cgStrategy = cgStrategy;
 	}
 
@@ -173,7 +173,8 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 				}
 			}	
 			
-			if (includeC) {
+			// f imp y (very strong one)
+//			if (includeC) {
 			for (int j = 0; j < n; j++) {
 				for (int s = 0; s < d; s++) {
 					for (int t = 0; t < d; t++) {
@@ -195,7 +196,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 					}
 				}
 			}	
-			}
+//			}
 		} catch (IloException e) {
 			e.printStackTrace();
 		}		

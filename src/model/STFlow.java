@@ -89,6 +89,7 @@ public class STFlow extends ILPModel {
 	@Override
 	public void createConstraints() {
 		try {
+			// Flow conservation - normal. s-t flow
 			IloLinearNumExpr expr2a = cplex.linearNumExpr();
 			IloLinearNumExpr expr2b = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {		
@@ -106,11 +107,12 @@ public class STFlow extends ILPModel {
 								expr1b.addTerm(1.0, f[j][i][s][t]);
 							}								
 						}						
-						cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));			// Flow conservation - normal
+						cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));			
 					}
 				}
 			}
 			
+//			Flow conservation - normal. t-s flow 
 			IloLinearNumExpr expr3a = cplex.linearNumExpr();
 			IloLinearNumExpr expr3b = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {		
@@ -128,7 +130,7 @@ public class STFlow extends ILPModel {
 								expr1b.addTerm(1.0, f[j][i][t][s]);
 							}								
 						}						
-						cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));			// Flow conservation - normal
+						cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));		
 					}
 				}
 			}			
@@ -136,13 +138,13 @@ public class STFlow extends ILPModel {
 	
 			
 			// f sym
-					for (int i = 0; i < n; i++) {
-						for (int j = 0; j < n; j++) {
-							if (i != j) {
-								cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
-							}
-						}
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (i != j) {
+						cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
 					}
+				}
+			}
 
 		
 		
@@ -172,7 +174,7 @@ public class STFlow extends ILPModel {
 		try {
 			for (int j = 0; j < n; j++) {
 				for (int k = 0; k < n; k++) {
-					if (j != k && s != t) {
+					if (j != k) {
 						IloLinearNumExpr expr1 = cplex.linearNumExpr();
 						IloLinearNumExpr expr2 = cplex.linearNumExpr();
 						double ysum1 = 0;
@@ -191,8 +193,8 @@ public class STFlow extends ILPModel {
 								}
 							}
 						}
-						cplex.addLe(expr1, ysum1);
-						cplex.addLe(expr2, ysum2);
+						cplex.addLe(expr1, ysum1); // s-t 
+						cplex.addLe(expr2, ysum2); // t-s
 					}
 				}
 			}	

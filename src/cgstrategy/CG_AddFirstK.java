@@ -10,10 +10,9 @@ public class CG_AddFirstK extends CGStrategy {
 
 	private boolean includeFY;
 	
-	public CG_AddFirstK(double tolerance, Graph graph, int k, boolean includeFY) {
-		super(tolerance, graph);
+	public CG_AddFirstK(double tolerance, Graph graph, int k, boolean includefimp) {
+		super(tolerance, graph, includefimp);
 		this.k = k;
-		this.includeFY = includeFY;
 	}
 	
 	public boolean runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue, PriorityQueue<STPair> addedPairQueue, Double[][][] xVar, Double[][][] yVar) {

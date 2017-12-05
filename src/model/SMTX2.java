@@ -136,7 +136,7 @@ public class SMTX2 extends SMTX1VI {
 			}
 		}	
 
-		// F-F = X-X
+		// F-F = X-X+
 //		if (includeC)
 //		for (int s = 0; s < d; s++) {
 //			for (int t = 0; t < d; t++) {

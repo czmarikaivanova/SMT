@@ -16,13 +16,15 @@ public class CGStrategy {
 	protected Graph graph;
 	protected int d;
 	protected int k;
+	protected boolean includefimp;
 	
-	public CGStrategy(double tolerance, Graph graph) {
+	public CGStrategy(double tolerance, Graph graph, boolean includefimp) {
 		super();
 		this.tolerance = tolerance;
 		this.graph = graph;
 		d = graph.getDstCount();
 		k = 0; // assume k not aplicable
+		this.includefimp = includefimp;
 		try {
 			singleFlowCplex = new IloCplex();
 		} catch (IloException e) {
@@ -42,7 +44,7 @@ public class CGStrategy {
 		for (int s = 0; s < d; s++) {
 			for (int t = s + 1; t < d; t++) {
 				if (s != t) {
-					stFlowModel = new STFlow(graph, xVar, yVar, s, t, singleFlowCplex, false);
+					stFlowModel = new STFlow(graph, xVar, yVar, s, t, singleFlowCplex, includefimp);
 					stFlowModel.solve(false, 3600);   // solve the max flow problem
 					double stVal = stFlowModel.getObjectiveValue();
 					STPair stPair = new STPair(s, t, stVal);
