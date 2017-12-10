@@ -15,7 +15,7 @@ import smt.Constants;
 import smt.Miscellaneous;
 import graph.Graph;
 
-public class SMTModelFlexiFlowSYM extends SMTX1VI {
+public class X1VI_CG extends SMTX1VI {
 	
 	protected IloNumVar[][][][] f;
 	File stLogFile = new File("logs/cglog.txt");
@@ -23,7 +23,7 @@ public class SMTModelFlexiFlowSYM extends SMTX1VI {
 	FileWriter xmlFw;
 	CGStrategy cgStrategy;
 	
-	public SMTModelFlexiFlowSYM(Graph graph, boolean isLP, boolean includeC, CGStrategy cgStrategy ) {
+	public X1VI_CG(Graph graph, boolean isLP, boolean includeC, CGStrategy cgStrategy ) {
 		super(graph, isLP);
 		this.cgStrategy = cgStrategy;
 	}
