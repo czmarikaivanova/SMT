@@ -12,7 +12,7 @@ import graph.Node;
 public class SMTX2B extends SMTX1VI {
 
 	public SMTX2B(Graph graph, boolean isLP, boolean includeC) {
-		super(graph, isLP, includeC);
+		super(graph, isLP);
 	}
 	
 	protected IloNumVar[][][][] f;

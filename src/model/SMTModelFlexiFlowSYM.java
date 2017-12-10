@@ -24,7 +24,7 @@ public class SMTModelFlexiFlowSYM extends SMTX1VI {
 	CGStrategy cgStrategy;
 	
 	public SMTModelFlexiFlowSYM(Graph graph, boolean isLP, boolean includeC, CGStrategy cgStrategy ) {
-		super(graph, isLP, includeC);
+		super(graph, isLP);
 		this.cgStrategy = cgStrategy;
 	}
 

@@ -12,7 +12,7 @@ import graph.Node;
 public class SMTX2 extends SMTX1VI {
 
 	public SMTX2(Graph graph, boolean isLP, boolean includeC) {
-		super(graph, isLP, includeC);
+		super(graph, isLP);
 	}
 	
 	protected IloNumVar[][][][] f;
@@ -152,18 +152,17 @@ public class SMTX2 extends SMTX1VI {
 //			}
 //		}	
 		// Slack equality 
-		if (includeC)
-		for (int s = 0; s < d; s++) {
-			for (int t = 0; t < d; t++) {
-				for (int i = 0; i < n; i++) {
-					for (int j = 0; j < n; j++) {
-						if (i != j && s != t) {
-							cplex.addLe(cplex.sum(x[i][j][t], f[i][j][s][t]), 1);
-						}
-					}
-				}
-			}
-		}	
+//		for (int s = 0; s < d; s++) {
+//			for (int t = 0; t < d; t++) {
+//				for (int i = 0; i < n; i++) {
+//					for (int j = 0; j < n; j++) {
+//						if (i != j && s != t) {
+//							cplex.addLe(cplex.sum(x[i][j][t], f[i][j][s][t]), 1);
+//						}
+//					}
+//				}
+//			}
+//		}	
 		} catch (IloException e) {
 			e.printStackTrace();
 		}		

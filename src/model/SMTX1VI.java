@@ -6,8 +6,8 @@ import graph.Graph;
 
 public class SMTX1VI extends SMTX1 {
 
-	public SMTX1VI(Graph graph, boolean isLP, boolean includeC) {
-		super(graph, isLP, includeC);
+	public SMTX1VI(Graph graph, boolean isLP) {
+		super(graph, isLP);
 	}
 	
 	// objective function and vars from super

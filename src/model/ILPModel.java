@@ -14,12 +14,10 @@ public abstract class ILPModel {
 	protected boolean isLP;
 	protected int n;
 	protected int d;
-	protected boolean includeC;
 	
-	public ILPModel(Graph graph, boolean isLP, boolean includeC) {
+	public ILPModel(Graph graph, boolean isLP) {
 		this.graph = graph;
 		this.isLP = isLP;
-		this.includeC = includeC;
 		try {
 			cplex = new IloCplex();
 //			cplex.setOut(null);

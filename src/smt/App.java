@@ -96,7 +96,7 @@ public class App {
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.8, graph, 5)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.99999, graph, 5)));
 //				models.add(new SMTX2(graph, Constants.LP, true));
-				models.add(new SMTF1(graph, Constants.INTEGER, true));				
+				models.add(new SMTF1(graph, Constants.INTEGER));				
 				runModel(models);
 	//					ILPModel smtPf2LP = new SMTF2(graph, false, Constants.LP, false);
 	//					Algorithm bip = new BIPAlgorithm(true, true);

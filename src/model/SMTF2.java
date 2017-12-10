@@ -10,7 +10,7 @@ import graph.Graph;
 public class SMTF2 extends SMTF1VI {
 
 	public SMTF2(Graph graph, boolean isLP, boolean includeC) {
-		super(graph, isLP, includeC);
+		super(graph, isLP);
 //		System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
 //		System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
 	}

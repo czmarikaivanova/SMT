@@ -9,8 +9,8 @@ import graph.Graph;
 
 public class SMTF1VI extends SMTF1 {
 
-	public SMTF1VI(Graph graph, boolean isLP, boolean includeC) {
-		super(graph, isLP, includeC);
+	public SMTF1VI(Graph graph, boolean isLP) {
+		super(graph, isLP);
 	}
 
 	@Override
