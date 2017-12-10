@@ -11,13 +11,13 @@ import ilog.cplex.IloCplex;
  * Maximum flow model.
  *
  */
-public class MaxSTFlowSYM extends ILPModel {
+public class MaxSTFlow extends ILPModel {
 
 	private int s;
 	private int t;
 	private IloNumVar[][][][] f;
 	
-	public MaxSTFlowSYM(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex) {
+	public MaxSTFlow(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex) {
 		this.graph = graph;
 		this.n = graph.getVertexCount(); // # nodes
 		this.d = graph.getDstCount();	  // # destinations
