@@ -48,7 +48,7 @@ public class CG_AddFirstK extends CGStrategy {
 	}
 
 	public String toString() {
-		return "AddFirstK";
+		return "First("+ k + ")";
 	}
 	
 }

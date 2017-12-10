@@ -15,7 +15,7 @@ import smt.Constants;
 import smt.Miscellaneous;
 import graph.Graph;
 
-public class SMTModelFlexiFlow extends SMTX1VI {
+public class SMTModelFlexiFlowSYM extends SMTX1VI {
 	
 	protected IloNumVar[][][][] f;
 	File stLogFile = new File("logs/cglog.txt");
@@ -23,7 +23,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 	FileWriter xmlFw;
 	CGStrategy cgStrategy;
 	
-	public SMTModelFlexiFlow(Graph graph, boolean isLP, boolean includeC, CGStrategy cgStrategy ) {
+	public SMTModelFlexiFlowSYM(Graph graph, boolean isLP, boolean includeC, CGStrategy cgStrategy ) {
 		super(graph, isLP, includeC);
 		this.cgStrategy = cgStrategy;
 	}
@@ -112,7 +112,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 			fw.write("ID: " + graph.getInstId() + " STRATEGY: " + cgStrategy.toString() + " TOLERANCE: " + cgStrategy.getTolerance() + "\n");
 			fw.write("iter \t currObj \t currTime \t satCnt \t violCnt \t addedCnt \t conCnt \t varCnt \n");
 			fw.close();
-			File xmlFile = new File("cglogs/" + new File("cglogs/").list().length + "_" +cgStrategy.toString() + "_T=" + cgStrategy.getTolerance() + "_" + ".xml");
+			File xmlFile = new File("cglogs/" + graph.getInstId() + "_" +cgStrategy.toString() + "_T=" + cgStrategy.getTolerance() + "_" + new File("cglogs/").list().length + ".xml");
 			xmlFw = new FileWriter(xmlFile, true);
 			xmlFw.write("<?xml version = \"1.0\"?>\n");
 			xmlFw.write("<run strategy =\"" + cgStrategy.toString() + "\" tolerance = \"" + cgStrategy.getTolerance() + "\">\n");
@@ -137,6 +137,24 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 			}					
 		}		
 	}
+	
+//	protected void initVars() {
+//		try {
+//			super.initVars();
+//			f = new IloNumVar[n][n][d][d];		
+//			for (int i = 0; i < n; i++) {
+//				for (int j = 0; j < n; j++) {
+//					for (int k = 0; k < d; k++) {
+//						for (int l = 0; l < d; l++) {
+//							f[i][j][k][l] = cplex.numVar(0,1);
+//						}
+//					}	
+//				}					
+//			}
+//		} catch (IloException e) {
+//			e.printStackTrace();
+//		}
+//	}	
 	
 	protected void initVars() {
 		try {
@@ -165,7 +183,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 					for (int i = 0; i < n; i++) {
 						for (int j = 0; j < n; j++) {
 							if (j != i && s != t) {
-								cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
+//								cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
 //								cplex.addLe(f[i][j][s][t], x[i][j][s]);
 							}
 						}
@@ -185,8 +203,13 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 								for (int i = 0; i < n; i++) {
 									if (i != j) { 
 										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-											expr1.addTerm(1.0, f[j][i][s][t]);
-											expr2.addTerm(1.0, y[j][i][s]);										
+											if (s < t) {
+												expr1.addTerm(1.0, f[j][i][s][t]);
+											}
+											else {
+												expr1.addTerm(1.0, f[i][j][t][s]);
+											}
+											expr2.addTerm(1.0, y[j][i][s]);		
 										}
 									}
 								}
@@ -195,7 +218,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 						}
 					}
 				}
-			}	
+			}
 //			}
 		} catch (IloException e) {
 			e.printStackTrace();
@@ -230,8 +253,8 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 								expr2b.addTerm(1.0, f[i][t][s][t]);									// Flow conservation - dest
 							}
 							if (i != s) {
-								expr2c.addTerm(1.0, f[s][i][t][s]);									// Flow conservation - dest
-								expr2d.addTerm(1.0, f[i][s][t][s]);									// Flow conservation - dest
+								expr2c.addTerm(1.0, f[i][s][s][t]);									// Flow conservation - dest
+								expr2d.addTerm(1.0, f[s][i][s][t]);									// Flow conservation - dest
 							}	
 							IloLinearNumExpr expr1a = cplex.linearNumExpr();
 							IloLinearNumExpr expr1b = cplex.linearNumExpr();	
@@ -241,16 +264,16 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 							for (int j = 0; j < n; j++) {
 								if (j != i) {
 									cplex.addLe(f[i][j][s][t], x[i][j][s]);				// capacity
-									cplex.addLe(f[i][j][t][s], x[i][j][t]);				// capacity
+									cplex.addLe(f[j][i][s][t], x[i][j][t]);				// capacity
 
 									if (t != i && s != i) {
 										if (j != s) {
 											expr1a.addTerm(1.0, f[i][j][s][t]);									
-											expr1c.addTerm(1.0, f[j][i][t][s]);									
+											expr1c.addTerm(1.0, f[i][j][s][t]);									
 										}								
 										if (j != t) {								
 											expr1b.addTerm(1.0, f[j][i][s][t]);
-											expr1d.addTerm(1.0, f[i][j][t][s]);
+											expr1d.addTerm(1.0, f[j][i][s][t]);
 										}			
 									}
 								}

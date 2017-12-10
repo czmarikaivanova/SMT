@@ -10,13 +10,13 @@ import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 
-public class MaxSTFlow extends ILPModel {
+public class MaxSTFlow2 extends ILPModel {
 
 	private int s;
 	private int t;
 	private IloNumVar[][][][] f;
 	
-	public MaxSTFlow(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex, boolean includeFYConstr) {
+	public MaxSTFlow2(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex, boolean includeFYConstr) {
 		this.graph = graph;
 		this.isLP = Constants.LP;
 		try {
@@ -33,9 +33,9 @@ public class MaxSTFlow extends ILPModel {
 		this.t = t;
 		createModel();	
 		addCapacityConstraints(xvar);
-//		if (includeFYConstr) {
+		if (includeFYConstr) {
 			addFimpYConstraints(yvar);
-//		}
+		}
 //		try {
 //			cplex.exportModel("stFlowModel.lp");
 			cplex.setOut(null);

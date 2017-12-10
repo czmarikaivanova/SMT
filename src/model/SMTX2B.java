@@ -105,7 +105,7 @@ public class SMTX2B extends SMTX1VI {
 					}
 				}
 			}				
-			
+//			
 			// f sym
 //			for (int s = 0; s < d; s++) {
 //				for (int t = 0; t < d; t++) {
@@ -119,30 +119,43 @@ public class SMTX2B extends SMTX1VI {
 //				}
 //			}					
 				
-//		sym h implication
-			if (includeC) 
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				if( i != j) {
-					for (int t = 1; t < d; t++) {
-						for (int s = 1; s < t; s++) {
-							if (s != t) {
-								for (int u = 0; u < t; u++) {
-									if (u < s ) {
-//										cplex.addGe(f[i][j][s][t], cplex.sum(f[i][j][u][t], cplex.negative(f[i][j][u][s])));  // this is just (2g)
-										//remove the comment of the folloi
-										cplex.addEq(cplex.sum(f[i][j][u][t], f[j][i][u][s], f[j][i][s][t]), cplex.sum(f[i][j][u][s], f[j][i][u][t], f[i][j][s][t]));
-									}
-								}																												
+	//		sym h implication
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if( i != j) {
+						for (int t = 1; t < d; t++) {
+							for (int s = 1; s < t; s++) {
+								if (s != t) {
+									for (int u = 0; u < t; u++) {
+										if (u < s ) {
+	//										cplex.addGe(f[i][j][s][t], cplex.sum(f[i][j][u][t], cplex.negative(f[i][j][u][s])));  // this is just (2g)
+											cplex.addEq(cplex.sum(f[i][j][u][t], f[j][i][u][s], f[j][i][s][t]), cplex.sum(f[i][j][u][s], f[j][i][u][t], f[i][j][s][t]));
+										}
+									}																												
+								}
 							}
 						}
 					}
 				}
 			}
-		}
 				
+			// f_it^st = x_it^s  -- MAKES IT FASTER
 
-
+					for (int s = 0; s < d; s++) {
+						for (int t = 0; t < d; t++) {
+							for (int i = 0; i < n; i++) {
+									if (i != t && s != t) {
+										if (s < t) {
+											cplex.addEq(f[i][t][s][t], x[i][t][s]);
+										}
+										else {
+											cplex.addEq(f[t][i][t][s], x[i][t][s]);
+										}
+										
+									}
+							}
+						}
+					}	
 
 
 		} catch (IloException e) {
@@ -175,7 +188,7 @@ public class SMTX2B extends SMTX1VI {
 	}	
 	
 	public String toString() {
-    	return Constants.SMT_MULTI_FLOW_STRING + "(" + n + "," + d + ")";
+    	return Constants.SMT_MULTI_FLOW_STRING + "BBB(" + n + "," + d + ")";
 	}
 	
 

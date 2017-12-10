@@ -16,7 +16,9 @@ public class SMTX2 extends SMTX1VI {
 	}
 	
 	protected IloNumVar[][][][] f;
-	
+
+
+	// Initialize variables	
 	protected void initVars() {
 		try {
 			super.initVars();
@@ -35,11 +37,12 @@ public class SMTX2 extends SMTX1VI {
 	
 	//objective from SMTX1VI
 	
+	// create constraints
 	public void createConstraints() {
 		try{
 			super.createConstraints();
+			
 			// Flow conservation - normal
-
 			for (int s = 0; s < d; s++) {					
 				for (int t = 0; t < d; t++) {
 					for (int i = 0; i < n; i++) {						
@@ -115,7 +118,6 @@ public class SMTX2 extends SMTX1VI {
 							if (s != t) {
 								for (int u = 0; u < d; u++) {							
 //									cplex.addGe(f[i][j][s][t], cplex.sum(f[i][j][u][t], cplex.negative(f[i][j][u][s])));  // this is just (2g)
-									//remove the comment of the folloi
 									cplex.addEq(cplex.sum(f[i][j][u][t], f[j][i][u][s], f[i][j][t][s]), cplex.sum(f[i][j][u][s], f[j][i][u][t], f[i][j][s][t]));
 								}																												
 							}
@@ -129,14 +131,14 @@ public class SMTX2 extends SMTX1VI {
 		for (int s = 0; s < d; s++) {
 			for (int t = 0; t < d; t++) {
 				for (int i = 0; i < n; i++) {
-						if (i != t && s != t) {
-							cplex.addEq(f[i][t][s][t], x[i][t][s]);
-						}
+					if (i != t && s != t) {
+						cplex.addEq(f[i][t][s][t], x[i][t][s]);
+					}
 				}
 			}
 		}	
 
-		// F-F = X-X+
+		// Slack equality 
 //		if (includeC)
 //		for (int s = 0; s < d; s++) {
 //			for (int t = 0; t < d; t++) {
@@ -149,8 +151,19 @@ public class SMTX2 extends SMTX1VI {
 //				}
 //			}
 //		}	
-
-
+		// Slack equality 
+		if (includeC)
+		for (int s = 0; s < d; s++) {
+			for (int t = 0; t < d; t++) {
+				for (int i = 0; i < n; i++) {
+					for (int j = 0; j < n; j++) {
+						if (i != j && s != t) {
+							cplex.addLe(cplex.sum(x[i][j][t], f[i][j][s][t]), 1);
+						}
+					}
+				}
+			}
+		}	
 		} catch (IloException e) {
 			e.printStackTrace();
 		}		

@@ -36,6 +36,6 @@ public class CG_BestK extends CGStrategy {
 	}
 	
 	public String toString() {
-		return "BestK";
+		return "Best("+ k + ")";
 	}
 }

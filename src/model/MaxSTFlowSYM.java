@@ -10,13 +10,13 @@ import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 
-public class MaxSTFlow extends ILPModel {
+public class MaxSTFlowSYM extends ILPModel {
 
 	private int s;
 	private int t;
 	private IloNumVar[][][][] f;
 	
-	public MaxSTFlow(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex, boolean includeFYConstr) {
+	public MaxSTFlowSYM(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex, boolean includeFYConstr) {
 		this.graph = graph;
 		this.isLP = Constants.LP;
 		try {
@@ -52,11 +52,6 @@ public class MaxSTFlow extends ILPModel {
 				for (int j = i + 1; j < n; j++) {
 					f[i][j][s][t] = cplex.numVar(0, 1);
 					f[j][i][s][t] = cplex.numVar(0, 1);
-					f[i][j][t][s] = cplex.numVar(0, 1);
-					f[j][i][t][s] = cplex.numVar(0, 1);
-//					for (int k = 0; k < d; k++) {
-//						f[i][j][k] = cplex.numVarArray(d,0,1);	
-//					}	
 				}					
 			}
 		} catch (IloException e) {
@@ -76,8 +71,8 @@ public class MaxSTFlow extends ILPModel {
 					obj2.addTerm(1.0, f[i][t][s][t]);									
 				}	
 				if (i != s) {
-					obj3.addTerm(1.0, f[s][i][t][s]);									
-					obj4.addTerm(1.0, f[i][s][t][s]);	
+					obj3.addTerm(1.0, f[i][s][s][t]);									
+					obj4.addTerm(1.0, f[s][i][s][t]);	
 				}
 			}
 			cplex.addMinimize(cplex.sum(obj1, cplex.negative(obj2), obj3,cplex.negative(obj4)));
@@ -117,17 +112,17 @@ public class MaxSTFlow extends ILPModel {
 			IloLinearNumExpr expr3b = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {		
 				if (i != s) {
-					expr3a.addTerm(1.0, f[s][i][t][s]);									
-					expr3b.addTerm(1.0, f[i][s][t][s]);									
+					expr3a.addTerm(1.0, f[i][s][s][t]);									
+					expr3b.addTerm(1.0, f[s][i][s][t]);									
 					if (t != i) {
 						IloLinearNumExpr expr1a = cplex.linearNumExpr();
 						IloLinearNumExpr expr1b = cplex.linearNumExpr();	
 						for (int j = 0; j < n; j++) {
 							if (i != j && j != t) {
-								expr1a.addTerm(1.0, f[i][j][t][s]);									
+								expr1a.addTerm(1.0, f[j][i][s][t]);									
 							}								
 							if (i != j && j != s) {								
-								expr1b.addTerm(1.0, f[j][i][t][s]);
+								expr1b.addTerm(1.0, f[i][j][s][t]);
 							}								
 						}						
 						cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));		
@@ -138,13 +133,13 @@ public class MaxSTFlow extends ILPModel {
 	
 			
 			// f sym
-			for (int i = 0; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					if (i != j) {
-						cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
-					}
-				}
-			}
+//			for (int i = 0; i < n; i++) {
+//				for (int j = 0; j < n; j++) {
+//					if (i != j) {
+//						cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
+//					}
+//				}
+//			}
 
 		
 		
@@ -159,8 +154,8 @@ public class MaxSTFlow extends ILPModel {
 				for (int j = i+1; j < n; j++) {
 					cplex.addLe(f[i][j][s][t], xvar[i][j][s]);
 					cplex.addLe(f[j][i][s][t], xvar[j][i][s]);
-					cplex.addLe(f[i][j][t][s], xvar[i][j][t]);
-					cplex.addLe(f[j][i][t][s], xvar[j][i][t]);
+//					cplex.addLe(f[i][j][t][s], xvar[i][j][t]);
+//					cplex.addLe(f[j][i][t][s], xvar[j][i][t]);
 				}
 			}
 			
@@ -189,7 +184,7 @@ public class MaxSTFlow extends ILPModel {
 									ysum1 += yvar[j][i][s];
 									ysum2 += yvar[j][i][t];
 									expr1.addTerm(1.0, f[j][i][s][t]);
-									expr2.addTerm(1.0, f[j][i][t][s]);
+									expr2.addTerm(1.0, f[i][j][s][t]);
 								}
 							}
 						}

@@ -17,9 +17,9 @@ public class CG_AddMatching extends CGStrategy {
 	 * @param graph
 	 * @param minViolatedCnt minimum # of violated s-t pairs necessary for applying the matching strategy. If there are less pairs, add all constraints.
 	 */
-	public CG_AddMatching(double tolerance, Graph graph, int minViolatedCnt, boolean includefimp) {
+	public CG_AddMatching(double tolerance, Graph graph,  boolean includefimp) {
 		super(tolerance, graph, includefimp);
-		this.minViolatedCnt = minViolatedCnt;
+		this.minViolatedCnt = 5;
 	}
 
 	public boolean runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue,PriorityQueue<STPair> addedPairsQueue, Double[][][] xVar, Double[][][] yVar) {
@@ -57,6 +57,6 @@ public class CG_AddMatching extends CGStrategy {
 //		System.out.println(outArray.toString());
 	}
 	public String toString() {
-		return "AddMatching";
+		return "Matching";
 	}
 }
