@@ -1,47 +1,42 @@
 package model;
 
-import javax.swing.SpringLayout.Constraints;
-
 import smt.Constants;
-
 import graph.Graph;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 
+/**
+ * Maximum flow model.
+ *
+ */
 public class MaxSTFlowSYM extends ILPModel {
 
 	private int s;
 	private int t;
 	private IloNumVar[][][][] f;
 	
-	public MaxSTFlowSYM(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex, boolean includeFYConstr) {
+	public MaxSTFlowSYM(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex) {
 		this.graph = graph;
-		this.isLP = Constants.LP;
+		this.n = graph.getVertexCount(); // # nodes
+		this.d = graph.getDstCount();	  // # destinations
+		this.s = s; 					  // source
+		this.t = t;						  // target
+		this.isLP = Constants.LP;		  // we will solve an LP relaxation of the max flow problem
 		try {
 			cplex.clearModel();
-			this.cplex = cplex;
-//			cplex = new IloCplex();
-			cplex.setOut(null);
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
-		n = graph.getVertexCount();
-		d = graph.getDstCount();
-		this.s = s;
-		this.t = t;
+		this.cplex = cplex;
+		cplex.setOut(null);  // do not output anything while solving max flow
+
+
 		createModel();	
 		addCapacityConstraints(xvar);
-//		if (includeFYConstr) {
-			addFimpYConstraints(yvar);
-//		}
-//		try {
-//			cplex.exportModel("stFlowModel.lp");
-			cplex.setOut(null);
-//		} catch (IloException e) {
-//			e.printStackTrace();
-//		}
+		addFimpYConstraints(yvar);
+		cplex.setOut(null); 
 	}
 	
 	@Override
@@ -59,23 +54,23 @@ public class MaxSTFlowSYM extends ILPModel {
 		}		
 	}
 
+	
+	/**
+	 * Objective function for the max flow problem
+	 * We want a flow of size as close as possible to 1
+	 * The reason why we want a negative objective value (and so we minimize instead of maximize) 
+	 * is that we want to emphasize that a smaller flow means bigger violation. 
+	 * 
+	 */
 	protected void createObjFunction() {
 		try {
-			IloLinearNumExpr obj1 = cplex.linearNumExpr();
-			IloLinearNumExpr obj2 = cplex.linearNumExpr();	
-			IloLinearNumExpr obj3 = cplex.linearNumExpr();
-			IloLinearNumExpr obj4 = cplex.linearNumExpr();	
+			IloLinearNumExpr obj = cplex.linearNumExpr();	
 			for (int i = 0; i < n; i++) {
 				if (i != t) {
-					obj1.addTerm(1.0, f[t][i][s][t]);									
-					obj2.addTerm(1.0, f[i][t][s][t]);									
+					obj.addTerm(1.0, f[i][t][s][t]);									
 				}	
-				if (i != s) {
-					obj3.addTerm(1.0, f[i][s][s][t]);									
-					obj4.addTerm(1.0, f[s][i][s][t]);	
-				}
 			}
-			cplex.addMinimize(cplex.sum(obj1, cplex.negative(obj2), obj3,cplex.negative(obj4)));
+			cplex.addMinimize(cplex.negative(obj));
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
@@ -85,64 +80,45 @@ public class MaxSTFlowSYM extends ILPModel {
 	public void createConstraints() {
 		try {
 			// Flow conservation - normal. s-t flow
-			IloLinearNumExpr expr2a = cplex.linearNumExpr();
-			IloLinearNumExpr expr2b = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {		
-				if (i != t) {
-					expr2a.addTerm(1.0, f[t][i][s][t]);									
-					expr2b.addTerm(1.0, f[i][t][s][t]);									
-					if (s != i) {
-						IloLinearNumExpr expr1a = cplex.linearNumExpr();
-						IloLinearNumExpr expr1b = cplex.linearNumExpr();	
-						for (int j = 0; j < n; j++) {
-							if (i != j && j != s) {
-								expr1a.addTerm(1.0, f[i][j][s][t]);									
+				if (i != t && i != s) {
+					IloLinearNumExpr sumLeaveST = cplex.linearNumExpr();
+					IloLinearNumExpr sumEnterST = cplex.linearNumExpr();	
+					IloLinearNumExpr sumEnterTS = cplex.linearNumExpr();
+					IloLinearNumExpr sumLeaveTS = cplex.linearNumExpr();	
+					for (int j = 0; j < n; j++) {
+						if (i != j) {
+							if (j != s) {
+								sumLeaveST.addTerm(1.0, f[i][j][s][t]);  // s-t
+								sumLeaveTS.addTerm(1.0, f[i][j][s][t]);  // t-s
 							}								
-							if (i != j && j != t) {								
-								expr1b.addTerm(1.0, f[j][i][s][t]);
-							}								
-						}						
-						cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));			
-					}
+							if (j != t) {								
+								sumEnterST.addTerm(1.0, f[j][i][s][t]);  // s-t
+								sumEnterTS.addTerm(1.0, f[j][i][s][t]);	 // t-s
+							}			
+						}
+					}						
+					cplex.addEq(0,cplex.sum(sumLeaveST, cplex.negative(sumEnterST)));		
+					cplex.addEq(0,cplex.sum(sumEnterTS, cplex.negative(sumLeaveTS)));		
 				}
 			}
 			
 //			Flow conservation - normal. t-s flow 
-			IloLinearNumExpr expr3a = cplex.linearNumExpr();
-			IloLinearNumExpr expr3b = cplex.linearNumExpr();
-			for (int i = 0; i < n; i++) {		
-				if (i != s) {
-					expr3a.addTerm(1.0, f[i][s][s][t]);									
-					expr3b.addTerm(1.0, f[s][i][s][t]);									
-					if (t != i) {
-						IloLinearNumExpr expr1a = cplex.linearNumExpr();
-						IloLinearNumExpr expr1b = cplex.linearNumExpr();	
-						for (int j = 0; j < n; j++) {
-							if (i != j && j != t) {
-								expr1a.addTerm(1.0, f[j][i][s][t]);									
-							}								
-							if (i != j && j != s) {								
-								expr1b.addTerm(1.0, f[i][j][s][t]);
-							}								
-						}						
-						cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));		
-					}
-				}
-			}			
-//			cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b))); 			// Flow conservation - dest
-	
-			
-			// f sym
-//			for (int i = 0; i < n; i++) {
-//				for (int j = 0; j < n; j++) {
-//					if (i != j) {
-//						cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
-//					}
+//			for (int i = 0; i < n; i++) {		
+//				if (i != s && i != t) {
+//					IloLinearNumExpr sumEnterTS = cplex.linearNumExpr();
+//					IloLinearNumExpr sumLeaveTS = cplex.linearNumExpr();	
+//					for (int j = 0; j < n; j++) {
+//						if (i != j && j != t) {
+//							sumEnterTS.addTerm(1.0, f[j][i][s][t]);									
+//						}								
+//						if (i != j && j != s) {								
+//							sumLeaveTS.addTerm(1.0, f[i][j][s][t]);
+//						}								
+//					}						
+//					cplex.addEq(0,cplex.sum(sumEnterTS, cplex.negative(sumLeaveTS)));		
 //				}
-//			}
-
-		
-		
+//			}			
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
@@ -154,12 +130,8 @@ public class MaxSTFlowSYM extends ILPModel {
 				for (int j = i+1; j < n; j++) {
 					cplex.addLe(f[i][j][s][t], xvar[i][j][s]);
 					cplex.addLe(f[j][i][s][t], xvar[j][i][s]);
-//					cplex.addLe(f[i][j][t][s], xvar[i][j][t]);
-//					cplex.addLe(f[j][i][t][s], xvar[j][i][t]);
 				}
 			}
-			
-		
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
@@ -177,10 +149,6 @@ public class MaxSTFlowSYM extends ILPModel {
 						for (int i = 0; i < n; i++) {
 							if (i != j) {
 								if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-									if (yvar[j][i][s] > 0 ) { 
-//										System.out.println("Y: " + yvar[j][i][s]);
-//										System.out.println("Y: " + yvar[j][i][s]);
-									}
 									ysum1 += yvar[j][i][s];
 									ysum2 += yvar[j][i][t];
 									expr1.addTerm(1.0, f[j][i][s][t]);

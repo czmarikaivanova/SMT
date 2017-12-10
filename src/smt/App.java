@@ -28,6 +28,7 @@ import model.SMTF1;
 import model.SMTF2;
 import model.SMTX1VI;
 import model.SMTX2B;
+import model.SMTX2C;
 import model.SMTX2VIB;
 import model.SteinerX;
 import model.SMTX2VI;
@@ -71,9 +72,9 @@ public class App {
 //				models.add(new SMTX1(graph, Constants.LP, true));
 //				models.add(new SMTX1VI(graph, Constants.LP, true));
 //				models.add(new SMTF1VI(graph, Constants.LP, true));
-				models.add(new SMTX2(graph, Constants.LP, false));
+//				models.add(new SMTX2(graph, Constants.LP, false));
 //				models.add(new SMTX2(graph, Constants.LP, true));
-				//				models.add(new SMTX2B(graph, Constants.LP, true));
+//				models.add(new SMTX2C(graph, Constants.LP, true));
 //				models.add(new SMTF2(graph, Constants.LP, true));
 //				models.add(new SMTF2B(graph, Constants.LP, true));
 //				models.add(new SMTX2VI(graph, Constants.LP, true));
@@ -87,14 +88,15 @@ public class App {
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-1.9, graph, 5)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_BestK(-1.9, graph, 1)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddFirstK(-1.9, graph, 1)));
-//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-1.9, graph, false)));
-//				models.add(new SMTModelFlexiFlowSYM(graph, Constants.LP, true, new CG_AddMatching(-1.9, graph, true)));
+				
+				models.add(new SMTModelFlexiFlowSYM(graph, Constants.LP, true, new CG_AddMatching(-0.9, graph)));
+				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-0.9, graph)));
 //				models.add(new SMTModelFlexiFlowSYM(graph, Constants.LP, true, new CG_AddMatching(-1.6, graph, true)));
-//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.9, graph, 5, false)));
+//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.9, graph,  false)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.8, graph, 5)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.99999, graph, 5)));
 //				models.add(new SMTX2(graph, Constants.LP, true));
-//				models.add(new SMTF1(graph, Constants.LP, true));				
+				models.add(new SMTF1(graph, Constants.INTEGER, true));				
 				runModel(models);
 	//					ILPModel smtPf2LP = new SMTF2(graph, false, Constants.LP, false);
 	//					Algorithm bip = new BIPAlgorithm(true, true);
@@ -157,20 +159,6 @@ public class App {
 									System.err.print(" f jist = " + fvar[j][i][s][t]);
 									System.err.println(" f ijst = " + fvar[i][j][s][t]);
 							//		System.err.println(" X_ij^t - x_ijs NOT EQUAL f_ij^st - f_ij^st !!!");
-								}
-								double slack = xvar[i][j][s] -fvar[i][j][s][t];
-								if (slack > 0.00001 && fvar[i][j][s][t] >  0.000001) {
-									System.out.println("suspicious slack: `" + slack);			
-									System.err.print(" i = " + i);
-									System.err.print(" j = " + j);
-									System.err.print(" s = " + s);
-									System.err.println(" t = " + t);
-									System.err.print(" x ijt = " + xvar[i][j][t]);
-									System.err.print(" x ijs = " + xvar[i][j][s]);
-									System.err.print(" f jist = " + fvar[j][i][s][t]);
-									System.err.println(" f ijst = " + fvar[i][j][s][t]);
-									System.exit(0);
-	
 								}
 							}
 						}

@@ -260,37 +260,7 @@ public class SMTModelFlexiFlow extends SMTX1VI {
 						}
 						cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b)));
 						cplex.addEq(-1,cplex.sum(expr2c, cplex.negative(expr2d)));
-				
-				
-				
-				// f sym
-//						for (int i = 0; i < n; i++) {
-//							for (int j = 0; j < n; j++) {
-//								if (j != i) {
-//									cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
-//								}
-//							}
-//						}
-				
-// VALID INEQUALITIES START HERE!
-										
-//					cplex.addEq(exprYsum, 1.0);''
-								
-	
-		
-//								sym h implication
-//								for (int i = 0; i < n; i++) {
-//									for (int j = 0; j < n; j++) {
-//										if( i != j) {
-//											if (s != t) {
-//												for (int u = 0; u < d; u++) {
-//													cplex.addGe(f[i][j][s][t], cplex.sum(f[i][j][u][t], cplex.negative(f[i][j][u][s])));
-//													cplex.addEq(cplex.sum(f[i][j][u][t], f[j][i][u][s], f[i][j][t][s]), cplex.sum(f[i][j][u][s], f[j][i][u][t], f[i][j][s][t]));
-//												}																												
-//											}
-//										}
-//									}
-//								}								
+							
 						}
 			fw.close();
 		} catch (IloException e) {
