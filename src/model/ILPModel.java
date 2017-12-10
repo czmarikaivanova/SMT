@@ -39,8 +39,8 @@ public abstract class ILPModel {
 	protected abstract void initVars();
 	protected abstract void createObjFunction();
 	protected abstract void createConstraints();
-	public abstract Double[][] getZVar();
-	public abstract Double[][][] getXVar();
+	public Double[][] getZVar() {return null;}
+	public Double[][][] getXVar() {return null;} 
 	
 	protected void createModel() {
 		initVars();

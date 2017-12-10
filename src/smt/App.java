@@ -90,7 +90,7 @@ public class App {
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddFirstK(-1.9, graph, 1)));
 				
 				models.add(new SMTModelFlexiFlowSYM(graph, Constants.LP, true, new CG_AddMatching(-0.9, graph)));
-				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-0.9, graph)));
+//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-0.9, graph)));
 //				models.add(new SMTModelFlexiFlowSYM(graph, Constants.LP, true, new CG_AddMatching(-1.6, graph, true)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.9, graph,  false)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.8, graph, 5)));
