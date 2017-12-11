@@ -45,11 +45,11 @@ public class App {
 	
 	
 	public App() {
-		this.n = 16;
-		this.d = 8;
+		this.n = 20;
+		this.d = 10;
 		this.iter = 200;
 //		this.fname =  "saved_inst/weird.txt";
-//		this.fname =  null;
+		this.fname =  null;
 	}
 	
 	public int run() {
@@ -88,7 +88,7 @@ public class App {
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_BestK(-1.9, graph, 1)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddFirstK(-1.9, graph, 1)));
 				
-				models.add(new X1VI_CG(graph, Constants.LP, true, new CG_AddMatching(-0.9, graph)));
+				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-0.9, graph)));
 //				models.add(new X1VI_CG(graph, Constants.LP, true, new CG_AddMatching(-1.6, graph, true)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.9, graph,  false)));

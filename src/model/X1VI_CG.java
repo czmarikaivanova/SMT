@@ -23,7 +23,7 @@ public class X1VI_CG extends SMTX1VI {
 	FileWriter xmlFw;
 	CGStrategy cgStrategy;
 	
-	public X1VI_CG(Graph graph, boolean isLP, boolean includeC, CGStrategy cgStrategy ) {
+	public X1VI_CG(Graph graph, boolean isLP, CGStrategy cgStrategy ) {
 		super(graph, isLP);
 		this.cgStrategy = cgStrategy;
 	}
@@ -60,7 +60,7 @@ public class X1VI_CG extends SMTX1VI {
 				if (!solved && pairQueue.size() > 0) {
 					addFlowConstraints(pairQueue);
 				}
-			} while (!solved /*&& iter < 4*/);
+			} while (!solved);
 			double totalExitTime = this.getCplexTime();
 			exitLog(fw, currObj, totalExitTime - totalStartTime);
 			return ret;
@@ -98,30 +98,30 @@ public class X1VI_CG extends SMTX1VI {
 		try{
 			super.createConstraints();  // constraints from parent class X1VI		
 
-			// f_{ij}^{st} = f_{ji}^{ts} is not needed. Whenever we need f_{ij}^{st} where s > t, we use f_{ji}^{ts} instead.
+			// The symmetry f_{ij}^{st} = f_{ji}^{ts} is not needed. Whenever we need f_{ij}^{st} where s > t, we use f_{ji}^{ts} instead.
 
-			// f imp y (2i) 
+			// f imp y (2i). We use the symmetry, i. e. f_{ji}^{ts} = f_{ij}^{st} 
 			for (int j = 0; j < n; j++) {
 				for (int s = 0; s < d; s++) {
-					for (int t = 0; t < d; t++) {
+					for (int t = s + 1; t < d; t++) {
 						for (int k = 0; k < n; k++) {
-							if (j != k && s != t) {
-								IloLinearNumExpr expr1 = cplex.linearNumExpr();
-								IloLinearNumExpr expr2 = cplex.linearNumExpr();
+							if (j != k) {
+								IloLinearNumExpr fSumST = cplex.linearNumExpr();
+								IloLinearNumExpr fSumTS = cplex.linearNumExpr();
+								IloLinearNumExpr hSumST = cplex.linearNumExpr();
+								IloLinearNumExpr hSumTS = cplex.linearNumExpr();
 								for (int i = 0; i < n; i++) {
 									if (i != j) { 
 										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-											if (s < t) {
-												expr1.addTerm(1.0, f[j][i][s][t]);
-											}
-											else { // s > t
-												expr1.addTerm(1.0, f[i][j][t][s]);
-											}
-											expr2.addTerm(1.0, y[j][i][s]);		
+											fSumST.addTerm(1.0, f[j][i][s][t]);
+											fSumTS.addTerm(1.0, f[i][j][s][t]);
+											hSumST.addTerm(1.0, y[j][i][s]);		
+											hSumTS.addTerm(1.0, y[j][i][t]);		
 										}
 									}
 								}
-								cplex.addLe(expr1, expr2);
+								cplex.addLe(fSumST, hSumST);
+								cplex.addLe(fSumTS, hSumTS);
 							}
 						}
 					}
@@ -143,50 +143,48 @@ public class X1VI_CG extends SMTX1VI {
 				System.out.println(pair.toString());
 				int s = pair.getS();
 				int t = pair.getT();
-				// Flow conservation - normal
 
-				IloLinearNumExpr expr2a = cplex.linearNumExpr();
-				IloLinearNumExpr expr2b = cplex.linearNumExpr();	
-				IloLinearNumExpr expr2c = cplex.linearNumExpr();	
-				IloLinearNumExpr expr2d = cplex.linearNumExpr();	
+				IloLinearNumExpr sumLeaveT_ST = cplex.linearNumExpr();
+				IloLinearNumExpr sumEnterT_ST = cplex.linearNumExpr();	
+				IloLinearNumExpr sumLeaveS_TS = cplex.linearNumExpr();	
+				IloLinearNumExpr sumEnterS_TS = cplex.linearNumExpr();	
 		
 				for (int i = 0; i < n; i++) {		
 					if (i != t) {
-						expr2a.addTerm(1.0, f[t][i][s][t]);									// Flow conservation - dest				
-						expr2b.addTerm(1.0, f[i][t][s][t]);									// Flow conservation - dest
+						sumLeaveT_ST.addTerm(1.0, f[t][i][s][t]);		
+						sumEnterT_ST.addTerm(1.0, f[i][t][s][t]);
 					}
 					if (i != s) {
-						expr2c.addTerm(1.0, f[i][s][s][t]);									// Flow conservation - dest
-						expr2d.addTerm(1.0, f[s][i][s][t]);									// Flow conservation - dest
+						sumLeaveS_TS.addTerm(1.0, f[i][s][s][t]);
+						sumEnterS_TS.addTerm(1.0, f[s][i][s][t]);
 					}	
-					IloLinearNumExpr expr1a = cplex.linearNumExpr();
-					IloLinearNumExpr expr1b = cplex.linearNumExpr();	
-					IloLinearNumExpr expr1c = cplex.linearNumExpr();
-					IloLinearNumExpr expr1d = cplex.linearNumExpr();
+					IloLinearNumExpr sumLeaveI_ST = cplex.linearNumExpr();
+					IloLinearNumExpr sumEnterI_ST = cplex.linearNumExpr();	
+					IloLinearNumExpr sumEnterI_TS = cplex.linearNumExpr();
+					IloLinearNumExpr sumLeaveI_TS = cplex.linearNumExpr();
 
 					for (int j = 0; j < n; j++) {
 						if (j != i) {
-							cplex.addLe(f[i][j][s][t], x[i][j][s]);				// capacity
-							cplex.addLe(f[j][i][s][t], x[i][j][t]);				// capacity
+							cplex.addLe(f[i][j][s][t], x[i][j][s]);				// capacity f_{ij}^{st} <= x_{ij}^s
+							cplex.addLe(f[j][i][s][t], x[i][j][t]);				// capacity f_{ij}^{ts} = f_{ji}^{st} <= x_{ij}^t
 
 							if (t != i && s != i) {
 								if (j != s) {
-									expr1a.addTerm(1.0, f[i][j][s][t]);									
-									expr1c.addTerm(1.0, f[i][j][s][t]);									
+									sumLeaveI_ST.addTerm(1.0, f[i][j][s][t]);									
+									sumEnterI_TS.addTerm(1.0, f[i][j][s][t]);									
 								}								
 								if (j != t) {								
-									expr1b.addTerm(1.0, f[j][i][s][t]);
-									expr1d.addTerm(1.0, f[j][i][s][t]);
+									sumEnterI_ST.addTerm(1.0, f[j][i][s][t]);
+									sumLeaveI_TS.addTerm(1.0, f[j][i][s][t]);
 								}			
 							}
 						}
 					}						
-					cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));
-					cplex.addEq(0,cplex.sum(expr1c, cplex.negative(expr1d)));
+					cplex.addEq(0,cplex.sum(sumLeaveI_ST, cplex.negative(sumEnterI_ST)));	// flow conservation at i \in V \ {t,s} for the commodity s-t
+					cplex.addEq(0,cplex.sum(sumEnterI_TS, cplex.negative(sumLeaveI_TS)));	// flow conservation at i \in V \ {t,s} for the commodity t-s
 				}
-				cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b)));
-				cplex.addEq(-1,cplex.sum(expr2c, cplex.negative(expr2d)));
-		
+				cplex.addEq(-1,cplex.sum(sumLeaveT_ST, cplex.negative(sumEnterT_ST)));		// flow conservation at t for the commodity s-t
+				cplex.addEq(-1,cplex.sum(sumLeaveS_TS, cplex.negative(sumEnterS_TS)));		// flow conservation at s for the commodity t-s
 			}
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);

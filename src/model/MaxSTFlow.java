@@ -80,7 +80,7 @@ public class MaxSTFlow extends ILPModel {
 	@Override
 	public void createConstraints() {
 		try {
-			// Flow conservation - normal. s-t flow
+			// Flow conservation - i \in V \ {s,t}
 			for (int i = 0; i < n; i++) {
 				if (i != t && i != s) {
 					IloLinearNumExpr sumLeaveST = cplex.linearNumExpr();
