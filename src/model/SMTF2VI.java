@@ -10,35 +10,42 @@ public class SMTF2VI extends SMTF2 {
 		super(graph, isLP);
 	}
 	
-	// variables from F2
+	// variables from F2B
 	
 	// objective from F1
 	
 	public void createConstraints() {
 		try {
-			super.createConstraints();
-
+			super.createConstraints();  // all constraints from F2
 			
 			// f imp y in nondest  -- (2i) equivalent
 			for (int j = 0; j < n; j++) {
-				for (int s = 0; s < d; s++) {
-					for (int t = 0; t < d; t++) {
+				for (int t = 0; t < d; t++) {
+					for (int s = 0; s < t; s++) {
 						for (int k = 0; k < n; k++) {
-							if (j != k && s != t) {
-								IloLinearNumExpr sumLHS = cplex.linearNumExpr();
-								IloLinearNumExpr sumRHS = cplex.linearNumExpr();
+							if (j != k) {
+								IloLinearNumExpr sumLHS_ST = cplex.linearNumExpr();
+								IloLinearNumExpr sumRHS_ST = cplex.linearNumExpr();
+								IloLinearNumExpr sumLHS_TS = cplex.linearNumExpr();
+								IloLinearNumExpr sumRHS_TS = cplex.linearNumExpr();
 								for (int i = 0; i < n; i++) {
 									if (i != j) { 
 										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-											sumLHS.addTerm(1.0, f3[i][j][s]);
-											sumLHS.addTerm(1.0, f3[j][i][t]);
-											sumLHS.addTerm(-1.0, h[i][j][s][t]);
-											sumLHS.addTerm(-1.0, h[j][i][s][t]);
-											sumRHS.addTerm(1.0, y[j][i][s]);										
+											sumLHS_ST.addTerm(1.0, f3[i][j][s]);
+											sumLHS_ST.addTerm(1.0, f3[j][i][t]);
+											sumLHS_ST.addTerm(-1.0, h[i][j][s][t]);
+											sumLHS_ST.addTerm(-1.0, h[j][i][s][t]);
+											sumRHS_ST.addTerm(1.0, y[j][i][s]);	
+											sumLHS_TS.addTerm(1.0, f3[j][i][s]);
+											sumLHS_TS.addTerm(1.0, f3[i][j][t]);
+											sumLHS_TS.addTerm(-1.0, h[i][j][s][t]);
+											sumLHS_TS.addTerm(-1.0, h[j][i][s][t]);
+											sumRHS_TS.addTerm(1.0, y[j][i][t]);										
 										}
 									}
 								}
-								cplex.addLe(sumLHS, sumRHS);
+								cplex.addLe(sumLHS_ST, sumRHS_ST);
+								cplex.addLe(sumLHS_TS, sumRHS_TS);
 							}
 						}
 					}

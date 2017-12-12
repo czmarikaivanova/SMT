@@ -19,7 +19,7 @@ public class MaxSTFlow extends ILPModel {
 
 	private int s;
 	private int t;
-	private IloNumVar[][][][] f;
+	private IloNumVar[][] f; // f_{ij} = flow carried by arc (i,j) \in A
 
 	public MaxSTFlow(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex) {
 		System.err.println("NORMAL FLOW"); // delete this
@@ -44,11 +44,11 @@ public class MaxSTFlow extends ILPModel {
 
 	protected void initVars() {
 		try {
-			f = new IloNumVar[n][n][d][d];
+			f = new IloNumVar[n][n];
 			for (int i = 0; i < n; i++) {
 				for (int j = i + 1; j < n; j++) {
-					f[i][j][s][t] = cplex.numVar(0, 1);
-					f[j][i][s][t] = cplex.numVar(0, 1);
+					f[i][j] = cplex.numVar(0, 1);
+					f[j][i] = cplex.numVar(0, 1);
 				}
 			}
 		} catch (IloException e) {
@@ -68,7 +68,7 @@ public class MaxSTFlow extends ILPModel {
 			IloLinearNumExpr obj = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {
 				if (i != t) {
-					obj.addTerm(1.0, f[i][t][s][t]);
+					obj.addTerm(1.0, f[i][t]);
 				}
 			}
 			cplex.addMinimize(cplex.negative(obj));
@@ -77,6 +77,12 @@ public class MaxSTFlow extends ILPModel {
 		}
 	}
 
+	/**
+	 *  This method adds only flow conservation constraints for i \in V \ {s,t}. 
+	 *  Capacity and  sum f implies sum y (2i) are added  separately, because
+	 *  they need an input parameter x and y
+	 */
+	@Override
 	protected void createConstraints() {
 		try {
 			// Flow conservation - i \in V \ {s,t}
@@ -89,12 +95,12 @@ public class MaxSTFlow extends ILPModel {
 					for (int j = 0; j < n; j++) {
 						if (i != j) {
 							if (j != s) {
-								sumLeaveST.addTerm(1.0, f[i][j][s][t]); // s-t
-								sumLeaveTS.addTerm(1.0, f[i][j][s][t]); // t-s
+								sumLeaveST.addTerm(1.0, f[i][j]); // s-t
+								sumLeaveTS.addTerm(1.0, f[i][j]); // t-s
 							}
 							if (j != t) {
-								sumEnterST.addTerm(1.0, f[j][i][s][t]); // s-t
-								sumEnterTS.addTerm(1.0, f[j][i][s][t]); // t-s
+								sumEnterST.addTerm(1.0, f[j][i]); // s-t
+								sumEnterTS.addTerm(1.0, f[j][i]); // t-s
 							}
 						}
 					}
@@ -118,8 +124,8 @@ public class MaxSTFlow extends ILPModel {
 		try {
 			for (int i = 0; i < n; i++) {
 				for (int j = i + 1; j < n; j++) {
-					cplex.addLe(f[i][j][s][t], xvar[i][j][s]);
-					cplex.addLe(f[j][i][s][t], xvar[j][i][s]);
+					cplex.addLe(f[i][j], xvar[i][j][s]);
+					cplex.addLe(f[j][i], xvar[j][i][s]);
 				}
 			}
 		} catch (IloException e) {
@@ -147,8 +153,8 @@ public class MaxSTFlow extends ILPModel {
 										k)) {
 									ysum1 += yvar[j][i][s];
 									ysum2 += yvar[j][i][t];
-									expr1.addTerm(1.0, f[j][i][s][t]);
-									expr2.addTerm(1.0, f[i][j][s][t]);
+									expr1.addTerm(1.0, f[j][i]);
+									expr2.addTerm(1.0, f[i][j]);
 								}
 							}
 						}

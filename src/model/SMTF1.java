@@ -73,7 +73,7 @@ public class SMTF1 extends ILPModel {
 	@Override
 	public void createConstraints() {
 		try {
-//			 obvious
+//			 obvious constraints, necessary
 			for (int i = 0; i < n; i++) {
 				for (int t = 1; t < d; t++) {
 					if (i != t) {
@@ -82,7 +82,8 @@ public class SMTF1 extends ILPModel {
 					}
 				}
 			}	
-			//no_flow_back
+			
+			// No flow to the source
 			for (int i = 0; i < n; i++) {
 				cplex.addEq(pz[i][0], 0.0);
 				for (int j = 0; j < n; j++) {

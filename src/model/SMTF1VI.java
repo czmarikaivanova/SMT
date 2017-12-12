@@ -46,19 +46,19 @@ public class SMTF1VI extends SMTF1 {
 //			 x to non-destination => y from there 
 			for (int j = d; j < n; j++) {
 				for (int s = 0; s < d; s++) {
-					IloLinearNumExpr expr1 = cplex.linearNumExpr();
-					IloLinearNumExpr expr2 = cplex.linearNumExpr();
+					IloLinearNumExpr sumLHS = cplex.linearNumExpr();
+					IloLinearNumExpr sumRHS = cplex.linearNumExpr();
 					for (int i = 0; i < n; i++) {
 						if (i != j) {
 							if (i != s) {
-								expr1.addTerm(1.0, y[j][i][s]);
+								sumLHS.addTerm(1.0, y[j][i][s]);
 							}
-							expr2.addTerm(1.0, pz[i][j]);
-							expr2.addTerm(-1.0, f3[i][j][s]);
-							expr2.addTerm(1.0, f3[j][i][s]);
+							sumRHS.addTerm(1.0, pz[i][j]);
+							sumRHS.addTerm(-1.0, f3[i][j][s]);
+							sumRHS.addTerm(1.0, f3[j][i][s]);
 						}
 					}
-					cplex.addGe(expr1, expr2);
+					cplex.addGe(sumLHS, sumRHS);
 				}
 			}
 			

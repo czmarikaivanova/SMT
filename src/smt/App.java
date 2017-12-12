@@ -17,14 +17,12 @@ import algorithm.MSTAlgorithm;
 import model.ILPModel;
 import model.MEBModel;
 import model.SMTF1VI;
-import model.SMTF2B;
+import model.SMTF2;
 import model.SMTF2VI;
-import model.SMTF2VIB;
 import model.X1VI_CG;
 import model.SMTX1;
 import model.SMTX2;
 import model.SMTF1;
-import model.SMTF2;
 import model.SMTX1VI;
 import model.SMTX2B;
 import model.SMTX2C;
@@ -45,8 +43,8 @@ public class App {
 	
 	
 	public App() {
-		this.n = 18;
-		this.d = 9;
+		this.n = 12;
+		this.d = 6;
 		this.iter = 200;
 //		this.fname =  "instances/instance32.txt";
 		this.fname =  null;
@@ -75,11 +73,11 @@ public class App {
 //				models.add(new SMTX2(graph, Constants.LP, true));
 //				models.add(new SMTX2C(graph, Constants.LP, true));
 //				models.add(new SMTF2(graph, Constants.LP));
-//				models.add(new SMTF2B(graph, Constants.LP));
+//				models.add(new SMTF2(graph, Constants.LP));
 //				models.add(new SMTX2VI(graph, Constants.LP, true));
 //				models.add(new SMTX2VIB(graph, Constants.LP, true));
-//				models.add(new SMTF2VI(graph, Constants.LP, true));
-//				models.add(new SMTF2VIB(graph, Constants.LP, true));
+//				models.add(new SMTF2VI(graph, Constants.LP));
+				models.add(new SMTF2VI(graph, Constants.LP));
 //				models.add(new SMTX1(graph, Constants.INTEGER, true));
 
 	
@@ -87,9 +85,6 @@ public class App {
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-1.9, graph, 5)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_BestK(-1.9, graph, 1)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddFirstK(-1.9, graph, 1)));
-				Constants.FLAG = false;
-				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph)));
-				Constants.FLAG = true;
 				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-0.9, graph)));
 //				models.add(new X1VI_CG(graph, Constants.LP, true, new CG_AddMatching(-1.6, graph, true)));
@@ -98,7 +93,7 @@ public class App {
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.99999, graph, 5)));
 //				models.add(new SMTX2(graph, Constants.LP, true));
 				models.add(new SMTF1(graph, Constants.INTEGER));				
-//				models.add(new SMTF2B(graph, Constants.INTEGER));				
+//				models.add(new SMTF2(graph, Constants.INTEGER));				
 				runModel(models);
 	//					ILPModel smtPf2LP = new SMTF2(graph, false, Constants.LP, false);
 	//					Algorithm bip = new BIPAlgorithm(true, true);
