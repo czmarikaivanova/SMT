@@ -37,8 +37,8 @@ public abstract class ILPModel {
 	protected abstract void initVars();
 	protected abstract void createObjFunction();
 	protected abstract void createConstraints();
-	public Double[][] getZVar() {return null;}
-	public Double[][][] getXVar() {return null;} 
+	public Double[][] getTreeVar() {return null;}	// returns the variable that induces the solution
+	public Double[][][] get3DVar() {return null;}  	// returns the variable with 3 indices - either x_{ij}^s (for X model) or f_{ij}^t (for  
 	
 	protected void createModel() {
 		initVars();

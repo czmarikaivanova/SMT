@@ -156,7 +156,7 @@ public class SteinerX extends ILPModel {
 		}		
 	}	
 	
-	public Double[][] getZVar() {
+	public Double[][] getTreeVar() {
 		try {
 			Double[][] zval = new Double[z.length][z.length];
 			for (int i = 0 ; i < z.length; i++) {

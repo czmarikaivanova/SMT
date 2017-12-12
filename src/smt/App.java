@@ -45,10 +45,10 @@ public class App {
 	
 	
 	public App() {
-		this.n = 20;
-		this.d = 10;
+		this.n = 18;
+		this.d = 9;
 		this.iter = 200;
-//		this.fname =  "saved_inst/weird.txt";
+//		this.fname =  "instances/instance32.txt";
 		this.fname =  null;
 	}
 	
@@ -74,8 +74,8 @@ public class App {
 //				models.add(new SMTX2(graph, Constants.LP, false));
 //				models.add(new SMTX2(graph, Constants.LP, true));
 //				models.add(new SMTX2C(graph, Constants.LP, true));
-//				models.add(new SMTF2(graph, Constants.LP, true));
-//				models.add(new SMTF2B(graph, Constants.LP, true));
+//				models.add(new SMTF2(graph, Constants.LP));
+//				models.add(new SMTF2B(graph, Constants.LP));
 //				models.add(new SMTX2VI(graph, Constants.LP, true));
 //				models.add(new SMTX2VIB(graph, Constants.LP, true));
 //				models.add(new SMTF2VI(graph, Constants.LP, true));
@@ -87,7 +87,9 @@ public class App {
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-1.9, graph, 5)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_BestK(-1.9, graph, 1)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddFirstK(-1.9, graph, 1)));
-				
+				Constants.FLAG = false;
+				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph)));
+				Constants.FLAG = true;
 				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-0.9, graph)));
 //				models.add(new X1VI_CG(graph, Constants.LP, true, new CG_AddMatching(-1.6, graph, true)));
@@ -96,6 +98,7 @@ public class App {
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.99999, graph, 5)));
 //				models.add(new SMTX2(graph, Constants.LP, true));
 				models.add(new SMTF1(graph, Constants.INTEGER));				
+//				models.add(new SMTF2B(graph, Constants.INTEGER));				
 				runModel(models);
 	//					ILPModel smtPf2LP = new SMTF2(graph, false, Constants.LP, false);
 	//					Algorithm bip = new BIPAlgorithm(true, true);
@@ -120,13 +123,13 @@ public class App {
 			double lpCost1 = model.getObjectiveValue();
 			logObjective(new File("logs/cost_log2.txt"), lpCost1, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
 			logObjective(new File("logs/runtime_log2.txt"), (endT - startT)/1000, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
-			Double[][] z = (Double[][]) model.getZVar();
+			Double[][] z = (Double[][]) model.getTreeVar();
 
 //			Double[][][] f = (Double[][][]) model.getXVar();
 //			checkConstraints(f, z);
 //			System.err.println(" Y var for PF2 model: ");
 			if (model instanceof SMTX2 ) {
-				Double[][][] xvar = model.getXVar();
+				Double[][][] xvar = model.get3DVar();
 				Double[][][][] fvar = ((SMTX2) model).getFVar();
 				checkXXFF(fvar, xvar);
 //				checkFHzeroEqFzero(((SMTF2)model).getH(), f);

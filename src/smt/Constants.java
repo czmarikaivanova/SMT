@@ -21,4 +21,6 @@ public class Constants {
 	
 	public static boolean  LP = true;
 	public static boolean INTEGER = false;
+	
+	public static boolean FLAG;
 }

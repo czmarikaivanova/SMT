@@ -2,6 +2,8 @@ package cgstrategy;
 
 import java.util.PriorityQueue;
 
+import smt.Constants;
+
 import graph.Graph;
 import ilog.concert.IloException;
 import ilog.cplex.IloCplex;
@@ -22,6 +24,7 @@ public class CGStrategy {
 	protected Graph graph;
 	protected int d; 						// # destinations
 	protected int k;
+	
 	
 	public CGStrategy(double tolerance, Graph graph) {
 		super();
@@ -44,7 +47,7 @@ public class CGStrategy {
 	 */
 	public boolean runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue, PriorityQueue<STPair> addedPairsQueue, Double[][][] xVar, Double[][][] yVar) {
 		boolean solved = true;
-		MaxSTFlow stFlowModel;
+		ILPModel stFlowModel;
 		for (int s = 0; s < d; s++) {
 			for (int t = s + 1; t < d; t++) {
 				if (s != t) {

@@ -11,19 +11,18 @@ public class SMTF1 extends ILPModel {
 
 	public SMTF1(Graph graph , boolean isLP) {
 		super(graph, isLP);
-//		System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
-//		System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
 	}
 
-	protected IloNumVar[][] pz;
-	protected IloNumVar[][][] py;
-	protected IloNumVar[][][] y;	
+	protected IloNumVar[][] pz; 		// Polzin's x-variable
+	protected IloNumVar[][][] f3;		// Polzin's y-variable, our f_{ij}^t
+	protected IloNumVar[][][] y;		// Power variable y
 	
 	
 	protected void initVars() {
 		try {
-			py = new IloNumVar[n][n][];
+			f3 = new IloNumVar[n][n][];
 			y = new IloNumVar[n][n][];		
+			pz = new IloNumVar[n][];	
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					if (isLP) {
@@ -32,10 +31,10 @@ public class SMTF1 extends ILPModel {
 					else {
 						y[i][j] = cplex.boolVarArray(d);
 					}					
-					py[i][j] = cplex.numVarArray(d,0,1);
+					f3[i][j] = cplex.numVarArray(d,0,1);
 				}					
 			}
-			pz = new IloNumVar[n][];				
+			
 			for (int j = 0; j < n; j++) {
 				if (isLP) {
 					pz[j] = cplex.numVarArray(n, 0, 1);					
@@ -49,9 +48,12 @@ public class SMTF1 extends ILPModel {
 		}
 	}	
 	
+	
+	/**
+	 * Objective function same as in X1
+	 */
 	protected void createObjFunction() {
 		try {
-			// create model and solve it				
 			IloLinearNumExpr obj = cplex.linearNumExpr();
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
@@ -75,8 +77,8 @@ public class SMTF1 extends ILPModel {
 			for (int i = 0; i < n; i++) {
 				for (int t = 1; t < d; t++) {
 					if (i != t) {
-						cplex.addEq(py[i][t][t], pz[i][t]);  // 3l
-						cplex.addEq(py[t][i][t], 0.0);  // 3k
+						cplex.addEq(f3[i][t][t], pz[i][t]);  // 3l
+						cplex.addEq(f3[t][i][t], 0.0);  // 3k
 					}
 				}
 			}	
@@ -85,75 +87,70 @@ public class SMTF1 extends ILPModel {
 				cplex.addEq(pz[i][0], 0.0);
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
-//						cplex.addEq(py[i][j][0], 0.0);  // f  -- probably implied by x (see flow conservation plus f_x_rel
 						cplex.addEq(pz[i][0], 0.0);		// x
 					}
 				}
 			}
 
-			// flow1
+			// flow conservation at a target t \in D
 			for (int t = 1; t < d; t++) { // must not be zero
-				IloLinearNumExpr expr1 = cplex.linearNumExpr();
-				IloLinearNumExpr expr2 = cplex.linearNumExpr();
+				IloLinearNumExpr sumEnter = cplex.linearNumExpr();
+				IloLinearNumExpr sumLeave = cplex.linearNumExpr();
 				for (int j = 0; j < n; j++) {
 					if (t != j) {
-						expr1.addTerm(1.0, py[j][t][t]);									
-						expr2.addTerm(1.0, py[t][j][t]);
+						sumEnter.addTerm(1.0, f3[j][t][t]);									
+						sumLeave.addTerm(1.0, f3[t][j][t]);
 					}								
 				}
-				cplex.addEq(cplex.sum(expr1, cplex.negative(expr2)), 1.0);
+				cplex.addEq(cplex.sum(sumEnter, cplex.negative(sumLeave)), 1.0);
 			}		
 
-			// flow2
+			// flow conservation at a node i \in V \ {t, 0}
 			for (int i = 1; i < n; i++) { // must not be zero
 				for (int t = 0; t < d; t++) { // must not be zero OR CAN BE???
 					if (i != t) {
-						IloLinearNumExpr expr1 = cplex.linearNumExpr();
-						IloLinearNumExpr expr2 = cplex.linearNumExpr();
+						IloLinearNumExpr sumEnter = cplex.linearNumExpr();
+						IloLinearNumExpr sumLeave = cplex.linearNumExpr();
 						for (int j = 0; j < n; j++) {
 							if (i != j) {
-								expr1.addTerm(1.0, py[j][i][t]);									
-								expr2.addTerm(1.0, py[i][j][t]);
+								sumEnter.addTerm(1.0, f3[j][i][t]);									
+								sumLeave.addTerm(1.0, f3[i][j][t]);
 							}								
 						}
-						cplex.addEq(cplex.sum(expr1, cplex.negative(expr2)), 0.0);
+						cplex.addEq(cplex.sum(sumEnter, cplex.negative(sumLeave)), 0.0);
 					}
 				}				
 			}
 			
-			// h_x_weaker
+			// relation between f_{ij}^t and x_{ij}. In F2 is replaced by a stronger version that includes also (hook) f_{ij}^{st}
 			for (int k = 0; k < d; k++) { // must not be zero OR CAN BE???
 				for (int i = 0; i < n; i++) {
 					for (int j = 0; j < n; j++) {
 						if (j != i) {
-							cplex.addLe(py[i][j][k], pz[i][j]);
+							cplex.addLe(f3[i][j][k], pz[i][j]);
 						}
 					}
 				}
 			}
 
 			// yvar
-//			if (includeC) {
-//				System.out.println("Include C") ;
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
 						for (int s = 0; s < d; s++) {
-							IloLinearNumExpr expr7 = cplex.linearNumExpr();
+							IloLinearNumExpr sumY = cplex.linearNumExpr();
 							for (int k = 0; k < n; k++) {
 								if ((graph.getRequir(i,k) >= graph.getRequir(i,j)) && (i != k)) {
-									expr7.addTerm(1.0, y[i][k][s]);
+									sumY.addTerm(1.0, y[i][k][s]);
 								}
 							}
-							cplex.addLe(cplex.sum(pz[i][j], py[j][i][s], cplex.negative(py[i][j][s])), expr7);								
+							cplex.addLe(cplex.sum(pz[i][j], f3[j][i][s], cplex.negative(f3[i][j][s])), sumY);								
 						}			
 					}
 				}					
 			}
-//			}
+
 			// yvar -- alt -- not working. WHY??
-//			else {
-//				System.out.println("Include C2") ;
 //			for (int i = 0; i < n; i++) {
 //				for (int j = 0; j < n; j++) {
 //					if (i != j) {
@@ -164,61 +161,45 @@ public class SMTF1 extends ILPModel {
 //									expr7.addTerm(1.0, y[j][k][s]);
 //								}
 //							}
-//							cplex.addLe(py[i][j][s], expr7);								
+//							cplex.addLe(f3[i][j][s], expr7);								
 //						}			
 //					}
 //				}					
 //			}			
 //
-//			}
-			// (B) - necessary, see instance in ..\pictures
+			// Sum of arcs entering a destination is <= 1
+			// It is necessary, see instance in ../pictures
 			for (int i = d; i < n; i++) {
-				IloLinearNumExpr expr = cplex.linearNumExpr();
+				IloLinearNumExpr sumEnter = cplex.linearNumExpr();
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
-						expr.addTerm(1.0, pz[j][i]);
+						sumEnter.addTerm(1.0, pz[j][i]);
 					}
 				}
-				cplex.addLe(expr, 1.0);  
+				cplex.addLe(sumEnter, 1.0);  
 			}
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
 	}
-
-	public Double[][][] getPY() {
-		try {
-			Double[][][] xval = new Double[n][n][d];
-			for (int i = 0 ; i < n; i++) {
-				for (int j = 0; j < n; j++) {
-					if (i != j) {
-						for (int k = 0; k < d; k++) {
-							xval[i][j][k] = cplex.getValue(py[i][j][k]);
-						}
-					}
-				}
-			}
-			return xval;		
-		} catch (IloException e) {			
-			e.printStackTrace();
-			return null;
-		}		
-	}	
 	
-	public Double[][] getPZ() {
+	@Override
+	/**
+	 * @return variable that induces the solution. In this case x_{ij} (here denoted as pz)
+	 */
+	public Double[][] getTreeVar() {
 		try {
 			Double[][] zval = new Double[pz.length][pz.length];
 			for (int i = 0 ; i < pz.length; i++) {
 				for (int j = 0; j < pz.length; j++) {
 					if (i != j) {
 						zval[i][j] = cplex.getValue(pz[i][j]);
-//						if (j == 2 && cplex.getValue(pz[i][j]) > 0) {
-							System.out.print(i + " " + j + " " +" :" + cplex.getValue(pz[i][j]) + " --");	
-//						}
+						System.out.print(i + " " + j + " " +" :" + cplex.getValue(pz[i][j]) + " --");	
 					}
 				}
 				System.out.println();
 			}
+			System.out.println("Objective: " + cplex.getObjValue());
 			return zval;		
 		} catch (IloException e) {			
 			e.printStackTrace();
@@ -226,32 +207,23 @@ public class SMTF1 extends ILPModel {
 		}		
 	}
 
+	
+	/**
+	 * @return f_{ij}^t variables
+	 */
 	@Override
-	public Double[][] getZVar() {
-		return getPZ();
-	}
-
-	@Override
-	public Double[][][] getXVar() {
+	public Double[][][] get3DVar() {
 		try {
-			System.err.println("FFFFFF:");
 			Double[][][] xval = new Double[n][n][d];
 			for (int i = 0 ; i < n; i++) {
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
 						for (int k = 0; k < d; k++) {
-//							if (j == 2 &&  cplex.getValue(py[i][j][k]) > 0 || k == 5 && cplex.getValue(py[i][j][k])> 0) {
-							if (k == 2 && cplex.getValue(py[i][j][k]) > 0  ) {
-								System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(py[i][j][k]) + " --");	
-							}
-							System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(py[i][j][k]) + " --");
-							xval[i][j][k] = cplex.getValue(py[i][j][k]);
+							xval[i][j][k] = cplex.getValue(f3[i][j][k]);
 						}
 					}
 				}
-				System.out.println();
 			}
-			System.out.println("Objective: " + cplex.getObjValue());
 			return xval;		
 		} catch (IloException e) {			
 			e.printStackTrace();
@@ -259,6 +231,10 @@ public class SMTF1 extends ILPModel {
 		}		
 	}	
 	
+	/**
+	 * 
+	 * @return power variable y_{ij}^s
+	 */
 	public Double[][][] getYVar() {
 		try {
 			Double[][][] yval = new Double[n][n][d];
@@ -266,18 +242,11 @@ public class SMTF1 extends ILPModel {
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
 						for (int k = 0; k < d; k++) {
-//							if (j == 2 &&  cplex.getValue(py[i][j][k]) > 0 || k == 5 && cplex.getValue(py[i][j][k])> 0) {
-//							if (k == 2 && cplex.getValue(py[i][j][k]) > 0  ) {
-//								System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(py[i][j][k]) + " --");	
-//							}
 							yval[i][j][k] = cplex.getValue(y[i][j][k]);
-							System.out.print(i + " " + j + " " + k +" :" + cplex.getValue(y[i][j][k]) + " --");
 						}
 					}
 				}
-				System.out.println();
 			}
-			System.out.println("Objective: " + cplex.getObjValue());
 			return yval;		
 		} catch (IloException e) {			
 			e.printStackTrace();
@@ -287,6 +256,6 @@ public class SMTF1 extends ILPModel {
 
 	@Override
 	public String toString() {
-    	return Constants.SMT_PF2_STRING + "(" + n + "," + d + ")";
+    	return "F1(" + n + "," + d + ")";
 	}
 }

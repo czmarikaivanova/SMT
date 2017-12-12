@@ -6,41 +6,46 @@ import graph.Graph;
 
 public class SMTF2VIB extends SMTF2B {
 
-	public SMTF2VIB(Graph graph , boolean isLP, boolean includeC) {
-		super(graph, isLP, includeC);
+	public SMTF2VIB(Graph graph , boolean isLP) {
+		super(graph, isLP);
 	}
+	
+	// variables from F2B
+	
+	// objective from F1
+	
 	public void createConstraints() {
 		try {
-			super.createConstraints();
-//			 f imp y in nondest 
+			super.createConstraints();  // all constraints from F2
+			
+			// f imp y in nondest  -- (2i) equivalent
 			for (int j = 0; j < n; j++) {
 				for (int t = 0; t < d; t++) {
 					for (int s = 0; s < t; s++) {
 						for (int k = 0; k < n; k++) {
-							if (j != k && s != t) {
-								IloLinearNumExpr expr1 = cplex.linearNumExpr();
-								IloLinearNumExpr expr2 = cplex.linearNumExpr();
-								IloLinearNumExpr expr3 = cplex.linearNumExpr();
-								IloLinearNumExpr expr4 = cplex.linearNumExpr();
+							if (j != k) {
+								IloLinearNumExpr sumLHS_ST = cplex.linearNumExpr();
+								IloLinearNumExpr sumRHS_ST = cplex.linearNumExpr();
+								IloLinearNumExpr sumLHS_TS = cplex.linearNumExpr();
+								IloLinearNumExpr sumRHS_TS = cplex.linearNumExpr();
 								for (int i = 0; i < n; i++) {
 									if (i != j) { 
 										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-											expr1.addTerm(1.0, py[i][j][s]);
-											expr1.addTerm(1.0, py[j][i][t]);
-											expr1.addTerm(-1.0, h[i][j][s][t]);
-											expr1.addTerm(-1.0, h[j][i][s][t]);
-											expr2.addTerm(1.0, y[j][i][s]);	
-											
-											expr3.addTerm(1.0, py[j][i][s]);
-											expr3.addTerm(1.0, py[i][j][t]);
-											expr3.addTerm(-1.0, h[i][j][s][t]);
-											expr3.addTerm(-1.0, h[j][i][s][t]);
-											expr4.addTerm(1.0, y[j][i][t]);										
+											sumLHS_ST.addTerm(1.0, f3[i][j][s]);
+											sumLHS_ST.addTerm(1.0, f3[j][i][t]);
+											sumLHS_ST.addTerm(-1.0, h[i][j][s][t]);
+											sumLHS_ST.addTerm(-1.0, h[j][i][s][t]);
+											sumRHS_ST.addTerm(1.0, y[j][i][s]);	
+											sumLHS_TS.addTerm(1.0, f3[j][i][s]);
+											sumLHS_TS.addTerm(1.0, f3[i][j][t]);
+											sumLHS_TS.addTerm(-1.0, h[i][j][s][t]);
+											sumLHS_TS.addTerm(-1.0, h[j][i][s][t]);
+											sumRHS_TS.addTerm(1.0, y[j][i][t]);										
 										}
 									}
 								}
-								cplex.addLe(expr1, expr2);
-								cplex.addLe(expr3, expr4);
+								cplex.addLe(sumLHS_ST, sumRHS_ST);
+								cplex.addLe(sumLHS_TS, sumRHS_TS);
 							}
 						}
 					}
@@ -56,15 +61,15 @@ public class SMTF2VIB extends SMTF2B {
 //							IloLinearNumExpr expr2 = cplex.linearNumExpr();
 //							for (int t = 0; t < d; t++) {
 //								if (s != t) {
-//									expr1.addTerm(1.0, py[i][j][t]);
-//									expr1.addTerm(1.0, py[j][i][s]);
+//									expr1.addTerm(1.0, f3[i][j][t]);
+//									expr1.addTerm(1.0, f3[j][i][s]);
 //									expr1.addTerm(-1.0, h[i][j][s][t]);
 //									expr1.addTerm(-1.0, h[j][i][s][t]);
 //								}
 //							}
 //							expr2.addTerm(1.0, pz[i][j]);
-//							expr2.addTerm(-1.0, py[i][j][s]);
-//							expr2.addTerm(1.0, py[j][i][s]);
+//							expr2.addTerm(-1.0, f3[i][j][s]);
+//							expr2.addTerm(1.0, f3[j][i][s]);
 //							cplex.addLe(expr2, expr1);
 //						}
 //					}
@@ -81,19 +86,19 @@ public class SMTF2VIB extends SMTF2B {
 //										if (i != j) { // update
 //											cplex.addLe(
 //													cplex.sum(
-//															py[i][j][t2],
-//															py[j][i][s], 
+//															f3[i][j][t2],
+//															f3[j][i][s], 
 //															cplex.negative(h[i][j][s][t2]), 
 //															cplex.negative(h[j][i][s][t2])), 
 //													cplex.sum(
 //															cplex.sum(
-//																	py[i][j][t1], 
-//																	py[j][i][s], 
+//																	f3[i][j][t1], 
+//																	f3[j][i][s], 
 //																	cplex.negative(h[i][j][s][t1]), 
 //																	cplex.negative(h[j][i][s][t1])), 
 //															cplex.sum(
-//																	py[i][j][t2], 
-//																	py[j][i][t1], 
+//																	f3[i][j][t2], 
+//																	f3[j][i][t1], 
 //																	cplex.negative(h[i][j][t1][t2]), 
 //																	cplex.negative(h[j][i][t1][t2]))));
 //										}

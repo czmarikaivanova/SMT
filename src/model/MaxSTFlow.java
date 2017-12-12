@@ -22,6 +22,7 @@ public class MaxSTFlow extends ILPModel {
 	private IloNumVar[][][][] f;
 
 	public MaxSTFlow(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex) {
+		System.err.println("NORMAL FLOW"); // delete this
 		this.graph = graph;
 		this.n = graph.getVertexCount(); // # nodes
 		this.d = graph.getDstCount(); // # destinations
@@ -41,7 +42,6 @@ public class MaxSTFlow extends ILPModel {
 		cplex.setOut(null);
 	}
 
-	@Override
 	protected void initVars() {
 		try {
 			f = new IloNumVar[n][n][d][d];
@@ -77,8 +77,7 @@ public class MaxSTFlow extends ILPModel {
 		}
 	}
 
-	@Override
-	public void createConstraints() {
+	protected void createConstraints() {
 		try {
 			// Flow conservation - i \in V \ {s,t}
 			for (int i = 0; i < n; i++) {

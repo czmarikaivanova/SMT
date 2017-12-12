@@ -6,34 +6,39 @@ import graph.Graph;
 
 public class SMTF2VI extends SMTF2 {
 
-	public SMTF2VI(Graph graph , boolean isLP, boolean includeC) {
-		super(graph, isLP, includeC);
+	public SMTF2VI(Graph graph , boolean isLP) {
+		super(graph, isLP);
 	}
+	
+	// variables from F2
+	
+	// objective from F1
+	
 	public void createConstraints() {
 		try {
 			super.createConstraints();
-//			 f imp y in nondest 
+
+			
+			// f imp y in nondest  -- (2i) equivalent
 			for (int j = 0; j < n; j++) {
 				for (int s = 0; s < d; s++) {
 					for (int t = 0; t < d; t++) {
 						for (int k = 0; k < n; k++) {
 							if (j != k && s != t) {
-								IloLinearNumExpr expr1 = cplex.linearNumExpr();
-								IloLinearNumExpr expr2 = cplex.linearNumExpr();
+								IloLinearNumExpr sumLHS = cplex.linearNumExpr();
+								IloLinearNumExpr sumRHS = cplex.linearNumExpr();
 								for (int i = 0; i < n; i++) {
 									if (i != j) { 
 										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-											expr1.addTerm(1.0, py[i][j][s]);
-											expr1.addTerm(1.0, py[j][i][t]);
-											expr1.addTerm(-1.0, h[i][j][s][t]);
-											expr1.addTerm(-1.0, h[j][i][s][t]);
-//										}
-//										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-											expr2.addTerm(1.0, y[j][i][s]);										
+											sumLHS.addTerm(1.0, f3[i][j][s]);
+											sumLHS.addTerm(1.0, f3[j][i][t]);
+											sumLHS.addTerm(-1.0, h[i][j][s][t]);
+											sumLHS.addTerm(-1.0, h[j][i][s][t]);
+											sumRHS.addTerm(1.0, y[j][i][s]);										
 										}
 									}
 								}
-								cplex.addLe(expr1, expr2);
+								cplex.addLe(sumLHS, sumRHS);
 							}
 						}
 					}
@@ -49,15 +54,15 @@ public class SMTF2VI extends SMTF2 {
 //							IloLinearNumExpr expr2 = cplex.linearNumExpr();
 //							for (int t = 0; t < d; t++) {
 //								if (s != t) {
-//									expr1.addTerm(1.0, py[i][j][t]);
-//									expr1.addTerm(1.0, py[j][i][s]);
+//									expr1.addTerm(1.0, f3[i][j][t]);
+//									expr1.addTerm(1.0, f3[j][i][s]);
 //									expr1.addTerm(-1.0, h[i][j][s][t]);
 //									expr1.addTerm(-1.0, h[j][i][s][t]);
 //								}
 //							}
 //							expr2.addTerm(1.0, pz[i][j]);
-//							expr2.addTerm(-1.0, py[i][j][s]);
-//							expr2.addTerm(1.0, py[j][i][s]);
+//							expr2.addTerm(-1.0, f3[i][j][s]);
+//							expr2.addTerm(1.0, f3[j][i][s]);
 //							cplex.addLe(expr2, expr1);
 //						}
 //					}
@@ -74,19 +79,19 @@ public class SMTF2VI extends SMTF2 {
 //										if (i != j) { // update
 //											cplex.addLe(
 //													cplex.sum(
-//															py[i][j][t2],
-//															py[j][i][s], 
+//															f3[i][j][t2],
+//															f3[j][i][s], 
 //															cplex.negative(h[i][j][s][t2]), 
 //															cplex.negative(h[j][i][s][t2])), 
 //													cplex.sum(
 //															cplex.sum(
-//																	py[i][j][t1], 
-//																	py[j][i][s], 
+//																	f3[i][j][t1], 
+//																	f3[j][i][s], 
 //																	cplex.negative(h[i][j][s][t1]), 
 //																	cplex.negative(h[j][i][s][t1])), 
 //															cplex.sum(
-//																	py[i][j][t2], 
-//																	py[j][i][t1], 
+//																	f3[i][j][t2], 
+//																	f3[j][i][t1], 
 //																	cplex.negative(h[i][j][t1][t2]), 
 //																	cplex.negative(h[j][i][t1][t2]))));
 //										}

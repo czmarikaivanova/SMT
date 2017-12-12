@@ -16,6 +16,13 @@ import ilog.cplex.IloCplex;
 
 public class MEBModel extends ILPModel {
 
+	
+	/**
+	 * MEB model - old stuff
+	 * @param graph
+	 * @param isLP
+	 * @param allowCrossing
+	 */
 	public MEBModel(Graph graph, boolean isLP, boolean allowCrossing) {
 		super(graph, isLP);
 		this.allowCrossing = allowCrossing;
@@ -178,7 +185,7 @@ public class MEBModel extends ILPModel {
 		}		
 	}	
 	
-	public Double[][] getZVar() {
+	public Double[][] getTreeVar() {
 		try {
 			Double[][] zval = new Double[z.length][z.length];
 			for (int i = 0 ; i < z.length; i++) {
@@ -235,7 +242,7 @@ public class MEBModel extends ILPModel {
     }
 
 	@Override
-	public Double[][][] getXVar() {
+	public Double[][][] get3DVar() {
 		// TODO Auto-generated method stub
 		return null;
 	}
