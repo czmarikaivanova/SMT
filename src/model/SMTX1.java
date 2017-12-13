@@ -60,13 +60,13 @@ public class SMTX1 extends SteinerX {
 				for (int j = 0; j < n; j++) {
 					if (i != j) {
 						for (int s = 0; s < d; s++) {
-							IloLinearNumExpr expr7 = cplex.linearNumExpr();
+							IloLinearNumExpr sumY = cplex.linearNumExpr();
 							for (int k = 0; k < n; k++) {
 								if ((graph.getRequir(i,k) >= graph.getRequir(i,j)) && (i != k)) {
-									expr7.addTerm(1.0, y[i][k][s]);
+									sumY.addTerm(1.0, y[i][k][s]);
 								}
 							}
-								cplex.addLe(x[i][j][s], expr7);								
+							cplex.addLe(x[i][j][s], sumY);								
 						}			
 					}
 				}					

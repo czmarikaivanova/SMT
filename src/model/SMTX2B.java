@@ -11,7 +11,7 @@ import graph.Node;
 
 public class SMTX2B extends SMTX1VI {
 
-	public SMTX2B(Graph graph, boolean isLP, boolean includeC) {
+	public SMTX2B(Graph graph, boolean isLP) {
 		super(graph, isLP);
 	}
 	
@@ -19,7 +19,7 @@ public class SMTX2B extends SMTX1VI {
 	
 	protected void initVars() {
 		try {
-			super.initVars();
+			super.initVars(); // variables from X1
 			f = new IloNumVar[n][n][d][d];		
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
@@ -35,12 +35,14 @@ public class SMTX2B extends SMTX1VI {
 		}
 	}	
 	
-	//objective from SMTX1VI
+	//objective from X1
+	
 	
 	public void createConstraints() {
 		try{
 			super.createConstraints();
-			// Flow conservation - normal
+			
+			// Flow conservation constraints at i \in V \ {s,t}
 			for (int t = 0; t < d; t++) {
 				for (int s = 0; s < t; s++) {					
 					for (int i = 0; i < n; i++) {						
@@ -63,7 +65,7 @@ public class SMTX2B extends SMTX1VI {
 				}	
 			}		
 			
-			// Flow conservation - dest
+			// Flow conservation constraints at t \in D for a commodity (s,t)
 			for (int t = 0; t < d; t++) {
 				for (int s = 0; s < t; s++) {
 					if (s != t) {
@@ -80,7 +82,7 @@ public class SMTX2B extends SMTX1VI {
 				}
 			}				
 			
-			// capacity A
+			// capacity (1)
 			for (int t = 0; t < d; t++) {
 				for (int s = 0; s < t; s++) {
 					for (int i = 0; i < n; i++) {
@@ -93,7 +95,7 @@ public class SMTX2B extends SMTX1VI {
 				}
 			}					
 			
-			// capacity B
+			// capacity (2)  
 			for (int t = 0; t < d; t++) {
 				for (int s = 0; s < t; s++) {
 					for (int i = 0; i < n; i++) {
@@ -105,20 +107,9 @@ public class SMTX2B extends SMTX1VI {
 					}
 				}
 			}				
-//			
-			// f sym
-//			for (int s = 0; s < d; s++) {
-//				for (int t = 0; t < d; t++) {
-//					for (int i = 0; i < n; i++) {
-//						for (int j = 0; j < n; j++) {
-//							if (j != i && s != t) {
-//								cplex.addEq(f[i][j][s][t], f[j][i][t][s]);
-//							}
-//						}
-//					}
-//				}
-//			}					
-				
+
+			// f-symmetry is implicit
+			
 	//		sym h implication
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
@@ -128,7 +119,6 @@ public class SMTX2B extends SMTX1VI {
 								if (s != t) {
 									for (int u = 0; u < t; u++) {
 										if (u < s ) {
-	//										cplex.addGe(f[i][j][s][t], cplex.sum(f[i][j][u][t], cplex.negative(f[i][j][u][s])));  // this is just (2g)
 											cplex.addEq(cplex.sum(f[i][j][u][t], f[j][i][u][s], f[j][i][s][t]), cplex.sum(f[i][j][u][s], f[j][i][u][t], f[i][j][s][t]));
 										}
 									}																												
@@ -140,22 +130,20 @@ public class SMTX2B extends SMTX1VI {
 			}
 				
 			// f_it^st = x_it^s  -- MAKES IT FASTER
-
-					for (int s = 0; s < d; s++) {
-						for (int t = 0; t < d; t++) {
-							for (int i = 0; i < n; i++) {
-									if (i != t && s != t) {
-										if (s < t) {
-											cplex.addEq(f[i][t][s][t], x[i][t][s]);
-										}
-										else {
-											cplex.addEq(f[t][i][t][s], x[i][t][s]);
-										}
-										
-									}
+			for (int s = 0; s < d; s++) {
+				for (int t = 0; t < d; t++) {
+					for (int i = 0; i < n; i++) {
+						if (i != t && s != t) {
+							if (s < t) {
+								cplex.addEq(f[i][t][s][t], x[i][t][s]);
+							}
+							else {
+								cplex.addEq(f[t][i][t][s], x[i][t][s]);
 							}
 						}
-					}	
+					}
+				}
+			}	
 
 
 		} catch (IloException e) {
@@ -179,7 +167,6 @@ public class SMTX2B extends SMTX1VI {
 					}
 				}
 			}
-			System.out.println("Objective: " + cplex.getObjValue());
 			return fval;		
 		} catch (IloException e) {			
 			e.printStackTrace();
@@ -188,8 +175,7 @@ public class SMTX2B extends SMTX1VI {
 	}	
 	
 	public String toString() {
-    	return Constants.SMT_MULTI_FLOW_STRING + "BBB(" + n + "," + d + ")";
+    	return "X2B(" + n + "," + d + ")";
 	}
-	
 
 }

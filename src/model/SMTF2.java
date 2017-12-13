@@ -32,7 +32,7 @@ public class SMTF2 extends SMTF1VI {
 			e.printStackTrace();
 		}
 	}	
-	// objecive from F1
+	// Objective from F1
 	
 	@Override
 	public void createConstraints() {
@@ -141,6 +141,6 @@ public class SMTF2 extends SMTF1VI {
 
 	@Override
 	public String toString() {
-    	return "F2B(" + n + "," + d + ")";
+    	return "F2(" + n + "," + d + ")";
 	}
 }

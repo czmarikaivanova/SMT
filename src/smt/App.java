@@ -25,10 +25,10 @@ import model.SMTX2;
 import model.SMTF1;
 import model.SMTX1VI;
 import model.SMTX2B;
-import model.SMTX2C;
 import model.SMTX2VIB;
 import model.SteinerX;
 import model.SMTX2VI;
+import model.X1VI_CG_Cap;
 
 public class App {
     public static boolean stronger;
@@ -43,8 +43,8 @@ public class App {
 	
 	
 	public App() {
-		this.n = 12;
-		this.d = 6;
+		this.n = 26;
+		this.d = 13;
 		this.iter = 200;
 //		this.fname =  "instances/instance32.txt";
 		this.fname =  null;
@@ -69,15 +69,13 @@ public class App {
 //				models.add(new SMTX1(graph, Constants.LP, true));
 //				models.add(new SMTX1VI(graph, Constants.LP, true));
 //				models.add(new SMTF1VI(graph, Constants.LP, true));
-//				models.add(new SMTX2(graph, Constants.LP, false));
-//				models.add(new SMTX2(graph, Constants.LP, true));
-//				models.add(new SMTX2C(graph, Constants.LP, true));
-//				models.add(new SMTF2(graph, Constants.LP));
+//				models.add(new SMTX2(graph, Constants.LP));
+//				models.add(new SMTX2B(graph, Constants.LP));
 //				models.add(new SMTF2(graph, Constants.LP));
 //				models.add(new SMTX2VI(graph, Constants.LP, true));
 //				models.add(new SMTX2VIB(graph, Constants.LP, true));
 //				models.add(new SMTF2VI(graph, Constants.LP));
-				models.add(new SMTF2VI(graph, Constants.LP));
+//				models.add(new SMTF2VI(graph, Constants.LP));
 //				models.add(new SMTX1(graph, Constants.INTEGER, true));
 
 	
@@ -85,12 +83,8 @@ public class App {
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-1.9, graph, 5)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_BestK(-1.9, graph, 1)));
 //				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddFirstK(-1.9, graph, 1)));
-				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph)));
-//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, false, new CG_AddMatching(-0.9, graph)));
-//				models.add(new X1VI_CG(graph, Constants.LP, true, new CG_AddMatching(-1.6, graph, true)));
-//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.9, graph,  false)));
-//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.8, graph, 5)));
-//				models.add(new SMTModelFlexiFlow(graph, Constants.LP, true, new CG_AddMatching(-1.99999, graph, 5)));
+//				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph)));
+				models.add(new X1VI_CG_Cap(graph, Constants.LP, new CG_AddMatching(-0.9, graph)));
 //				models.add(new SMTX2(graph, Constants.LP, true));
 				models.add(new SMTF1(graph, Constants.INTEGER));				
 //				models.add(new SMTF2(graph, Constants.INTEGER));				

@@ -1,17 +1,14 @@
 package model;
 
 
-import smt.App;
-import smt.Constants;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import graph.Graph;
-import graph.Node;
 
 public class SMTX2 extends SMTX1VI {
 
-	public SMTX2(Graph graph, boolean isLP, boolean includeC) {
+	public SMTX2(Graph graph, boolean isLP) {
 		super(graph, isLP);
 	}
 	
@@ -20,8 +17,8 @@ public class SMTX2 extends SMTX1VI {
 
 	// Initialize variables	
 	protected void initVars() {
-		try {
-			super.initVars();
+		try { 
+			super.initVars(); // all vars from X1
 			f = new IloNumVar[n][n][d][];		
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
@@ -35,49 +32,49 @@ public class SMTX2 extends SMTX1VI {
 		}
 	}	
 	
-	//objective from SMTX1VI
+	//objective from X1
 	
-	// create constraints
+	@Override
 	public void createConstraints() {
 		try{
 			super.createConstraints();
 			
-			// Flow conservation - normal
+			// Flow conservation constraints at i \in V \ {s,t}
 			for (int s = 0; s < d; s++) {					
 				for (int t = 0; t < d; t++) {
 					for (int i = 0; i < n; i++) {						
 						if (t != i && s != i && s != t) {
-							IloLinearNumExpr expr1a = cplex.linearNumExpr();
-							IloLinearNumExpr expr1b = cplex.linearNumExpr();	
+							IloLinearNumExpr sumLeave = cplex.linearNumExpr();
+							IloLinearNumExpr sumEnter = cplex.linearNumExpr();	
 							for (int j = 0; j < n; j++) {
 								if (i != j && j != s) {
-									expr1a.addTerm(1.0, f[i][j][s][t]);									
+									sumLeave.addTerm(1.0, f[i][j][s][t]);									
 								}								
 							}
 							for (int j = 0; j < n; j++) {
 								if (i != j && j != t) {								
-									expr1b.addTerm(1.0, f[j][i][s][t]);
+									sumEnter.addTerm(1.0, f[j][i][s][t]);
 								}								
 							}						
-							cplex.addEq(0,cplex.sum(expr1a, cplex.negative(expr1b)));
+							cplex.addEq(0,cplex.sum(sumLeave, cplex.negative(sumEnter)));
 						}
 					}
 				}	
 			}		
 			
-			// Flow conservation - dest
+			// Flow conservation constraints at t \in D for a commodity (s,t)
 			for (int s = 0; s < d; s++) {
 				for (int t = 0; t < d; t++) {
 					if (s != t) {
-						IloLinearNumExpr expr2a = cplex.linearNumExpr();
-						IloLinearNumExpr expr2b = cplex.linearNumExpr();	
+						IloLinearNumExpr sumLeave = cplex.linearNumExpr();
+						IloLinearNumExpr sumEnter = cplex.linearNumExpr();	
 						for (int i = 0; i < n; i++) {
 							if (i != t) {
-								expr2a.addTerm(1.0, f[t][i][s][t]);									
-								expr2b.addTerm(1.0, f[i][t][s][t]);									
+								sumLeave.addTerm(1.0, f[t][i][s][t]);									
+								sumEnter.addTerm(1.0, f[i][t][s][t]);									
 							}								
 						}
-						cplex.addEq(-1,cplex.sum(expr2a, cplex.negative(expr2b)));
+						cplex.addEq(-1,cplex.sum(sumLeave, cplex.negative(sumEnter)));
 					}
 				}
 			}				
@@ -96,7 +93,7 @@ public class SMTX2 extends SMTX1VI {
 			}					
 			
 			
-			// f sym
+			// f sym - stated explicitly
 			for (int s = 0; s < d; s++) {
 				for (int t = 0; t < d; t++) {
 					for (int i = 0; i < n; i++) {
@@ -109,65 +106,55 @@ public class SMTX2 extends SMTX1VI {
 				}
 			}					
 				
-//		sym h implication
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				if( i != j) {
-					for (int s = 1; s < d; s++) {
-						for (int t = 1; t < d; t++) {
-							if (s != t) {
-								for (int u = 0; u < d; u++) {							
-//									cplex.addGe(f[i][j][s][t], cplex.sum(f[i][j][u][t], cplex.negative(f[i][j][u][s])));  // this is just (2g)
-									cplex.addEq(cplex.sum(f[i][j][u][t], f[j][i][u][s], f[i][j][t][s]), cplex.sum(f[i][j][u][s], f[j][i][u][t], f[i][j][s][t]));
-								}																												
+			//	sym h implication - can be inferred from Polzin's hook symmetry
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if( i != j) {
+						for (int s = 1; s < d; s++) {
+							for (int t = 1; t < d; t++) {
+								if (s != t) {
+									for (int u = 0; u < d; u++) {							
+										cplex.addEq(cplex.sum(f[i][j][u][t], f[j][i][u][s], f[i][j][t][s]), cplex.sum(f[i][j][u][s], f[j][i][u][t], f[i][j][s][t]));
+									}																												
+								}
 							}
 						}
 					}
 				}
 			}
-		}
-		
-		// f_it^st = x_it^s  -- MAKES IT FASTER
-		for (int s = 0; s < d; s++) {
-			for (int t = 0; t < d; t++) {
-				for (int i = 0; i < n; i++) {
-					if (i != t && s != t) {
-						cplex.addEq(f[i][t][s][t], x[i][t][s]);
+			
+			// f_it^st = x_it^s  -- MAKES IT FASTER
+			for (int s = 0; s < d; s++) {
+				for (int t = 0; t < d; t++) {
+					for (int i = 0; i < n; i++) {
+						if (i != t && s != t) {
+							cplex.addEq(f[i][t][s][t], x[i][t][s]);
+						}
+					}
+				}
+			}	
+	
+			// Slack equality 
+			for (int s = 0; s < d; s++) {
+				for (int t = 0; t < d; t++) {
+					for (int i = 0; i < n; i++) {
+						for (int j = 0; j < n; j++) {
+							if (i != j && s != t) {
+								cplex.addEq(cplex.sum(x[i][j][s], cplex.negative(f[i][j][s][t])), cplex.sum(x[i][j][t], cplex.negative(f[i][j][t][s])));
+							}
+						}
 					}
 				}
 			}
-		}	
-
-		// Slack equality 
-//		if (includeC)
-//		for (int s = 0; s < d; s++) {
-//			for (int t = 0; t < d; t++) {
-//				for (int i = 0; i < n; i++) {
-//					for (int j = 0; j < n; j++) {
-//						if (i != j && s != t) {
-//							cplex.addEq(cplex.sum(x[i][j][s], cplex.negative(f[i][j][s][t])), cplex.sum(x[i][j][t], cplex.negative(f[i][j][t][s])));
-//						}
-//					}
-//				}
-//			}
-//		}	
-		// Slack equality 
-//		for (int s = 0; s < d; s++) {
-//			for (int t = 0; t < d; t++) {
-//				for (int i = 0; i < n; i++) {
-//					for (int j = 0; j < n; j++) {
-//						if (i != j && s != t) {
-//							cplex.addLe(cplex.sum(x[i][j][t], f[i][j][s][t]), 1);
-//						}
-//					}
-//				}
-//			}
-//		}	
 		} catch (IloException e) {
 			e.printStackTrace();
 		}		
 	}
 	
+	/**
+	 * 
+	 * @return four index variable f_{ij}^{st}
+	 */
 	public Double[][][][] getFVar() {
 		try {
 			Double[][][][] fval = new Double[z.length][z.length][z.length][z.length];
@@ -184,7 +171,6 @@ public class SMTX2 extends SMTX1VI {
 					}
 				}
 			}
-			System.out.println("Objective: " + cplex.getObjValue());
 			return fval;		
 		} catch (IloException e) {			
 			e.printStackTrace();
@@ -192,8 +178,9 @@ public class SMTX2 extends SMTX1VI {
 		}		
 	}	
 	
+	@Override
 	public String toString() {
-    	return Constants.SMT_MULTI_FLOW_STRING + "(" + n + "," + d + ")";
+    	return "X2(" + n + "," + d + ")";
 	}
 	
 

@@ -15,13 +15,13 @@ import ilog.cplex.IloCplex;
  * cannot say whether the symmetry can also be satisfied
  * 
  */
-public class MaxSTFlow extends ILPModel {
+public class MaxFlow extends ILPModel {
 
 	private int s;
 	private int t;
 	private IloNumVar[][] f; // f_{ij} = flow carried by arc (i,j) \in A
 
-	public MaxSTFlow(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex) {
+	public MaxFlow(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex) {
 		System.err.println("NORMAL FLOW"); // delete this
 		this.graph = graph;
 		this.n = graph.getVertexCount(); // # nodes

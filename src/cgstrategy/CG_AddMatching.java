@@ -7,7 +7,7 @@ import graph.Graph;
 
 public class CG_AddMatching extends CGStrategy {
 
-	private int minViolatedCnt;
+
 	
 	/**
 	 * 
@@ -17,7 +17,6 @@ public class CG_AddMatching extends CGStrategy {
 	 */
 	public CG_AddMatching(double tolerance, Graph graph) {
 		super(tolerance, graph);
-		this.minViolatedCnt = 5;
 	}
 
 	public boolean runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue,PriorityQueue<STPair> addedPairsQueue, Double[][][] xVar, Double[][][] yVar) {

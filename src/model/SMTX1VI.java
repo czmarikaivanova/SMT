@@ -10,72 +10,56 @@ public class SMTX1VI extends SMTX1 {
 		super(graph, isLP);
 	}
 	
-	// objective function and vars from super
+	// Variables from X1
+	 
+	// Objective from X1
 	
 	public void createConstraints() {
 		super.createConstraints();
 		try {
-			// y_sum=1 	(1j)
-//			if (includeC) {
-//			System.out.println("Include C");
-				for (int s = 0; s < d; s ++) {
-					IloLinearNumExpr expr1 = cplex.linearNumExpr();
-					for (int j = 0; j < n; j++) {
-						if (j != s) {
-							expr1.addTerm(1.0, y[s][j][s]);						
-						}
-					}
-					cplex.addEq(expr1, 1.0);
-				}
-//				}
-//				else {
-//					System.out.println("Exclude C");
-//				}
 			
-//			 x to nondest => y from there (1k)
-
-//			if (includeC) {
-//				System.out.println("Include C");
+			// NonDestNoLeaf (1i)
 			for (int j = d; j < n; j++) {
 				for (int s = 0; s < d; s++) {
-					IloLinearNumExpr expr1 = cplex.linearNumExpr();
-					IloLinearNumExpr expr2 = cplex.linearNumExpr();
+					IloLinearNumExpr sumEnter = cplex.linearNumExpr();
+					IloLinearNumExpr sumLeave = cplex.linearNumExpr();
+					for (int i = 0; i < n; i++) {
+						if (i != j) {
+							sumEnter.addTerm(1.0, x[i][j][s]);
+							sumLeave.addTerm(1.0, x[j][i][s]);
+						}
+					}
+					cplex.addLe(sumEnter, sumLeave);
+				}
+			}			
+			
+			// y_sum=1 	(1j)
+			for (int s = 0; s < d; s ++) {
+				IloLinearNumExpr sumLeave = cplex.linearNumExpr();
+				for (int j = 0; j < n; j++) {
+					if (j != s) {
+						sumLeave.addTerm(1.0, y[s][j][s]);						
+					}
+				}
+				cplex.addEq(sumLeave, 1.0);
+			}
+			
+			// x to nondest => y from there (1k)
+			for (int j = d; j < n; j++) {
+				for (int s = 0; s < d; s++) {
+					IloLinearNumExpr sumLHS = cplex.linearNumExpr();
+					IloLinearNumExpr sumRHS = cplex.linearNumExpr();
 					for (int i = 0; i < n; i++) {
 						if (i != j) {
 							if (i != s) {
-								expr1.addTerm(1.0, y[j][i][s]);
+								sumLHS.addTerm(1.0, y[j][i][s]);
 							}
-							expr2.addTerm(1.0, x[i][j][s]);
+							sumRHS.addTerm(1.0, x[i][j][s]);
 						}
 					}
-					cplex.addGe(expr1, expr2);
+					cplex.addGe(sumLHS, sumRHS);
 				}
 			}	
-//			}
-//			else {
-//				System.out.println("Exclude C");
-//			}
-		
-			// NonDestNoLeaf (1i)
-//			if (includeC) {
-//				System.out.println("include C");
-				for (int j = d; j < n; j++) {
-					for (int s = 0; s < d; s++) {
-						IloLinearNumExpr expr4 = cplex.linearNumExpr();
-						IloLinearNumExpr expr5 = cplex.linearNumExpr();
-						for (int i = 0; i < n; i++) {
-							if (i != j) {
-								expr4.addTerm(1.0, x[i][j][s]);
-								expr5.addTerm(1.0, x[j][i][s]);
-							}
-						}
-						cplex.addLe(expr4, expr5);
-					}
-				}
-//			}
-//			else {
-//				System.out.println("Exclude C");
-//			}
 		} catch (IloException e) {
 			e.printStackTrace();
 		}		

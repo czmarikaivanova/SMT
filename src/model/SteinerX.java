@@ -135,7 +135,8 @@ public class SteinerX extends ILPModel {
 		}		
 	}
 	
-	public Double[][][] getXVar() {
+	@Override
+	public Double[][][] get3DVar() {
 		try {
 			Double[][][] xval = new Double[x.length][x.length][x.length];
 			for (int i = 0 ; i < x.length; i++) {
@@ -143,11 +144,9 @@ public class SteinerX extends ILPModel {
 					if (i != j) {
 						for (int k = 0; k < d; k++) {
 							xval[i][j][k] = cplex.getValue(x[i][j][k]);
-//							System.out.print(xval[i][j][k] + " ");
 						}
 					}
 				}
-//				System.out.println();
 			}
 			return xval;		
 		} catch (IloException e) {			
@@ -156,6 +155,7 @@ public class SteinerX extends ILPModel {
 		}		
 	}	
 	
+	@Override
 	public Double[][] getTreeVar() {
 		try {
 			Double[][] zval = new Double[z.length][z.length];
@@ -175,7 +175,7 @@ public class SteinerX extends ILPModel {
 	}
 
 		
-	
+	@Override
 	public String toString() {
     	return Constants.SMT_STRING + "(" + n + "," + d + ")";
 	}

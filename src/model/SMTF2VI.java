@@ -113,4 +113,9 @@ public class SMTF2VI extends SMTF2 {
 			System.err.println("Concert exception caught: " + e);
 		}		
 	}
+	
+	public String toString() {
+    	return "F2VI(" + n + "," + d + ")";
+	}
+	
 }

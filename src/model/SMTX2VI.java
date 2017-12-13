@@ -1,17 +1,13 @@
 package model;
 
-import java.util.ArrayList;
-import smt.App;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
-import ilog.concert.IloNumVar;
 import graph.Graph;
-import graph.Node;
 
 public class SMTX2VI extends SMTX2 {
 
-	public SMTX2VI(Graph graph, boolean isLP, boolean includeC) {
-		super(graph, isLP, includeC);
+	public SMTX2VI(Graph graph, boolean isLP) {
+		super(graph, isLP);
 	}
 	
 	// vars and objective from SMTX2
@@ -19,38 +15,31 @@ public class SMTX2VI extends SMTX2 {
 	public void createConstraints() {
 		try {
 			super.createConstraints();
+	
 			// f imp y k  (2i)
-//			if (includeC) {
-//			System.out.println("Include C");
-			
 			for (int j = 0; j < n; j++) {
 				for (int s = 0; s < d; s++) {
 					for (int t = 0; t < d; t++) {
 						for (int k = 0; k < n; k++) {
 							if (j != k && s != t) {
-								IloLinearNumExpr expr1 = cplex.linearNumExpr();
-								IloLinearNumExpr expr2 = cplex.linearNumExpr();
+								IloLinearNumExpr sumLHS = cplex.linearNumExpr();
+								IloLinearNumExpr sumRHS = cplex.linearNumExpr();
 								for (int i = 0; i < n; i++) {
 									if (i != j) { 
 										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-											expr1.addTerm(1.0, f[j][i][s][t]);
-											expr2.addTerm(1.0, y[j][i][s]);										
+											sumLHS.addTerm(1.0, f[j][i][s][t]);
+											sumRHS.addTerm(1.0, y[j][i][s]);										
 										}
 									}
 								}
-								cplex.addLe(expr1, expr2);
+								cplex.addLe(sumLHS, sumRHS);
 							}
 						}
 					}
 				}
 			}	
-////			}
-////			else {
-////				System.out.println("Exclude C");
-////			}	
-//			// vi4 (x imp sum f in ampl) (2h) -- seems implied
-//			if (includeC) {
-//			System.out.println("Include C");
+
+			// vi4 (x imp sum f in ampl) (2h) -- seems implied
 //			for (int s = 0; s < d; s++) {
 //				for (int i = 0; i < n; i++) {
 //					for (int j = 0; j < n; j++) {
@@ -66,13 +55,8 @@ public class SMTX2VI extends SMTX2 {
 //					}
 //				}
 //			}	
-//			}
-//			else {
-//				System.out.println("Exclude C");
-//			}	
-//			// vi10 (vi11 in ampl) (2g)
-//			if (includeC) {
-//			System.out.println("include C");
+
+			// vi10 (vi11 in ampl) (2g) -- implied by symmetry of hooks
 //			for (int s = 0; s < d; s++) {
 //				for (int t1 = 0; t1 < d; t1++) {
 //					if (s != t1) {
@@ -90,14 +74,6 @@ public class SMTX2VI extends SMTX2 {
 //					}
 //				}
 //			}
-//			}
-//			else {
-//				System.out.println("eclude C");
-//			}
-//
-			// REMOVE THIS COMMENT !!! up
-			
-
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		}		
@@ -106,29 +82,5 @@ public class SMTX2VI extends SMTX2 {
 	public String toString() {
     	return "Steiner_MULTI_FLOW ";
 	}
-
-
-	@Override
-	public Double[][] getTreeVar() {
-		try {
-			Double[][] zval = new Double[z.length][z.length];
-			for (int i = 0 ; i < z.length; i++) {
-				for (int j = i+1; j < z.length; j++) {
-					System.out.print(cplex.getValue(z[i][j]) + " ");						
-					zval[i][j] = cplex.getValue(z[i][j]);						
-				}
-				System.out.println();
-			}
-			System.out.println("Objective: " + cplex.getObjValue());
-			return zval;		
-		} catch (IloException e) {			
-			e.printStackTrace();
-			return null;
-		}		
-	}
-
-
-		
-
 
 }

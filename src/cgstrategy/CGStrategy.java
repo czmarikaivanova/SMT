@@ -8,7 +8,7 @@ import graph.Graph;
 import ilog.concert.IloException;
 import ilog.cplex.IloCplex;
 import model.ILPModel;
-import model.MaxSTFlow;
+import model.MaxFlow;
 import model.STPair;
 
 /**
@@ -24,7 +24,7 @@ public class CGStrategy {
 	protected Graph graph;
 	protected int d; 						// # destinations
 	protected int k;
-	
+	protected int minViolatedCnt;
 	
 	public CGStrategy(double tolerance, Graph graph) {
 		super();
@@ -32,6 +32,7 @@ public class CGStrategy {
 		this.graph = graph;
 		d = graph.getDstCount();
 		k = 0; // assume k not applicable
+		minViolatedCnt = 5; 
 		try {
 			singleFlowCplex = new IloCplex();
 		} catch (IloException e) {
@@ -51,7 +52,7 @@ public class CGStrategy {
 		for (int s = 0; s < d; s++) {
 			for (int t = s + 1; t < d; t++) {
 				if (s != t) {
-					stFlowModel = new MaxSTFlow(graph, xVar, yVar, s, t, singleFlowCplex);
+					stFlowModel = new MaxFlow(graph, xVar, yVar, s, t, singleFlowCplex);
 					stFlowModel.solve(false, 3600);   // solve the max flow problem
 					double stVal = stFlowModel.getObjectiveValue();
 					STPair stPair = new STPair(s, t, stVal);
