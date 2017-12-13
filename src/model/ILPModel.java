@@ -49,10 +49,9 @@ public abstract class ILPModel {
 	public boolean solve(boolean useTimeLimit, int seconds) {
 		try {
 			if (useTimeLimit) {
-				System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
-				System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
 				cplex.setParam(IloCplex.DoubleParam.TiLim, seconds);
 			}
+			outputSettingsInfo();
 			return cplex.solve();
 		} catch (IloException e) {
 			e.printStackTrace();
@@ -72,6 +71,15 @@ public abstract class ILPModel {
 			return 0;
 		}
 	}
+	
+	protected void outputSettingsInfo() {
+		if (! (this instanceof MaxFlow)) {
+			System.err.println("RUNNING MODEL: " + this.toString());
+			System.err.println(this.toString() + " CONSTRINT COUNT " + cplex.getNrows());
+			System.err.println(this.toString() + " VARIABLE COUNT " + cplex.getNcols());
+		}
+	}
+	
 	public abstract String toString();
 
 	public double getCplexTime() {

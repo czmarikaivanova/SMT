@@ -22,7 +22,6 @@ public class MaxFlow extends ILPModel {
 	private IloNumVar[][] f; // f_{ij} = flow carried by arc (i,j) \in A
 
 	public MaxFlow(Graph graph, Double[][][] xvar, Double[][][] yvar, int s, int t, IloCplex cplex) {
-		System.err.println("NORMAL FLOW"); // delete this
 		this.graph = graph;
 		this.n = graph.getVertexCount(); // # nodes
 		this.d = graph.getDstCount(); // # destinations

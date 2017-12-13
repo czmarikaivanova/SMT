@@ -1,5 +1,6 @@
 package cgstrategy;
 
+import java.util.Comparator;
 import java.util.PriorityQueue;
 
 import model.STPair;
@@ -7,8 +8,8 @@ import graph.Graph;
 
 public class CG_BestK extends CGStrategy {
 
-	public CG_BestK(double tolerance, Graph graph, int k) {
-		super(tolerance, graph);
+	public CG_BestK(double tolerance, Graph graph, Comparator<STPair> comparator,  int k) {
+		super(tolerance, graph, comparator);
 		this.k = k;
 	}
 	

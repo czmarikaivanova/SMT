@@ -1,5 +1,6 @@
 package cgstrategy;
 
+import java.util.Comparator;
 import java.util.PriorityQueue;
 import model.MaxFlow;
 import model.STPair;
@@ -7,10 +8,8 @@ import graph.Graph;
 
 public class CG_AddFirstK extends CGStrategy {
 
-	private boolean includeFY;
-	
-	public CG_AddFirstK(double tolerance, Graph graph, int k) {
-		super(tolerance, graph);
+	public CG_AddFirstK(double tolerance, Graph graph, Comparator<STPair> comparator, int k) {
+		super(tolerance, graph, comparator);
 		this.k = k;
 	}
 	
@@ -24,7 +23,7 @@ public class CG_AddFirstK extends CGStrategy {
 					stFlowModel = new MaxFlow(graph, xVar, yVar, s, t, singleFlowCplex);
 					stFlowModel.solve(false, 3600);   // solve the max flow problem
 					double stVal = stFlowModel.getObjectiveValue();
-					STPair stPair = new STPair(s, t, stVal);
+					STPair stPair = new STPair(s, t, stVal, graph.getRequir(s, t));
 					if (stVal > tolerance) { // flow conservation not satisfied for {s,t}
 						violatedCnt++;
 						if (violatedPairsQueue.size() <  k) {

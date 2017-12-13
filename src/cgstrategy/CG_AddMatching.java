@@ -1,6 +1,7 @@
 package cgstrategy;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.PriorityQueue;
 import model.STPair;
 import graph.Graph;
@@ -15,8 +16,8 @@ public class CG_AddMatching extends CGStrategy {
 	 * @param graph
 	 * @param minViolatedCnt minimum # of violated s-t pairs necessary for applying the matching strategy. If there are less pairs, add all constraints.
 	 */
-	public CG_AddMatching(double tolerance, Graph graph) {
-		super(tolerance, graph);
+	public CG_AddMatching(double tolerance, Graph graph, Comparator<STPair> comparator) {
+		super(tolerance, graph, comparator);
 	}
 
 	public boolean runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue,PriorityQueue<STPair> addedPairsQueue, Double[][][] xVar, Double[][][] yVar) {
@@ -56,6 +57,6 @@ public class CG_AddMatching extends CGStrategy {
 //		System.out.println(outArray.toString());
 	}
 	public String toString() {
-		return "Matching";
+		return "Matching, T=" + tolerance + " Comparator: " + comparator.toString();
 	}
 }

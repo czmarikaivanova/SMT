@@ -1,9 +1,7 @@
 package cgstrategy;
 
+import java.util.Comparator;
 import java.util.PriorityQueue;
-
-import smt.Constants;
-
 import graph.Graph;
 import ilog.concert.IloException;
 import ilog.cplex.IloCplex;
@@ -25,11 +23,13 @@ public class CGStrategy {
 	protected int d; 						// # destinations
 	protected int k;
 	protected int minViolatedCnt;
+	protected Comparator<STPair> comparator;
 	
-	public CGStrategy(double tolerance, Graph graph) {
+	public CGStrategy(double tolerance, Graph graph, Comparator<STPair> comparator) {
 		super();
 		this.tolerance = tolerance;
 		this.graph = graph;
+		this.comparator = comparator;
 		d = graph.getDstCount();
 		k = 0; // assume k not applicable
 		minViolatedCnt = 5; 
@@ -55,7 +55,7 @@ public class CGStrategy {
 					stFlowModel = new MaxFlow(graph, xVar, yVar, s, t, singleFlowCplex);
 					stFlowModel.solve(false, 3600);   // solve the max flow problem
 					double stVal = stFlowModel.getObjectiveValue();
-					STPair stPair = new STPair(s, t, stVal);
+					STPair stPair = new STPair(s, t, stVal, graph.getRequir(s, t));
 					if (stVal > tolerance) { // flow conservation not satisfied for {s,t}
 						violatedCnt++;
 						violatedPairsQueue.add(stPair);
@@ -100,7 +100,7 @@ public class CGStrategy {
 		return k;
 	}
 	
-	public String toString() {
-		return "All";
+	public Comparator<STPair> getComparator() {
+		return comparator;
 	}
 }

@@ -3,14 +3,11 @@ package model;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.PriorityQueue;
-
 import cgstrategy.CGStrategy;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
-import ilog.cplex.IloCplex;
 import smt.Constants;
 import smt.Miscellaneous;
 import graph.Graph;
@@ -30,13 +27,16 @@ public class X1VI_CG extends SMTX1VI {
 
 	public boolean solve(boolean useTimeLimit, int seconds) {
 		try {
+			outputSettingsInfo();
 			double currObj = 0;   // current objective value
 			double currTime = 0;  // runtime of the current calculation
 			int constraintCnt = 0; 	   // # of constraints in the model;
 			int variableCnt = 0; 	   // # of variables in the model
 //			cplex.setParam(IloCplex.DoubleParam.TiLim, seconds); TODO: consider whether you wanna use time limit here
-			PriorityQueue<STPair> pairQueue = new PriorityQueue<STPair>();
-			PriorityQueue<STPair> violatedPairsQueue = new PriorityQueue<STPair>();
+//			PriorityQueue<STPair> pairQueue = new PriorityQueue<STPair>(11, STPair.getFlowViolationComparator());
+//			PriorityQueue<STPair> violatedPairsQueue = new PriorityQueue<STPair>(11, STPair.getFlowViolationComparator());
+			PriorityQueue<STPair> pairQueue = new PriorityQueue<STPair>(11, cgStrategy.getComparator());
+			PriorityQueue<STPair> violatedPairsQueue = new PriorityQueue<STPair>(11,cgStrategy.getComparator());
 			boolean solved = true; // true if all constraints are satisfied and the calculation can terminate
 			boolean ret;
 			int iter = 0;      // # of iterations (how many times we had to calculate the model with some added flow constraints) 
@@ -95,41 +95,11 @@ public class X1VI_CG extends SMTX1VI {
 	}	
 	
 	public void createConstraints() {
-		try{
 			super.createConstraints();  // constraints from parent class X1VI		
 
 			// The symmetry f_{ij}^{st} = f_{ji}^{ts} is not needed. Whenever we need f_{ij}^{st} where s > t, we use f_{ji}^{ts} instead.
 
-			// f imp y (2i). We use the symmetry, i. e. f_{ji}^{ts} = f_{ij}^{st} 
-			for (int j = 0; j < n; j++) {
-				for (int s = 0; s < d; s++) {
-					for (int t = s + 1; t < d; t++) {
-						for (int k = 0; k < n; k++) {
-							if (j != k) {
-								IloLinearNumExpr fSumST = cplex.linearNumExpr();
-								IloLinearNumExpr fSumTS = cplex.linearNumExpr();
-								IloLinearNumExpr hSumST = cplex.linearNumExpr();
-								IloLinearNumExpr hSumTS = cplex.linearNumExpr();
-								for (int i = 0; i < n; i++) {
-									if (i != j) { 
-										if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
-											fSumST.addTerm(1.0, f[j][i][s][t]);
-											fSumTS.addTerm(1.0, f[i][j][s][t]);
-											hSumST.addTerm(1.0, y[j][i][s]);		
-											hSumTS.addTerm(1.0, y[j][i][t]);		
-										}
-									}
-								}
-								cplex.addLe(fSumST, hSumST);
-								cplex.addLe(fSumTS, hSumTS);
-							}
-						}
-					}
-				}
-			}
-		} catch (IloException e) {
-			e.printStackTrace();
-		}		
+	
 	}
 	
 	/**
@@ -183,11 +153,39 @@ public class X1VI_CG extends SMTX1VI {
 				}
 				cplex.addEq(-1,cplex.sum(sumLeaveT_ST, cplex.negative(sumEnterT_ST)));		// flow conservation at t for the commodity s-t
 				cplex.addEq(-1,cplex.sum(sumLeaveS_TS, cplex.negative(sumEnterS_TS)));		// flow conservation at s for the commodity t-s
+				
+				// f imp y (2i). We use the symmetry, i. e. f_{ji}^{ts} = f_{ij}^{st} 
+				for (int j = 0; j < n; j++) {
+					for (int k = 0; k < n; k++) {
+						if (j != k) {
+							IloLinearNumExpr fSumST = cplex.linearNumExpr();
+							IloLinearNumExpr fSumTS = cplex.linearNumExpr();
+							IloLinearNumExpr hSumST = cplex.linearNumExpr();
+							IloLinearNumExpr hSumTS = cplex.linearNumExpr();
+							for (int i = 0; i < n; i++) {
+								if (i != j) { 
+									if (graph.getRequir(j, i) >= graph.getRequir(j, k)) {
+										fSumST.addTerm(1.0, f[j][i][s][t]);
+										fSumTS.addTerm(1.0, f[i][j][s][t]);
+										hSumST.addTerm(1.0, y[j][i][s]);		
+										hSumTS.addTerm(1.0, y[j][i][t]);		
+									}
+								}
+							}
+							cplex.addLe(fSumST, hSumST);		// (2i) for commodity (s,t)
+							cplex.addLe(fSumTS, hSumTS);		// (2i) for commodity (t,s)
+						}
+					}
+				}				
+				
 			}
+			
+			
 		} catch (IloException e) {
 			System.err.println("Concert exception caught: " + e);
 		} 
 	}
+	
 	
 	// write a header of the log file. We are logging the course of the generated constraints
 	private void initLog() {
@@ -196,7 +194,7 @@ public class X1VI_CG extends SMTX1VI {
 			fw.write("ID: " + graph.getInstId() + " STRATEGY: " + cgStrategy.toString() + " TOLERANCE: " + cgStrategy.getTolerance() + "\n");
 			fw.write("iter \t currObj \t currTime \t satCnt \t violCnt \t addedCnt \t conCnt \t varCnt \n");
 			fw.close();
-			File xmlFile = new File("cglogs/" + graph.getInstId() + "_" +cgStrategy.toString() + "_T=" + cgStrategy.getTolerance() + "_" + new File("cglogs/").list().length + ".xml");
+			File xmlFile = new File("logs/cglogs/" + graph.getInstId() + "_" +cgStrategy.toString() + "_T=" + cgStrategy.getTolerance() + "_" + new File("logs/cglogs/").list().length + ".xml");
 			xmlFw = new FileWriter(xmlFile, true);
 			xmlFw.write("<?xml version = \"1.0\"?>\n");
 			xmlFw.write("<run strategy =\"" + cgStrategy.toString() + "\" tolerance = \"" + cgStrategy.getTolerance() + "\">\n");
@@ -261,7 +259,7 @@ public class X1VI_CG extends SMTX1VI {
 	}
 	
 	public String toString() {
-		return Constants.SMT_FLEXI_STRING;
+		return "CG_"+ cgStrategy.toString();
 	}
 	
 

@@ -1,5 +1,6 @@
 package cgstrategy;
 
+import java.util.Comparator;
 import java.util.PriorityQueue;
 
 import model.STPair;
@@ -7,8 +8,8 @@ import graph.Graph;
 
 public class CG_MaxSpanningTree extends CGStrategy {
 
-	public CG_MaxSpanningTree(double tolerance, Graph graph) {
-		super(tolerance, graph);
+	public CG_MaxSpanningTree(double tolerance, Graph graph, Comparator<STPair> comparator) {
+		super(tolerance, graph, comparator);
 	}
 
 	
@@ -16,9 +17,15 @@ public class CG_MaxSpanningTree extends CGStrategy {
 		restartCounters();
 		boolean ret = super.runSTMaxFlows(violatedPairsQueue, addedPairsQueue, xVar, yVar);
 		if (violatedCnt > minViolatedCnt) {
-			leaveMatching(addedPairsQueue);
+		//	leaveMaxSpanTree(addedPairsQueue);
 		}
 		return ret;
+	}
+
+
+	private void leaveMaxSpanTree(PriorityQueue<STPair> addedPairsQueue) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
