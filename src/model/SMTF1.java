@@ -5,12 +5,20 @@ import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.concert.IloRange;
+import ilog.cplex.IloCplex;
 import graph.Graph;
 
 public class SMTF1 extends ILPModel {
 
 	public SMTF1(Graph graph , boolean isLP) {
 		super(graph, isLP);
+		if (isLP) {
+			try {	// control how often should a new line be displayed
+				cplex.setParam(IloCplex.Param.Simplex.Display, 0);
+			} catch (IloException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	protected IloNumVar[][] pz; 		// Polzin's x-variable
@@ -195,7 +203,7 @@ public class SMTF1 extends ILPModel {
 				for (int j = 0; j < pz.length; j++) {
 					if (i != j) {
 						zval[i][j] = cplex.getValue(pz[i][j]);
-						System.out.print(i + " " + j + " " +" :" + cplex.getValue(pz[i][j]) + " --");	
+						System.out.print(cplex.getValue(pz[i][j]) + " ");			
 					}
 				}
 				System.out.println();
@@ -257,6 +265,6 @@ public class SMTF1 extends ILPModel {
 
 	@Override
 	public String toString() {
-    	return "F1(" + n + "," + d + ")";
+    	return "F1-" + n + "-" + d + "";
 	}
 }

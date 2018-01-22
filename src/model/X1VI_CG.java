@@ -45,7 +45,7 @@ public class X1VI_CG extends SMTX1VI {
 			double totalStartTime = this.getCplexTime();
 			do {
 				iter++;
-				pairQueue.clear();
+//				pairQueue.clear();
 				violatedPairsQueue.clear();
 				constraintCnt =  cplex.getNrows();
 				variableCnt = cplex.getNcols();
@@ -55,9 +55,10 @@ public class X1VI_CG extends SMTX1VI {
 				currTime = Miscellaneous.round(stopT - startT, 2);
 				currObj = Miscellaneous.round(cplex.getObjValue(), 2);
 				solved = true;
-				solved = cgStrategy.runSTMaxFlows(violatedPairsQueue, pairQueue, get3DVar(), getYVar());
+				pairQueue = cgStrategy.runSTMaxFlows(violatedPairsQueue, get3DVar(), getYVar());
+				solved = pairQueue.size() == 0;
 				iterationLog(fw, iter, currObj, currTime, cgStrategy.getSatisfiedCnt(), violatedPairsQueue, pairQueue, constraintCnt, variableCnt);
-				if (!solved && pairQueue.size() > 0) {
+				if (!solved) {
 					addFlowConstraints(pairQueue);
 				}
 			} while (!solved);
@@ -69,9 +70,6 @@ public class X1VI_CG extends SMTX1VI {
 			return false;
 		}
 	}
-	
-
-
 
 	/**
 	 * Initialize variables.
@@ -95,11 +93,8 @@ public class X1VI_CG extends SMTX1VI {
 	}	
 	
 	public void createConstraints() {
-			super.createConstraints();  // constraints from parent class X1VI		
-
-			// The symmetry f_{ij}^{st} = f_{ji}^{ts} is not needed. Whenever we need f_{ij}^{st} where s > t, we use f_{ji}^{ts} instead.
-
-	
+		super.createConstraints();  // constraints from parent class X1VI		
+		// The symmetry f_{ij}^{st} = f_{ji}^{ts} is not needed. Whenever we need f_{ij}^{st} where s > t, we use f_{ji}^{ts} instead.
 	}
 	
 	/**
@@ -177,7 +172,6 @@ public class X1VI_CG extends SMTX1VI {
 						}
 					}
 				}				
-				
 			}
 			
 			
@@ -259,7 +253,7 @@ public class X1VI_CG extends SMTX1VI {
 	}
 	
 	public String toString() {
-		return "CG_"+ cgStrategy.toString();
+		return "CG_"+ cgStrategy.toString()+ "-" + n + "-" + d + "";
 	}
 	
 

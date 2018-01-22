@@ -7,8 +7,6 @@ import model.STPair;
 import graph.Graph;
 
 public class CG_AddMatching extends CGStrategy {
-
-
 	
 	/**
 	 * 
@@ -20,23 +18,29 @@ public class CG_AddMatching extends CGStrategy {
 		super(tolerance, graph, comparator);
 	}
 
-	public boolean runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue,PriorityQueue<STPair> addedPairsQueue, Double[][][] xVar, Double[][][] yVar) {
+	public PriorityQueue<STPair> runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue, Double[][][] xVar, Double[][][] yVar) {
 		restartCounters();
-		boolean ret = super.runSTMaxFlows(violatedPairsQueue, addedPairsQueue, xVar, yVar);
-		if (violatedCnt > minViolatedCnt) {
-			leaveMatching(addedPairsQueue);
-		}
-		return ret;
+		return filterPairs(super.runSTMaxFlows(violatedPairsQueue, xVar, yVar));
+	}
+
+	@Override
+	public String toString() {
+		return "Matching_" + comparator.toString();
 	}
 	
 	/**
 	 * construct a maximum matching from the set of violated s-t pairs. 
-	 * @param stQueue
+	 * @param violatedPairsQ
 	 */
-	private void leaveMatching(PriorityQueue<STPair> stQueue) {
-		if (stQueue.size() == 0) return;
-		STPair[] inArray = stQueue.toArray(new STPair[stQueue.size()]);
-		stQueue.clear();
+	@Override
+	public PriorityQueue<STPair> filterPairs(PriorityQueue<STPair> violatedPairsQ) {
+		PriorityQueue<STPair> filteredPairsQ = new PriorityQueue<STPair>(11, this.getComparator());
+		if (violatedPairsQ.size() <= minViolatedCnt) {
+			filteredPairsQ.addAll(violatedPairsQ);
+			return filteredPairsQ;
+		}
+		STPair[] inArray = violatedPairsQ.toArray(new STPair[violatedPairsQ.size()]);
+//		violatedPairsQ.clear();
 		ArrayList<STPair> outArray = new ArrayList<STPair>();
 
 		outArray.add(inArray[0]);
@@ -53,10 +57,7 @@ public class CG_AddMatching extends CGStrategy {
 				outArray.add(currPair);
 			}
 		}
-		stQueue.addAll(outArray);
-//		System.out.println(outArray.toString());
-	}
-	public String toString() {
-		return "Matching, T=" + tolerance + " Comparator: " + comparator.toString();
+		filteredPairsQ.addAll(outArray);
+		return filteredPairsQ;
 	}
 }

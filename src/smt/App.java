@@ -8,9 +8,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import cgstrategy.CGStrategy;
-import cgstrategy.CG_AddFirstK;
+import cgstrategy.CG_All;
+import cgstrategy.CG_FirstK;
 import cgstrategy.CG_AddMatching;
-import cgstrategy.CG_BestK;
+import cgstrategy.CG_MaxSpanningTree;
 import algorithm.Algorithm;
 import algorithm.BIPAlgorithm;
 import algorithm.MSTAlgorithm;
@@ -40,13 +41,18 @@ public class App {
 	int iter;    
 	String fname;  // generate from file
 	public static boolean INCLUDE = false;
+	private File costFile;
+	private File timeFile;
 	
-	public App() {
-		this.n = 18;
-		this.d = 9;
-		this.iter = 200;
+	
+	public App(int n, int d, int iter) {
+		this.n = n;
+		this.d = d;
+		this.iter = iter;
 //		this.fname =  "instances/instance32.txt";
 		this.fname =  null;
+		this.costFile = new File("logs/cost_log2.txt");
+		this.timeFile = new File("logs/runtime_log2.txt");
 	}
 	
 	public int run() {
@@ -64,24 +70,33 @@ public class App {
 				graph.saveInstance();
 				graph.generateAMPLData();
 //				
-//				models.add(new SMTX1(graph, Constants.INTEGER));
+				
 //				models.add(new SMTX1(graph, Constants.LP, true));
 //				models.add(new SMTX1VI(graph, Constants.LP, true));
 //				models.add(new SMTF1VI(graph, Constants.LP, true));
 //				models.add(new SMTX2(graph, Constants.LP));
-//				models.add(new SMTX2B(graph, Constants.LP));
+				
 //				models.add(new SMTF2(graph, Constants.LP));
 //				models.add(new SMTX2VI(graph, Constants.LP, true));
 //				models.add(new SMTX2VIB(graph, Constants.LP, true));
 //				models.add(new SMTF2VI(graph, Constants.LP));
 //				models.add(new SMTF2VI(graph, Constants.LP));
 //				models.add(new SMTX1(graph, Constants.INTEGER, true));
-				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph, STPair.getFlowViolationComparator())));
-				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph, STPair.getDistanceComparator())));
+//				models.add(new X1VI_CG(graph, Constants.LP, new (-0.9, graph, STPair.getFlowViolationComparator())));
+//				models.add(new X1VI_CG(graph, Constants.LP, new CG_FirstK(-0.9, graph, STPair.getFlowViolationComparator(), 10)));
+//				models.add(new X1VI_CG(graph, Constants.LP, new CG_FirstK(-0.9, graph, STPair.getDistanceComparator(), 10)));
+//				models.add(new X1VI_CG(graph, Constants.LP, new CG_MaxSpanningTree(-0.9, graph, STPair.getFlowViolationComparator())));
+//				models.add(new X1VI_CG(graph, Constants.LP, new CG_MaxSpanningTree(-0.9, graph, STPair.getDistanceComparator())));
+//				models.add(new SMTF1(graph, Constants.LP));				
+
+//				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph, STPair.getFlowViolationComparator())));
+//				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph, STPair.getDistanceComparator())));
 //				models.add(new SMTX2(graph, Constants.LP, true));
 				models.add(new SMTF1(graph, Constants.INTEGER));				
+				models.add(new SMTX1(graph, Constants.INTEGER));
 //				models.add(new SMTF2(graph, Constants.INTEGER));				
-				runModel(models);
+//				models.add(new SMTX2B(graph, Constants.INTEGER));
+				runModel(models, i == 0);
 	//					ILPModel smtPf2LP = new SMTF2(graph, false, Constants.LP, false);
 	//					Algorithm bip = new BIPAlgorithm(true, true);
 	//					Algorithm bipmulti = new BIPAlgorithm(false, true);
@@ -96,15 +111,20 @@ public class App {
 		return tree.evaluate(d);
 	}
 	
-	private void runModel(ArrayList<ILPModel> models) {
+	private void runModel(ArrayList<ILPModel> models, boolean firstRun) {
+		if (firstRun) {
+			logHeaders(costFile, timeFile, models);
+		}
 		for (ILPModel model: models) {
+			int modelIdx = models.indexOf(model);
+			System.out.println("New model started:  " + model.toString() + "  " + modelIdx);
 			long startT = System.currentTimeMillis();
 			model.solve(true, Constants.MAX_SOL_TIME);
 			long endT = System.currentTimeMillis();
 
 			double lpCost1 = model.getObjectiveValue();
-			logObjective(new File("logs/cost_log2.txt"), lpCost1, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
-			logObjective(new File("logs/runtime_log2.txt"), (endT - startT)/1000, models.indexOf(model) == 0 ? graph.getInstId() : -1, models.indexOf(model) == models.size() - 1);
+			logObjective(costFile, lpCost1, modelIdx  == 0 ? graph.getInstId() : -1, modelIdx  == models.size() - 1);
+			logObjective(timeFile, (endT - startT)/1000, modelIdx == 0 ? graph.getInstId() : -1, modelIdx == models.size() - 1);
 			Double[][] z = (Double[][]) model.getTreeVar();
 
 //			Double[][][] f = (Double[][][]) model.getXVar();
@@ -121,6 +141,8 @@ public class App {
 			model.end();
 		}
 	}
+
+
 
 	private void checkXXFF(Double[][][][] fvar, Double[][][] xvar) {
 		for (int i = 0; i < n; i ++) {
@@ -261,10 +283,40 @@ public class App {
 		}
     }		
 	
+	/**
+	 * log objective or time for one run
+	 * @param file
+	 * @param obj
+	 * @param id
+	 * @param newline
+	 */
 	private void logObjective(File file, double obj, int id, boolean newline) {
         try	{
         	FileWriter fw = new FileWriter(file,true); //the true will append the new data
         	fw.write((id > 0 ? id + ": ": " ") +  Miscellaneous.round(obj, 4) + (newline ? "\n" : "\t "));
+        	fw.close();
+        } catch(IOException ioe) {
+            System.err.println("IOException: " + ioe.getMessage());
+        }
+	}
+	
+	/**
+	 * write model names (and possibly strategies ) to the first line of log files
+	 * @param costFile2
+	 * @param timeFile2
+	 * @param models
+	 */
+	private void logHeaders(File costFile2, File timeFile2, ArrayList<ILPModel> models) {
+        try	{
+        	FileWriter fw = new FileWriter(costFile,true); //the true will append the new data
+        	for (ILPModel m: models) {
+        		fw.write(m.toString() + ((models.indexOf(m) == models.size() - 1) ? "\n" : "\t"));
+        	}
+        	fw.close();
+        	fw = new FileWriter(timeFile,true); //the true will append the new data
+        	for (ILPModel m: models) {
+        		fw.write(m.toString() + ((models.indexOf(m) == models.size() - 1) ? "\n" : "\t"));
+        	}
         	fw.close();
         } catch(IOException ioe) {
             System.err.println("IOException: " + ioe.getMessage());

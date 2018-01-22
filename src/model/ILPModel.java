@@ -20,6 +20,9 @@ public abstract class ILPModel {
 		this.isLP = isLP;
 		try {
 			cplex = new IloCplex();
+			cplex.setParam(IloCplex.Param.MIP.Display, 2);
+			cplex.setParam(IloCplex.Param.MIP.Interval, 1);
+//			cplex.setParam(IloCplex.Param.Simplex.Display, 1);
 //			cplex.setOut(null);
 		} catch (IloException e) {
 			e.printStackTrace();

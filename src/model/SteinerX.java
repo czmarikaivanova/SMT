@@ -180,46 +180,6 @@ public class SteinerX extends ILPModel {
     	return Constants.SMT_STRING + "(" + n + "," + d + ")";
 	}
 	
-//	private IloNumVar[][][][] initF() {
-//		try {
-//			f = new IloNumVar[n][n][d][];		
-//			for (int i = 0; i < n; i++) {
-//				for (int j = 0; j < n; j++) {
-//					for (int k = 0; k < d; k++) {
-//						f[i][j][k] = cplex.numVarArray(d,0,1);	
-//					}	
-//				}					
-//			}
-//			return f;
-//		} catch (IloException e) {
-//			e.printStackTrace();
-//			return null;
-//		}	
-//	}
-	
-//	public Double[][][][] getFVal() {
-//		try {
-//			Double[][][][] fVal =new Double[n][n][d][d];
-//			for (int i = 0; i < n; i++) {
-//				for (int j = 0; j < n; j++) {
-//					if (i != j) {
-//						for (int s = 0; s < d; s++) {
-//							for (int t = 0; t < d; t++) {
-//								if (s != t) {
-//									fVal[i][j][s][t] = cplex.getValue(f[i][j][s][t]);
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-//			return fVal;
-//		} catch (IloException e) {
-//			e.printStackTrace();
-//			return null;
-//		}
-//	}
-
 }
 	
 	

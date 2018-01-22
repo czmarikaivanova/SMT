@@ -14,7 +14,7 @@ import model.STPair;
  * (flow constraints associated with all the violated s-t pairs will be added).  Other strategies inherit from this class.
  *
  */
-public class CGStrategy {
+public abstract class CGStrategy {
 	protected double tolerance;   		// we need to allow some tolerance from the size of max flow due to rounding errors.
 	protected IloCplex singleFlowCplex;	// cplex object for the max flow problem
 	protected int violatedCnt; 			// # violated s-t pairs
@@ -24,6 +24,8 @@ public class CGStrategy {
 	protected int k;
 	protected int minViolatedCnt;
 	protected Comparator<STPair> comparator;
+	
+	public abstract PriorityQueue<STPair> filterPairs(PriorityQueue<STPair> stQueue);
 	
 	public CGStrategy(double tolerance, Graph graph, Comparator<STPair> comparator) {
 		super();
@@ -46,8 +48,7 @@ public class CGStrategy {
 	 * @param xVar - capacity. Calculated by a SMT model that calls this procedure. This variable is used for modelling the constraints f_{ij}^{st}\leq x_{ij}^s
 	 * @return true if all flow conservation constraint and symmetry are satisfied for each s-t pair
 	 */
-	public boolean runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue, PriorityQueue<STPair> addedPairsQueue, Double[][][] xVar, Double[][][] yVar) {
-		boolean solved = true;
+	public PriorityQueue<STPair> runSTMaxFlows(PriorityQueue<STPair> violatedPairsQueue, Double[][][] xVar, Double[][][] yVar) {
 		ILPModel stFlowModel;
 		for (int s = 0; s < d; s++) {
 			for (int t = s + 1; t < d; t++) {
@@ -59,8 +60,6 @@ public class CGStrategy {
 					if (stVal > tolerance) { // flow conservation not satisfied for {s,t}
 						violatedCnt++;
 						violatedPairsQueue.add(stPair);
-						addedPairsQueue.add(stPair);
-						solved = false;
 					}
 					else {
 						satisfiedCnt++;
@@ -68,7 +67,7 @@ public class CGStrategy {
 				}
 			}
 		}
-		return solved;
+		return violatedPairsQueue;
 	}
 	
 	/**

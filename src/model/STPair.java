@@ -65,7 +65,7 @@ public class STPair {
 			
 			@Override
 			public String toString() {
-				return "Flow violation";
+				return "FlowViolation";
 			}
 		};
 	}
