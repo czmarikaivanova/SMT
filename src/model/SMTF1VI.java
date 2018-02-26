@@ -1,5 +1,6 @@
 package model;
 
+import smt.Constants;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import graph.Graph;
@@ -21,6 +22,7 @@ public class SMTF1VI extends SMTF1 {
 			super.createConstraints();
 
 			// steiner_flow_cons - must be included. WHY???
+//			if (Constants.INCLUDE)
 			for (int i = d; i < n; i++) {
 				IloLinearNumExpr sumEnter = cplex.linearNumExpr();
 				IloLinearNumExpr sumLeave = cplex.linearNumExpr();
@@ -34,6 +36,7 @@ public class SMTF1VI extends SMTF1 {
 			}
 			
 //			// y_sum=1 - there is one arc (s,j) transmitting message from s with power p_{sj} 
+
 			for (int s = 0; s < d; s++) {
 				IloLinearNumExpr sumLeave = cplex.linearNumExpr();
 				for (int j = 0; j < n; j++) {
@@ -44,6 +47,7 @@ public class SMTF1VI extends SMTF1 {
 				cplex.addEq(sumLeave, 1.0);
 			}
 //			 x to non-destination => y from there 
+
 			for (int j = d; j < n; j++) {
 				for (int s = 0; s < d; s++) {
 					IloLinearNumExpr sumLHS = cplex.linearNumExpr();
@@ -87,6 +91,6 @@ public class SMTF1VI extends SMTF1 {
 	
 	@Override
 	public String toString() {
-    	return  "F1VI(" + n + "," + d + ")";
+    	return "F1VI(" + n + "," + d + ")";
 	}
 }

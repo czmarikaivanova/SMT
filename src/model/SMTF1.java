@@ -12,13 +12,13 @@ public class SMTF1 extends ILPModel {
 
 	public SMTF1(Graph graph , boolean isLP) {
 		super(graph, isLP);
-		if (isLP) {
-			try {	// control how often should a new line be displayed
-				cplex.setParam(IloCplex.Param.Simplex.Display, 0);
-			} catch (IloException e) {
-				e.printStackTrace();
-			}
-		}
+//		if (isLP) {
+//			try {	// control how often should a new line be displayed
+//				cplex.setParam(IloCplex.Param.Simplex.Display, 0);
+//			} catch (IloException e) {
+//				e.printStackTrace();
+//			}
+//		}
 	}
 
 	protected IloNumVar[][] pz; 		// Polzin's x-variable
@@ -33,7 +33,7 @@ public class SMTF1 extends ILPModel {
 			pz = new IloNumVar[n][];	
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
-					if (isLP) {
+					if (isLP()) {
 						y[i][j] = cplex.numVarArray(d, 0, 1);
 					}
 					else {
@@ -44,7 +44,7 @@ public class SMTF1 extends ILPModel {
 			}
 			
 			for (int j = 0; j < n; j++) {
-				if (isLP) {
+				if (isLP()) {
 					pz[j] = cplex.numVarArray(n, 0, 1);					
 				}
 				else {
@@ -263,8 +263,7 @@ public class SMTF1 extends ILPModel {
 		}		
 	}	
 
-	@Override
 	public String toString() {
-    	return "F1-" + n + "-" + d + "";
+    	return "F1(" + n + "," + d + ")";
 	}
 }

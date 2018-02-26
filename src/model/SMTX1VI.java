@@ -1,5 +1,6 @@
 package model;
 
+import smt.Constants;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import graph.Graph;
@@ -19,6 +20,7 @@ public class SMTX1VI extends SMTX1 {
 		try {
 			
 			// NonDestNoLeaf (1i)
+//			if (Constants.INCLUDE)
 			for (int j = d; j < n; j++) {
 				for (int s = 0; s < d; s++) {
 					IloLinearNumExpr sumEnter = cplex.linearNumExpr();
@@ -34,6 +36,7 @@ public class SMTX1VI extends SMTX1 {
 			}			
 			
 			// y_sum=1 	(1j)
+
 			for (int s = 0; s < d; s ++) {
 				IloLinearNumExpr sumLeave = cplex.linearNumExpr();
 				for (int j = 0; j < n; j++) {
@@ -45,6 +48,7 @@ public class SMTX1VI extends SMTX1 {
 			}
 			
 			// x to nondest => y from there (1k)
+
 			for (int j = d; j < n; j++) {
 				for (int s = 0; s < d; s++) {
 					IloLinearNumExpr sumLHS = cplex.linearNumExpr();
@@ -63,5 +67,9 @@ public class SMTX1VI extends SMTX1 {
 		} catch (IloException e) {
 			e.printStackTrace();
 		}		
+	}
+	
+	public String toString() {
+    	return "X1VI(" + n + "," + d + ")";
 	}
 }

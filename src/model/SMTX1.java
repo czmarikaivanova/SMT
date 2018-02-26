@@ -1,5 +1,6 @@
 package model;
 
+import smt.Constants;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
@@ -19,7 +20,7 @@ public class SMTX1 extends SteinerX {
 			y = new IloNumVar[n][n][];		
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {			
-					if (isLP) {
+					if (isLP()) {
 						y[i][j] = cplex.numVarArray(d, 0, 1);
 					}
 					else {
@@ -96,4 +97,8 @@ public class SMTX1 extends SteinerX {
 			return null;
 		}		
 	}		
+	
+	public String toString() {
+    	return "X1(" + n + "," + d + ")";
+	}
 }

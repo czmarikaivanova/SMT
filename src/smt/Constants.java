@@ -22,4 +22,6 @@ public class Constants {
 	public static boolean INTEGER = false;
 	
 	public static boolean FLAG;
+	
+	public static boolean INCLUDE;
 }

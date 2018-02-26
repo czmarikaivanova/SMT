@@ -42,7 +42,7 @@ public class MEBModel extends ILPModel {
 			x = new IloNumVar[n][n][];
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
-					if (isLP) {
+					if (isLP()) {
 						x[i][j] = cplex.numVarArray(d,0,1);
 					}
 					else {
@@ -54,7 +54,7 @@ public class MEBModel extends ILPModel {
 			
 			z = new IloNumVar[n][];				
 			for (int j = 0; j < n; j++) {
-				if (isLP) {
+				if (isLP()) {
 					z[j] = cplex.numVarArray(n,0,1);	
 				}
 				else {
@@ -238,7 +238,7 @@ public class MEBModel extends ILPModel {
     }
 
     public String toString() {
-    	return Constants.MEB_STRING + (isLP ? "_LP" : "") + "(" + n + ", " + d + ")";
+    	return Constants.MEB_STRING + (isLP() ? "_LP" : "") + "(" + n + ", " + d + ")";
     }
 
 	@Override

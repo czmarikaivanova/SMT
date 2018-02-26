@@ -4,6 +4,8 @@ import graph.Graph;
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
+import ilog.cplex.IloCplex.MIPInfoCallback;
+
 import java.util.ArrayList;
 
 public abstract class ILPModel {
@@ -11,18 +13,18 @@ public abstract class ILPModel {
 	protected IloNumVar[][] z;
 	protected Graph graph;
 	protected boolean allowCrossing = true;
-	protected boolean isLP;
+	private boolean isLP;
 	protected int n;
 	protected int d;
 	
 	public ILPModel(Graph graph, boolean isLP) {
 		this.graph = graph;
-		this.isLP = isLP;
+		this.setLP(isLP);
 		try {
 			cplex = new IloCplex();
 			cplex.setParam(IloCplex.Param.MIP.Display, 2);
 			cplex.setParam(IloCplex.Param.MIP.Interval, 1);
-//			cplex.setParam(IloCplex.Param.Simplex.Display, 1);
+			cplex.setParam(IloCplex.Param.Simplex.Display, 1);
 //			cplex.setOut(null);
 		} catch (IloException e) {
 			e.printStackTrace();
@@ -92,6 +94,29 @@ public abstract class ILPModel {
 			e.printStackTrace();
 			return 0;
 		}
+	}
+
+	public double getGap() {
+		try {
+			return  cplex.getMIPRelativeGap();
+		} catch (IloException e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
+
+	/**
+	 * @return the isLP
+	 */
+	public boolean isLP() {
+		return isLP;
+	}
+
+	/**
+	 * @param isLP the isLP to set
+	 */
+	public void setLP(boolean isLP) {
+		this.isLP = isLP;
 	}
 	
 	

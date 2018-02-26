@@ -27,7 +27,7 @@ public class MaxFlow extends ILPModel {
 		this.d = graph.getDstCount(); // # destinations
 		this.s = s; // source
 		this.t = t; // target
-		this.isLP = Constants.LP; // we will solve an LP relaxation of the max flow problem
+		this.setLP(Constants.LP); // we will solve an LP relaxation of the max flow problem
 		try {
 			cplex.clearModel();
 		} catch (IloException e) {

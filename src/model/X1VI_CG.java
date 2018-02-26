@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.PriorityQueue;
+
 import cgstrategy.CGStrategy;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
+import ilog.cplex.IloCplex;
 import smt.Constants;
 import smt.Miscellaneous;
 import graph.Graph;
@@ -30,9 +32,10 @@ public class X1VI_CG extends SMTX1VI {
 			outputSettingsInfo();
 			double currObj = 0;   // current objective value
 			double currTime = 0;  // runtime of the current calculation
+			double currTimeLimit = seconds;
 			int constraintCnt = 0; 	   // # of constraints in the model;
 			int variableCnt = 0; 	   // # of variables in the model
-//			cplex.setParam(IloCplex.DoubleParam.TiLim, seconds); TODO: consider whether you wanna use time limit here
+
 //			PriorityQueue<STPair> pairQueue = new PriorityQueue<STPair>(11, STPair.getFlowViolationComparator());
 //			PriorityQueue<STPair> violatedPairsQueue = new PriorityQueue<STPair>(11, STPair.getFlowViolationComparator());
 			PriorityQueue<STPair> pairQueue = new PriorityQueue<STPair>(11, cgStrategy.getComparator());
@@ -49,19 +52,27 @@ public class X1VI_CG extends SMTX1VI {
 				violatedPairsQueue.clear();
 				constraintCnt =  cplex.getNrows();
 				variableCnt = cplex.getNcols();
+				if (useTimeLimit) {
+					cplex.setParam(IloCplex.DoubleParam.TiLim, currTimeLimit); 
+					System.err.println("time limit: " + currTimeLimit);
+				}
 				double startT = this.getCplexTime();
 				ret = cplex.solve();
 				double stopT = this.getCplexTime();
-				currTime = Miscellaneous.round(stopT - startT, 2);
-				currObj = Miscellaneous.round(cplex.getObjValue(), 2);
+				currTime = Miscellaneous.round(stopT - startT, 2); // how much time did the last run take
+				currTimeLimit = currTimeLimit - currTime;
+
 				solved = true;
-				pairQueue = cgStrategy.runSTMaxFlows(violatedPairsQueue, get3DVar(), getYVar());
+				if (currTimeLimit > 0.1) { // time limit is not up. Otherwise we must not call runSTMaxFlow()!!!
+					currObj = Miscellaneous.round(cplex.getObjValue(), 2);
+					pairQueue = cgStrategy.runSTMaxFlows(violatedPairsQueue,  get3DVar(),  getYVar());
+				}
 				solved = pairQueue.size() == 0;
 				iterationLog(fw, iter, currObj, currTime, cgStrategy.getSatisfiedCnt(), violatedPairsQueue, pairQueue, constraintCnt, variableCnt);
 				if (!solved) {
 					addFlowConstraints(pairQueue);
 				}
-			} while (!solved);
+			} while (!solved && currTimeLimit > 0.1);
 			double totalExitTime = this.getCplexTime();
 			exitLog(fw, currObj, totalExitTime - totalStartTime);
 			return ret;

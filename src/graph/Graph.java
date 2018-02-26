@@ -122,7 +122,7 @@ public class Graph implements Cloneable  {
 		File instFile = new File("instances/instance" +  new File("instances/").list().length + ".txt");
         try
         {
-            System.out.println("Saving: instance");
+            System.out.println("Saving: instance, ID " + getInstId());
             FileWriter fw = new FileWriter(instFile,true); //the true will append the new data
             fw.write("\n");
             fw.write(Constants.INST_ID + instId + "\n");

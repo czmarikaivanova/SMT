@@ -37,7 +37,7 @@ public class App {
 	int n;
     int d;
     Graph graph;
-    private boolean draw;
+    private boolean draw;// = true;
 	int iter;    
 	String fname;  // generate from file
 	public static boolean INCLUDE = false;
@@ -49,7 +49,7 @@ public class App {
 		this.n = n;
 		this.d = d;
 		this.iter = iter;
-//		this.fname =  "instances/instance32.txt";
+//		this.fname =  "saved_inst/flowXFNec2.txt";
 		this.fname =  null;
 		this.costFile = new File("logs/cost_log2.txt");
 		this.timeFile = new File("logs/runtime_log2.txt");
@@ -71,29 +71,34 @@ public class App {
 				graph.generateAMPLData();
 //				
 				
-//				models.add(new SMTX1(graph, Constants.LP, true));
-//				models.add(new SMTX1VI(graph, Constants.LP, true));
-//				models.add(new SMTF1VI(graph, Constants.LP, true));
+		//		models.add(new SMTX1(graph, Constants.LP));
+				models.add(new SMTF1(graph, Constants.LP));				
+
+		//		models.add(new SMTX1VI(graph, Constants.LP));
+//				Constants.INCLUDE = false;
+//				models.add(new SMTF1VI(graph, Constants.LP));
+//				Constants.INCLUDE = true;
+//				models.add(new SMTF1VI(graph, Constants.LP));
+//				Constants.INCLUDE = false;
+//				models.add(new SMTX1VI(graph, Constants.LP));
+//				Constants.INCLUDE = true;
+//				models.add(new SMTX1VI(graph, Constants.LP));
 //				models.add(new SMTX2(graph, Constants.LP));
 				
-//				models.add(new SMTF2(graph, Constants.LP));
-//				models.add(new SMTX2VI(graph, Constants.LP, true));
-//				models.add(new SMTX2VIB(graph, Constants.LP, true));
-//				models.add(new SMTF2VI(graph, Constants.LP));
-//				models.add(new SMTF2VI(graph, Constants.LP));
+
 //				models.add(new SMTX1(graph, Constants.INTEGER, true));
 //				models.add(new X1VI_CG(graph, Constants.LP, new (-0.9, graph, STPair.getFlowViolationComparator())));
 //				models.add(new X1VI_CG(graph, Constants.LP, new CG_FirstK(-0.9, graph, STPair.getFlowViolationComparator(), 10)));
 //				models.add(new X1VI_CG(graph, Constants.LP, new CG_FirstK(-0.9, graph, STPair.getDistanceComparator(), 10)));
 //				models.add(new X1VI_CG(graph, Constants.LP, new CG_MaxSpanningTree(-0.9, graph, STPair.getFlowViolationComparator())));
 //				models.add(new X1VI_CG(graph, Constants.LP, new CG_MaxSpanningTree(-0.9, graph, STPair.getDistanceComparator())));
-//				models.add(new SMTF1(graph, Constants.LP));				
-
-//				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph, STPair.getFlowViolationComparator())));
+				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph, STPair.getFlowViolationComparator())));
+				
+				models.add(new SMTF1(graph, Constants.LP));				
+				models.add(new SMTF1(graph, Constants.INTEGER));				
 //				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph, STPair.getDistanceComparator())));
 //				models.add(new SMTX2(graph, Constants.LP, true));
-				models.add(new SMTF1(graph, Constants.INTEGER));				
-				models.add(new SMTX1(graph, Constants.INTEGER));
+//				models.add(new SMTX1(graph, Constants.INTEGER));
 //				models.add(new SMTF2(graph, Constants.INTEGER));				
 //				models.add(new SMTX2B(graph, Constants.INTEGER));
 				runModel(models, i == 0);
@@ -119,12 +124,13 @@ public class App {
 			int modelIdx = models.indexOf(model);
 			System.out.println("New model started:  " + model.toString() + "  " + modelIdx);
 			long startT = System.currentTimeMillis();
-			model.solve(true, Constants.MAX_SOL_TIME);
+			model.solve(true,Constants.MAX_SOL_TIME);
 			long endT = System.currentTimeMillis();
 
 			double lpCost1 = model.getObjectiveValue();
-			logObjective(costFile, lpCost1, modelIdx  == 0 ? graph.getInstId() : -1, modelIdx  == models.size() - 1);
-			logObjective(timeFile, (endT - startT)/1000, modelIdx == 0 ? graph.getInstId() : -1, modelIdx == models.size() - 1);
+			double gap = (!model.isLP() ? model.getGap() : -1.0);
+			logObjective(costFile, lpCost1, gap, modelIdx  == 0 ? graph.getInstId() : -1, modelIdx  == models.size() - 1);
+			logObjective(timeFile, (endT - startT)/1000, gap, modelIdx == 0 ? graph.getInstId() : -1, modelIdx == models.size() - 1);
 			Double[][] z = (Double[][]) model.getTreeVar();
 
 //			Double[][][] f = (Double[][][]) model.getXVar();
@@ -137,12 +143,10 @@ public class App {
 //				checkFHzeroEqFzero(((SMTF2)model).getH(), f);
 //				((SMTF2)model).getYVar();
 			}
- 			draw(z, graph.getInstId(), model.toString(), model instanceof MEBModel);
+ 			draw(z, graph.getInstId(), model.toString(), model instanceof SMTF1VI);
 			model.end();
 		}
 	}
-
-
 
 	private void checkXXFF(Double[][][][] fvar, Double[][][] xvar) {
 		for (int i = 0; i < n; i ++) {
@@ -290,10 +294,10 @@ public class App {
 	 * @param id
 	 * @param newline
 	 */
-	private void logObjective(File file, double obj, int id, boolean newline) {
+	private void logObjective(File file, double obj, double gap, int id, boolean newline) {
         try	{
         	FileWriter fw = new FileWriter(file,true); //the true will append the new data
-        	fw.write((id > 0 ? id + ": ": " ") +  Miscellaneous.round(obj, 4) + (newline ? "\n" : "\t "));
+        	fw.write((id > 0 ? id + ": ": " ") +  Miscellaneous.round(obj, 4) + "\t" + Miscellaneous.round(gap, 2) + (newline ? "\n" : "\t "));
         	fw.close();
         } catch(IOException ioe) {
             System.err.println("IOException: " + ioe.getMessage());

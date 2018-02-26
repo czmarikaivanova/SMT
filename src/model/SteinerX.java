@@ -24,7 +24,7 @@ public class SteinerX extends ILPModel {
 			x = new IloNumVar[n][n][];
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {			
-					if (isLP) {
+					if (isLP()) {
 						x[i][j] = cplex.numVarArray(d, 0, 1);
 					}
 					else {
@@ -36,7 +36,7 @@ public class SteinerX extends ILPModel {
 			z = new IloNumVar[n][n];
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < i; j++) {		
-					if (isLP) {
+					if (isLP()) {
 						z[j][i] = cplex.numVar(0, 1);					
 					}
 					else {
@@ -177,7 +177,7 @@ public class SteinerX extends ILPModel {
 		
 	@Override
 	public String toString() {
-    	return Constants.SMT_STRING + "(" + n + "," + d + ")";
+    	return "Steiner" + "(" + n + "," + d + ")";
 	}
 	
 }

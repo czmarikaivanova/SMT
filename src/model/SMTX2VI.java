@@ -80,7 +80,7 @@ public class SMTX2VI extends SMTX2 {
 	}
 	
 	public String toString() {
-    	return "Steiner_MULTI_FLOW ";
+    	return "X2VI(" + n + "," + d + ")";
 	}
 
 }
