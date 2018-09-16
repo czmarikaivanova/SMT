@@ -33,9 +33,62 @@ public class Graph implements Cloneable  {
 	
 
 	public Graph(String instanceFilePath) { // todo
-		instId = -1;
-		createPoints(instanceFilePath);
-		calculateDistances();
+		String ext = instanceFilePath.substring(instanceFilePath.length() - 4);
+		if (ext.equals(".dat")) { // ampl file
+
+	    	try {
+				BufferedReader br = new BufferedReader(new FileReader(instanceFilePath));
+				String line;
+				int cnt = 0;
+				try {
+					while ((line = br.readLine()) != null) {
+						line = line.trim();
+						if (line.contains("#")) { // here we get the instance ID
+							String[] splitted = line.split(" ");
+							instId = Integer.parseInt(splitted[splitted.length - 1]);
+						}
+						else if (line.contains(" DESTS")) {  // NB: there must be at least one non-dest, otherwise this won't work. Space must be there!
+							String[] splitted = line.split(" ");
+							dstCount = Integer.parseInt(splitted[splitted.length - 2]) + 1;
+						}
+						else if (line.contains("NONDESTS")) {
+							String[] splitted = line.split(" ");
+							vertexCount = Integer.parseInt(splitted[splitted.length - 2]) + 1;
+							requir = new float[vertexCount][vertexCount];
+					    	nodes = new Node[vertexCount];
+					    	for (int i = 0; i < nodes.length; i++) {
+					    		nodes[i] = new Node(i, new Point(0,0), i < dstCount); // when generated from ampl, the coordinates are unknown and unused.
+					    	}
+						} else if (line.length() < 5 || line.contains("requir") || line.contains("CROSS"))  {
+							// in these cases do nothing
+						} else { // now we have the parameter values
+							String[] params = line.split("\t");
+							for (String onePar: params) {
+								onePar = onePar.trim();
+								String[] parsedPar = onePar.split(" ");
+								int u = Integer.parseInt(parsedPar[0]);
+								int v = Integer.parseInt(parsedPar[1]);
+								float dst = Float.parseFloat(parsedPar[2]);
+								requir[u][v] = dst;																
+							}
+						}						
+					}	
+
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else {  // instance file
+			instId = -1;
+			createPoints(instanceFilePath);
+			calculateDistances();
+		}
+		orderNeighbours();
 	}
 	
 	// just for the sake of the inherited ExtendedGraph
@@ -66,7 +119,7 @@ public class Graph implements Cloneable  {
 						for (int i = 0; i < vertexCount; i++) {
 							twoParts = br.readLine().split(" ");	 																	
 	 						nodes[cnt] = new Node(i, new Point(Math.round(Float.parseFloat(twoParts[0])), Math.round(Float.parseFloat(twoParts[1]))), i < dstCount);
-	 						cnt++; // WHY?
+	 						cnt++; 
 						}
 					}
 				}	
@@ -236,6 +289,28 @@ public class Graph implements Cloneable  {
 	public float getRequir(Node i, Node j) {
 		return requir[i.getId()][j.getId()];
 	}
+	
+
+	/**
+	 * Set cost of an edge. 
+	 * This is done only in meta heuristic when combining two graphs
+	 * @param i
+	 * @param j
+	 * @param newCost
+	 */
+	public void setRequir(int i, int j, float newCost) {
+		requir[i][j] = newCost;
+	}
+	
+	public boolean containsEdge(int i, int j) {
+		ArrayList<Edge> edgesToI = getNode(i).getIncidentEdges();
+		for (Edge f: edgesToI) {
+			if (f.getU().getId() == i && f.getV().getId() == j) {
+				return true;
+			}
+		}
+		return false;		
+	}
 
 //	public ArrayList<Quartet<Node, Node, Node, Node>> getCrossList() {
 //		return crossList;
@@ -360,7 +435,7 @@ public class Graph implements Cloneable  {
     }	
 	
     /**
-     * Update the distance matrix after additin of an ege
+     * Update the distance matrix after addition of an edge
      * 
      * @param edge added edge
      * @param origG original graph
@@ -427,5 +502,32 @@ public class Graph implements Cloneable  {
 		}
 		xmlstr += "</graph>\n";
 		return xmlstr;
+	}
+
+
+	// perturb edge weights for the meta algorithm
+	public void perturbDM() {
+		Random rnd = new Random();
+		for (int i = 0; i < requir.length; i++) {
+			for (int j = 0; j < requir[i].length; j++) {
+				requir[i][j] = (float) (requir[i][j] * (rnd.nextFloat() + rnd.nextFloat()));
+			}
+		}
+	}
+
+
+	public void restoreDM(Graph origGraph) {
+		for (int i = 0; i < requir.length; i++) {
+			for (int j = 0; j < requir[i].length; j++) {
+				requir[i][j] = origGraph.getRequir(i, j);				
+			}
+//			Node u = getNode(i);
+//			ArrayList<Edge> incEdges = u.getIncidentEdges();	
+//			for (Edge e: incEdges) {
+//				e.setCost(origGraph.getRequir(i, e.getV().id));
+//				
+//			}
+		}
+		
 	}
 }

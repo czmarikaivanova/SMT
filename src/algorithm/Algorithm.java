@@ -13,6 +13,8 @@ public abstract class Algorithm {
     
     protected boolean onlyDests; // construct a tree only from destinations
 	private final int LEAF_DEGREE = 1;
+	protected Graph origGraph;
+	
 	
     public Algorithm(boolean onlyDests) {
         this.onlyDests = onlyDests;
@@ -61,7 +63,7 @@ public abstract class Algorithm {
      * Try to delete non-destinations with deg=2
      * @param resGraph  TODO
      */
-    protected void deletion2(Graph resGraph, Graph origGraph) {
+    protected void deletion2(Graph resGraph) {
         float potCost = 0;
         float currCost = resGraph.evaluate(resGraph.getDstCount());
         for (int i = 0; i < resGraph.getVertexCount(); i++) {
@@ -88,4 +90,8 @@ public abstract class Algorithm {
         Edge e = new Edge(u,w, origGraph.getRequir(u, w));
         g.addEdge(e);
     }    
+    
+    public void setOrigGraph(Graph og) {
+    	this.origGraph = og;
+    }
 }

@@ -1,5 +1,6 @@
 package model;
 
+import smt.App;
 import smt.Constants;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
@@ -82,11 +83,12 @@ public class SMTF1 extends ILPModel {
 	public void createConstraints() {
 		try {
 //			 obvious constraints, necessary
+
 			for (int i = 0; i < n; i++) {
 				for (int t = 1; t < d; t++) {
 					if (i != t) {
 						cplex.addEq(f3[i][t][t], pz[i][t]);  // 3l
-						cplex.addEq(f3[t][i][t], 0.0);  // 3k
+								cplex.addEq(f3[t][i][t], 0.0);  // 3k
 					}
 				}
 			}	
@@ -178,6 +180,7 @@ public class SMTF1 extends ILPModel {
 //
 			// Sum of arcs entering a destination is <= 1
 			// It is necessary, see instance in ../pictures
+			if (Constants.INCLUDE)	
 			for (int i = d; i < n; i++) {
 				IloLinearNumExpr sumEnter = cplex.linearNumExpr();
 				for (int j = 0; j < n; j++) {

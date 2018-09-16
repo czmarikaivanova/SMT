@@ -46,15 +46,15 @@ public class BIPAlgorithm extends Algorithm {
             alreadyConnected = new ArrayList<Node>();
             alreadyConnected.add(resGraph.getNode(rootID));
             while (alreadyConnected.size() < demandedSize) {
-                Edge edgeToAdd = findClosest2(resGraph, graph);      // will return new edge, must calculate from current graph
-                edgeToAdd.setCost(graph.getRequir(edgeToAdd.getU(), edgeToAdd.getV()));  // we must calculate from the original graph
+                Edge edgeToAdd = findClosest2(resGraph);      // will return new edge, must calculate from current graph
+                edgeToAdd.setCost(origGraph.getRequir(edgeToAdd.getU(), edgeToAdd.getV()));  // we must calculate from the original graph
                 resGraph.addEdge(edgeToAdd);         
                 resGraph.updateDstMatrix(edgeToAdd, graph, false);
                 alreadyConnected.add(edgeToAdd.getV());
             }
             if (!onlyDests) {
             	basicDeletion(resGraph, alreadyConnected);
-        		deletion2(resGraph, graph);
+//        		deletion2(resGraph);
             }
             return resGraph;
         } catch (CloneNotSupportedException ex) {
@@ -62,7 +62,7 @@ public class BIPAlgorithm extends Algorithm {
         }        
     }
     
-    private Edge findClosest2(Graph g, Graph origG) {
+    private Edge findClosest2(Graph g) {
         float minDst = Float.MAX_VALUE;
         Edge edge = new Edge(null, null,0);
         for (Node u: alreadyConnected) {      
@@ -74,7 +74,7 @@ public class BIPAlgorithm extends Algorithm {
                         minDst = dst;
                         edge.setU(u);
                         edge.setV(v);
-                        edge.setCost(origG.getRequir(u, v));
+                        edge.setCost(origGraph.getRequir(u, v));
                     }                      
                 }
             }

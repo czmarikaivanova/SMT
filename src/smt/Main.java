@@ -8,9 +8,9 @@ import ilog.concert.IloException;
 		 * @throws IloException 
 		 */
 		public static void main(String[] args) throws IloException {
-			int n = 14;
-			int d = 10;
-			int iter = 50;
+			int n = 21;
+			int d = 14;
+			int iter = 500;
 			if (args.length > 0) {
 				n = Integer.parseInt(args[0]);
 				d = Integer.parseInt(args[1]);

@@ -2,11 +2,14 @@ package smt;
 
 import graph.Graph;
 import graph.Node;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import javax.swing.JFrame;
+
 import cgstrategy.CGStrategy;
 import cgstrategy.CG_All;
 import cgstrategy.CG_FirstK;
@@ -15,6 +18,7 @@ import cgstrategy.CG_MaxSpanningTree;
 import algorithm.Algorithm;
 import algorithm.BIPAlgorithm;
 import algorithm.MSTAlgorithm;
+import algorithm.Meta;
 import model.ILPModel;
 import model.MEBModel;
 import model.SMTF1VI;
@@ -37,10 +41,9 @@ public class App {
 	int n;
     int d;
     Graph graph;
-    private boolean draw;// = true;
+    private boolean draw =  true;
 	int iter;    
 	String fname;  // generate from file
-	public static boolean INCLUDE = false;
 	private File costFile;
 	private File timeFile;
 	
@@ -48,9 +51,9 @@ public class App {
 	public App(int n, int d, int iter) {
 		this.n = n;
 		this.d = d;
-		this.iter = iter;
-//		this.fname =  "saved_inst/flowXFNec2.txt";
-		this.fname =  null;
+		this.iter = 1;
+		this.fname =  "backbin/saved_ampl_inst/BandB-22-11";
+//		this.fname =  null;
 		this.costFile = new File("logs/cost_log2.txt");
 		this.timeFile = new File("logs/runtime_log2.txt");
 	}
@@ -62,9 +65,32 @@ public class App {
 					graph = new Graph(n, d);	// generate a new graph		
 				}
 				else {
-					graph = new Graph(fname); // from file,
-					n = graph.getVertexCount();
-					d = graph.getDstCount();
+					if (new File(fname).isDirectory()) {
+						File dir = new File(fname);
+						File[] dirListing = dir.listFiles();
+						if (dirListing != null) {
+							for (File childF : dirListing) {
+								models.clear();
+								
+								graph = new Graph(childF.getAbsolutePath()); // from file,
+								n = graph.getVertexCount();
+								d = graph.getDstCount();
+								Constants.INCLUDE = false;
+								models.add(new SMTX1(graph, Constants.INTEGER));
+								Constants.INCLUDE = true;
+								models.add(new SMTF1(graph, Constants.INTEGER));
+								runModel(models, i == 0);
+								Algorithm meta = new Meta(false); // false = not only destinations
+								runAlg(meta);
+							}
+						}
+						
+					}
+					else {
+						graph = new Graph(fname); // from file,
+						n = graph.getVertexCount();
+						d = graph.getDstCount();
+					}
 				}	
 				
 				graph.saveInstance();
@@ -72,10 +98,10 @@ public class App {
 //				
 				
 		//		models.add(new SMTX1(graph, Constants.LP));
-				models.add(new SMTF1(graph, Constants.LP));				
+//				models.add(new SMTF1(graph, Constants.LP));				
 
 		//		models.add(new SMTX1VI(graph, Constants.LP));
-//				Constants.INCLUDE = false;
+
 //				models.add(new SMTF1VI(graph, Constants.LP));
 //				Constants.INCLUDE = true;
 //				models.add(new SMTF1VI(graph, Constants.LP));
@@ -84,7 +110,7 @@ public class App {
 //				Constants.INCLUDE = true;
 //				models.add(new SMTX1VI(graph, Constants.LP));
 //				models.add(new SMTX2(graph, Constants.LP));
-				
+		
 
 //				models.add(new SMTX1(graph, Constants.INTEGER, true));
 //				models.add(new X1VI_CG(graph, Constants.LP, new (-0.9, graph, STPair.getFlowViolationComparator())));
@@ -92,9 +118,10 @@ public class App {
 //				models.add(new X1VI_CG(graph, Constants.LP, new CG_FirstK(-0.9, graph, STPair.getDistanceComparator(), 10)));
 //				models.add(new X1VI_CG(graph, Constants.LP, new CG_MaxSpanningTree(-0.9, graph, STPair.getFlowViolationComparator())));
 //				models.add(new X1VI_CG(graph, Constants.LP, new CG_MaxSpanningTree(-0.9, graph, STPair.getDistanceComparator())));
-				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph, STPair.getFlowViolationComparator())));
-				
-				models.add(new SMTF1(graph, Constants.LP));				
+//				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph, STPair.getFlowViolationComparator())));
+				Constants.INCLUDE = false;
+				models.add(new SMTX1(graph, Constants.INTEGER));
+				Constants.INCLUDE = true;
 				models.add(new SMTF1(graph, Constants.INTEGER));				
 //				models.add(new X1VI_CG(graph, Constants.LP, new CG_AddMatching(-0.9, graph, STPair.getDistanceComparator())));
 //				models.add(new SMTX2(graph, Constants.LP, true));
@@ -105,20 +132,28 @@ public class App {
 	//					ILPModel smtPf2LP = new SMTF2(graph, false, Constants.LP, false);
 	//					Algorithm bip = new BIPAlgorithm(true, true);
 	//					Algorithm bipmulti = new BIPAlgorithm(false, true);
+
+				Algorithm meta = new Meta(false); // false = not only destinations
+				runAlg(meta);		
 			}
 //		}
 		return 0;
 	}
 	
 	private double runAlg(Algorithm alg) {
+		long startT = System.currentTimeMillis();
 		Graph tree = alg.solve(graph);
-		draw(tree, graph.getInstId(), alg.toString(), false);
-		return tree.evaluate(d);
+		long endT = System.currentTimeMillis();
+//		draw(tree, graph.getInstId(), alg.toString(), false);
+		double obj = tree.evaluate(d); 
+		logObjective(costFile, obj, 0, -1, true);
+		logObjective(timeFile, (endT - startT)/1000, 0, -1, true);
+		return obj;
 	}
 	
 	private void runModel(ArrayList<ILPModel> models, boolean firstRun) {
 		if (firstRun) {
-			logHeaders(costFile, timeFile, models);
+//			logHeaders(costFile, timeFile, models);
 		}
 		for (ILPModel model: models) {
 			int modelIdx = models.indexOf(model);
@@ -129,8 +164,10 @@ public class App {
 
 			double lpCost1 = model.getObjectiveValue();
 			double gap = (!model.isLP() ? model.getGap() : -1.0);
-			logObjective(costFile, lpCost1, gap, modelIdx  == 0 ? graph.getInstId() : -1, modelIdx  == models.size() - 1);
-			logObjective(timeFile, (endT - startT)/1000, gap, modelIdx == 0 ? graph.getInstId() : -1, modelIdx == models.size() - 1);
+			logObjective(costFile, lpCost1, gap, modelIdx  == 0 ? graph.getInstId() : -1, false);
+			logObjective(timeFile, (endT - startT)/1000, gap, modelIdx == 0 ? graph.getInstId() : -1, false);
+//			logObjective(costFile, lpCost1, gap, modelIdx  == 0 ? graph.getInstId() : -1, modelIdx  == models.size() - 1);
+//			logObjective(timeFile, (endT - startT)/1000, gap, modelIdx == 0 ? graph.getInstId() : -1, modelIdx == models.size() - 1);
 			Double[][] z = (Double[][]) model.getTreeVar();
 
 //			Double[][][] f = (Double[][][]) model.getXVar();
@@ -143,7 +180,7 @@ public class App {
 //				checkFHzeroEqFzero(((SMTF2)model).getH(), f);
 //				((SMTF2)model).getYVar();
 			}
- 			draw(z, graph.getInstId(), model.toString(), model instanceof SMTF1VI);
+// 			draw(z, graph.getInstId(), model.toString(), model instanceof SMTF1VI);
 			model.end();
 		}
 	}
@@ -297,7 +334,8 @@ public class App {
 	private void logObjective(File file, double obj, double gap, int id, boolean newline) {
         try	{
         	FileWriter fw = new FileWriter(file,true); //the true will append the new data
-        	fw.write((id > 0 ? id + ": ": " ") +  Miscellaneous.round(obj, 4) + "\t" + Miscellaneous.round(gap, 2) + (newline ? "\n" : "\t "));
+        	fw.write((id > 0 ? id + ": ": " ") +  Miscellaneous.round(obj, 4) + (newline ? "\n" : "\t "));
+//        	fw.write((id > 0 ? id + ": ": " ") +  Miscellaneous.round(obj, 4) + "\t" + Miscellaneous.round(gap, 2) + (newline ? "\n" : "\t "));
         	fw.close();
         } catch(IOException ioe) {
             System.err.println("IOException: " + ioe.getMessage());
